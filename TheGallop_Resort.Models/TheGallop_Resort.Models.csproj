@@ -21,8 +21,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TheGallop_Resort.Api\TheGallop_Resort.Api.csproj" />
-  </ItemGroup>
-
 </Project>

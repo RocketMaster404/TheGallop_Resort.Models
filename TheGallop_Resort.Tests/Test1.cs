@@ -9,6 +9,7 @@ namespace TheGallop_Resort.Tests
         public void TestMethod1()
         {
 
-            
+
+        }
     }
 }
