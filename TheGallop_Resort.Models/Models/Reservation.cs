@@ -19,10 +19,10 @@ namespace TheGallop_Resort.Models.Models
 
         public Status? Status { get; set; }
 
-        [Range(1, 100, ErrorMessage = "Det måste finnas minst 1 vuxen.")]
+        [Range(1, 100, ErrorMessage = "At least 1 adult is required")]
         public int Adults { get; set; }
         
-        [Range(0, 100, ErrorMessage = "Det kan inte vara ett negativt antal barn.")]
+        [Range(0, 100, ErrorMessage = "Number of children cannot be negative")]
         public int Children { get; set; }
         public int GuestId { get; set; } 
 
