@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace TheGallop_Resort.Models.Models
 {
-    internal class ReservationRoom
+    public class ReservationRoom
     {
         public int ReservationId { get; set; }
         public int RoomId { get; set; }
 
-        public Reservation Reservation { get; set; }
-        public Room Room { get; set; }
+        public Reservation Reservation { get; set; } = null!;
+        public Room Room { get; set; } = null!;
 
     }
 }
