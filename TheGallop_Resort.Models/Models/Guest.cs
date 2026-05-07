@@ -8,5 +8,6 @@ namespace TheGallop_Resort.Models.Models
 {
     internal class Guest
     {
+        public int Id { get; set; }
     }
 }
