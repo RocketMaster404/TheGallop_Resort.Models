@@ -14,6 +14,6 @@ namespace TheGallop_Resort.Models.Models
         [Range(0,3)]
         public int Beds { get; set; }
 
-        public List<string> Amenities { get; set; } = new List<string>();
+        public List<Amenity> Amenities { get; set; } = new List<Amenity>();
     }
 }
