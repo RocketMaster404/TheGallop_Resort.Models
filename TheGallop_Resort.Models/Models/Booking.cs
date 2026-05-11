@@ -12,7 +12,6 @@ namespace TheGallop_Resort.Models.Models
     public class Booking
     {
         public int Id { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public Status? Status { get; set; }
