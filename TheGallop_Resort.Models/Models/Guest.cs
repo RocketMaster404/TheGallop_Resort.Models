@@ -21,17 +21,15 @@ namespace TheGallop_Resort.Models.Models
 
         public string LastName { get; set; } = null!;
 
-        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-        ErrorMessage = "Not a valid fomrat for Email")]
+        [EmailAddress(ErrorMessage = "Invalid Email format")]
         public string Email { get; set; } = null!;
 
-        [MinLength(2, ErrorMessage = "Minimum of 2 characters")]
-        [MaxLength(20, ErrorMessage = "Maximum of 20 characters")]
+        [Phone(ErrorMessage = "Invalid phoneNumber format")]
         public string PhoneNumber { get; set; } = null!;
 
         
 
-        public ICollection<Reservation> Reservations = new List<Reservation>();
+        public ICollection<Booking> Bookings = new List<Booking>();
 
 
     }
