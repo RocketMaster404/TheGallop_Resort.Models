@@ -9,30 +9,27 @@ using System.Threading.Tasks;
 
 namespace TheGallop_Resort.Models.Models
 {
-    public class Reservation
+    public class Booking
     {
         public int Id { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime CheckIn { get; set; }
-        public DateTime CheckOut { get; set; }
-
-        public Status? Status { get; set; }
-
-        [Range(1, 100, ErrorMessage = "At least 1 adult is required")]
-        public int Adults { get; set; }
         
-        [Range(0, 100, ErrorMessage = "Number of children cannot be negative")]
-        public int Children { get; set; }
-        public int GuestId { get; set; } 
+        public Status? Status { get; set; }
+        public decimal TotalPrice { get; set; }
 
+        public int GuestId { get; set; }
+
+        public Guest Guests { get; set; } = null!;
+
+        public ICollection<RoomReservation> RoomReservations { get; set; } = new List<RoomReservation>();
     }
     public enum Status
     {
-        Bokad,
-        Preliminär,
-        Avbokad,
-        Genomförd
+        Booked,
+        Preliminary,
+        Cancelled,
+        Completed
     }
 
 }
