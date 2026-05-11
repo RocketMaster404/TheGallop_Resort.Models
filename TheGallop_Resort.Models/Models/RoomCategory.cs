@@ -12,18 +12,18 @@ namespace TheGallop_Resort.Models.Models
         public int Id { get; set; }
         public RoomType Type { get; set; }
         [Range(0,double.MaxValue,ErrorMessage = "Price can't be negative")]
-        public decimal AddedPrice { get; set; }
-        public int RoomDetailsId { get; set; }
-        public RoomDetail RoomDetails { get; set; } = null!;
+        public decimal CategoryPrice { get; set; }
+        public int RoomDetailId { get; set; }
+        public RoomDetail RoomDetail { get; set; } = null!;
 
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
 
     }
-
     public enum RoomType
     {
-        Single,
-        Double,
+        SingleBed,
+        DoubleBed,
         Suite
     }
+
 }
