@@ -48,12 +48,12 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("AddBooking", Name = "AddBooking")]
-        public async Task<IActionResult> AddBooking(CreateBookingDTO dto)
+        public async Task<IActionResult> AddBooking(int guestId)
         {
 
             var booking = new Booking
             {
-                GuestId = dto.GuestId,
+                GuestId = guestId
             };
 
             await _ctx.Bookings.AddAsync(booking);
