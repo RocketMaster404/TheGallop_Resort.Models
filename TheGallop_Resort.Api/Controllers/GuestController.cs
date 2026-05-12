@@ -31,7 +31,7 @@ namespace TheGallop_Resort.Api.Controllers
             await _ctx.Guests.AddAsync(guest);
             await _ctx.SaveChangesAsync();
 
-            return Ok(guest);
+            return CreatedAtAction(nameof(GetGuestInfoById), new { guestId = guest.Id }, guest);
 
         }
 
@@ -39,6 +39,11 @@ namespace TheGallop_Resort.Api.Controllers
         public async Task<IActionResult> GetAllGuestsInfo()
         {
             var guests = await _ctx.Guests.ToListAsync();
+
+            if(guests.Count == 0)
+            {
+                return NotFound("No Guests found");
+            }
 
             return Ok(guests);
         }
@@ -52,6 +57,11 @@ namespace TheGallop_Resort.Api.Controllers
                 g.Email,
                 g.PhoneNumber
                 )).FirstOrDefaultAsync();
+
+            if(guest == null)
+            {
+                return NotFound("Guest not found");
+            }
 
             return Ok(guest);
         }
