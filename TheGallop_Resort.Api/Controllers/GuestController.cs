@@ -17,13 +17,13 @@ namespace TheGallop_Resort.Api.Controllers
             _ctx = ctx;
         }
 
-        [HttpPost]
+        [HttpPost("/Guest")]
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
             var guest = new Guest
             {
                 FirstName = dto.FirstName,
-                LastName = dto.lastName,
+                LastName = dto.LastName,
                 Email = dto.Email,
                 PhoneNumber = dto.Phone
             };
@@ -31,7 +31,7 @@ namespace TheGallop_Resort.Api.Controllers
             await _ctx.Guests.AddAsync(guest);
             await _ctx.SaveChangesAsync();
 
-            return Ok(guest);
+            return CreatedAtAction(nameof(GetGuestInfoById), new { guestId = guest.Id }, guest);
 
         }
 
@@ -39,6 +39,11 @@ namespace TheGallop_Resort.Api.Controllers
         public async Task<IActionResult> GetAllGuestsInfo()
         {
             var guests = await _ctx.Guests.ToListAsync();
+
+            if(guests.Count == 0)
+            {
+                return NotFound("No Guests found");
+            }
 
             return Ok(guests);
         }
@@ -53,7 +58,29 @@ namespace TheGallop_Resort.Api.Controllers
                 g.PhoneNumber
                 )).FirstOrDefaultAsync();
 
+            if(guest == null)
+            {
+                return NotFound("Guest not found");
+            }
+
             return Ok(guest);
+        }
+
+        [HttpDelete("{guestId}")]
+        public async Task<IActionResult> DeleteGuest(int guestId)
+        {
+            var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+
+            if(guestToDelete == null)
+            {
+                return NotFound("Guest not found");
+            }
+
+            _ctx.Guests.Remove(guestToDelete);
+            await _ctx.SaveChangesAsync();
+
+            return NoContent();
+
         }
     }
 }
