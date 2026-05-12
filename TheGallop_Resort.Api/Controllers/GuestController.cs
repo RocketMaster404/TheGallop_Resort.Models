@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
@@ -9,7 +10,7 @@ namespace TheGallop_Resort.Api.Controllers
     [ApiController]
     public class GuestController : Controller
     {
-        private GaloppDbContext _ctx;
+        private readonly GaloppDbContext _ctx;
 
         public GuestController(GaloppDbContext ctx)
         {
@@ -32,6 +33,27 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(guest);
 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllGuestsInfo()
+        {
+            var guests = await _ctx.Guests.ToListAsync();
+
+            return Ok(guests);
+        }
+
+        [HttpGet("{guestId}")]
+        public async Task<IActionResult> GetGuestInfoById(int guestId)
+        {
+            var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
+                g.FirstName,
+                g.LastName,
+                g.Email,
+                g.PhoneNumber
+                )).FirstOrDefaultAsync();
+
+            return Ok(guest);
         }
     }
 }
