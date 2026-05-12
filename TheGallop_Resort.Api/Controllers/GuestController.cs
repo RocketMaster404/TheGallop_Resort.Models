@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
@@ -32,6 +33,14 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(guest);
 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllGuestsInfo()
+        {
+            var guests = await _ctx.Guests.ToListAsync();
+
+            return Ok(guests);
         }
     }
 }
