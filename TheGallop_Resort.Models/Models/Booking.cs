@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TheGallop_Resort.Models.Models
@@ -13,8 +14,9 @@ namespace TheGallop_Resort.Models.Models
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        
-        public Status? Status { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public Status Status { get; set; }
         public decimal TotalPrice { get; set; }
 
         public int GuestId { get; set; }
