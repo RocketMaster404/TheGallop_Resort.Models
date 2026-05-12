@@ -25,10 +25,9 @@ namespace TheGallop_Resort.Models.Models
     }
     public enum Status
     {
-        Booked,
-        Preliminary,
+        Confirmed,
         Cancelled,
-        Completed
+        Preliminary
     }
 
 }
