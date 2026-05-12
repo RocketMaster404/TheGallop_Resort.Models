@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TheGallop_Resort.Models.Models;
 
 namespace TheGallop_Resort.Api.DTOs
 {
@@ -16,4 +17,6 @@ namespace TheGallop_Resort.Api.DTOs
         public string Phone { get; init; }
 
     }
+
+    public record GuestInfoDTO(string firstName, string lastName, string email,string phone);
 }
