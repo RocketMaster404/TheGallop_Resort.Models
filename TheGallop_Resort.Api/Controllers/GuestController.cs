@@ -17,13 +17,13 @@ namespace TheGallop_Resort.Api.Controllers
             _ctx = ctx;
         }
 
-        [HttpPost]
+        [HttpPost("/Guest")]
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
             var guest = new Guest
             {
                 FirstName = dto.FirstName,
-                LastName = dto.lastName,
+                LastName = dto.LastName,
                 Email = dto.Email,
                 PhoneNumber = dto.Phone
             };
@@ -64,6 +64,23 @@ namespace TheGallop_Resort.Api.Controllers
             }
 
             return Ok(guest);
+        }
+
+        [HttpDelete("{guestId}")]
+        public async Task<IActionResult> DeleteGuest(int guestId)
+        {
+            var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+
+            if(guestToDelete == null)
+            {
+                return NotFound("Guest not found");
+            }
+
+            _ctx.Guests.Remove(guestToDelete);
+            await _ctx.SaveChangesAsync();
+
+            return NoContent();
+
         }
     }
 }
