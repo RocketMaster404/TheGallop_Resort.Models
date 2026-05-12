@@ -4,7 +4,6 @@ using System;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
-using static TheGallop_Resort.Api.DTOs.BookingDTO;
 
 namespace TheGallop_Resort.Api.Controllers
 {
@@ -44,6 +43,21 @@ namespace TheGallop_Resort.Api.Controllers
                       r.CheckOut
                   ))
                 }).ToListAsync();
+
+            return Ok(booking);
+        }
+
+        [HttpPost("AddBooking", Name = "AddBooking")]
+        public async Task<IActionResult> AddBooking(CreateBookingDTO dto)
+        {
+
+            var booking = new Booking
+            {
+                GuestId = dto.GuestId,
+            };
+
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
 
             return Ok(booking);
         }
