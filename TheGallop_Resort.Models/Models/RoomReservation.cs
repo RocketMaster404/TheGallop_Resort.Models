@@ -15,7 +15,8 @@ namespace TheGallop_Resort.Models.Models
         public Booking Booking { get; set; } = null!;
         public DateTime CheckIn { get; set; }
         public DateTime CheckOut { get; set; }
-        
+        public RoomStatus? RoomStatus { get; set; }
+
         [Range(1, 100)]
         public int Adults { get; set; }
         [Range(0, 100)]
