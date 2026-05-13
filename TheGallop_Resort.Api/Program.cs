@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
+using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models;
 using TheGallop_Resort.Models.Models;
 
@@ -19,7 +20,8 @@ namespace TheGallop_Resort.Api
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<Data.GaloppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            
+
+            builder.Services.AddScoped<IGuestService, GuestService>();
 
             var app = builder.Build();
 
