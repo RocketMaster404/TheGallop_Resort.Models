@@ -29,36 +29,23 @@ namespace TheGallop_Resort.Api.Controllers
 
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAllGuestsInfo()
-        //{
-        //    var guests = await _ctx.Guests.ToListAsync();
+        [HttpGet]
+        public async Task<IActionResult> GetAllGuestsInfo()
+        {
+            var guests = await _guestService.GetAllGuestsInfoAsync();
 
-        //    if(guests.Count == 0)
-        //    {
-        //        return NotFound("No Guests found");
-        //    }
+            
 
-        //    return Ok(guests);
-        //}
+            return Ok(guests);
+        }
 
-        //[HttpGet("{guestId}")]
-        //public async Task<IActionResult> GetGuestInfoById(int guestId)
-        //{
-        //    var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
-        //        g.FirstName,
-        //        g.LastName,
-        //        g.Email,
-        //        g.PhoneNumber
-        //        )).FirstOrDefaultAsync();
+        [HttpGet("{guestId}")]
+        public async Task<IActionResult> GetGuestInfoById(int guestId)
+        {
+            var guest = await _guestService.GetGuestInfoByIdAsync(guestId);
 
-        //    if(guest == null)
-        //    {
-        //        return NotFound("Guest not found");
-        //    }
-
-        //    return Ok(guest);
-        //}
+            return Ok(guest);
+        }
 
         //[HttpDelete("{guestId}")]
         //public async Task<IActionResult> DeleteGuest(int guestId)

@@ -8,6 +8,8 @@ namespace TheGallop_Resort.Api.Services
     {
        
         Task<Guest> AddGuestAsync(CreateGuestDTO dto);
+        Task<List<Guest>> GetAllGuestsInfoAsync();
+        Task<GuestInfoDTO> GetGuestInfoByIdAsync(int guestId);
     }
 }
 
