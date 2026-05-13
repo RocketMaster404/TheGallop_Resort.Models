@@ -25,9 +25,6 @@ namespace TheGallop_Resort.Api.Controllers
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
             var guest = await _guestService.AddGuestAsync(dto);
-
-            //return CreatedAtAction(nameof(GetGuestInfoById), new { guestId = guest.Id }, guest);
-
             return Ok(guest);
 
         }
