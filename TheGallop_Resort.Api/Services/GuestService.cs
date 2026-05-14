@@ -16,7 +16,7 @@ namespace TheGallop_Resort.Api.Services
             _ctx = ctx;
         }
 
-        public async Task<Guest> AddGuestAsync(CreateGuestDTO dto)
+        public async Task<ServiceResult<Guest>> AddGuestAsync(CreateGuestDTO dto)
         {
             var guest = new Guest
             {
@@ -29,7 +29,7 @@ namespace TheGallop_Resort.Api.Services
             await _ctx.Guests.AddAsync(guest);
             await _ctx.SaveChangesAsync();
 
-            return guest;
+            return ServiceResult<Guest>.Ok(guest);
 
         }
         public async Task<IEnumerable<Guest>> GetAllGuestsInfoAsync()
