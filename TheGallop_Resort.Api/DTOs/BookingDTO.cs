@@ -15,6 +15,6 @@ namespace TheGallop_Resort.Api.DTOs
 
     public record UpdateBookingGuestDTO(int bookingId, int guestId);
 
-    
+    public record UpdateBookingStatusDTO (int bookingId, Status status);
 
 }

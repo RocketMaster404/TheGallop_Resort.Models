@@ -133,5 +133,22 @@ namespace TheGallop_Resort.Api.Services
 
             return ServiceResult.Ok();
         }
+
+        public async Task<ServiceResult> UpdateBookingStatusAsync(UpdateBookingStatusDTO update)
+        {
+            var booking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == update.bookingId);
+
+            if (booking == null)
+            {
+                return ServiceResult.NotFound($"Booking with id {update.bookingId} was not found!");
+            }
+
+            booking.Status = update.status;
+
+            _ctx.Bookings.Update(booking);
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+        }
     }
 }
