@@ -53,5 +53,18 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(booking);
         }
+
+        [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
+        public async Task<ActionResult<UpdateBookingGuestDTO>> UpdateGuestOnBooking(UpdateBookingGuestDTO update)
+        {
+            var booking = await _bookingService.UpdateGuestOnBookingAsync(update);
+
+            if (!booking.SuccessfulResult)
+            {
+                return NotFound(booking.ErrorMessage);
+            }
+
+            return Ok(booking);
+        }
     }
 }

@@ -109,31 +109,29 @@ namespace TheGallop_Resort.Api.Services
 
 
 
-        //public async Task<ServiceResult<Booking>> UpdateGuestOnBooking(int guestId)
-        //{
-        //    var result = _ctx.Guests.Where(g => g.Id == guestId);
+        public async Task<ServiceResult<UpdateBookingGuestDTO>> UpdateGuestOnBookingAsync(UpdateBookingGuestDTO update)
+        {
+            var guestExist = await _ctx.Guests.AnyAsync(g => g.Id == update.guestId);
 
-        //    if (result is null)
-        //    {
-        //        return ServiceResult<Booking>.NotFound($"No guest with id {guestId} was found!");
-        //    }
+            if (!guestExist)
+            {
+                return ServiceResult<UpdateBookingGuestDTO>.NotFound($"Guest with id {update.guestId} was found!");
+            }
 
-        //    //eriks lista med gästens bokningar
-        //    var booking = GetBookingByIdAsync(result);
+            var booking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == update.bookingId);
+
+            if (booking == null)
+            {
+                return ServiceResult<UpdateBookingGuestDTO>.NotFound($"Booking with id {update.bookingId} was found!");
+            }
+
+            booking.GuestId = update.guestId;
 
 
+            _ctx.Bookings.Update(booking);
+            await _ctx.SaveChangesAsync();
 
-
-
-        //    var booking = new Booking
-        //    {
-        //        GuestId = guestId
-        //    };
-
-        //    await _ctx.Bookings.AddAsync(booking);
-        //    await _ctx.SaveChangesAsync();
-
-        //    return ServiceResult<Booking>.Ok(booking);
-        //}
+            return ServiceResult<UpdateBookingGuestDTO>.Ok(update);
+        }
     }
 }

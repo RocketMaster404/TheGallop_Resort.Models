@@ -13,6 +13,8 @@ namespace TheGallop_Resort.Api.DTOs
         public IEnumerable<GetRoomReservationResponseDTO> RoomReservation { get; set; }
     }
 
+    public record UpdateBookingGuestDTO(int bookingId, int guestId);
+
     
 
 }
