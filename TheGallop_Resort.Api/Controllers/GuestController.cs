@@ -19,7 +19,18 @@ namespace TheGallop_Resort.Api.Controllers
             _guestService = guestService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllGuestsInfo()
+        {
+            var guests = await _guestService.GetAllGuestsInfoAsync();
+
+
+
+            return Ok(guests);
+        }
+
        
+
 
         [HttpPost("/Guest")]
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
@@ -35,16 +46,7 @@ namespace TheGallop_Resort.Api.Controllers
 
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllGuestsInfo()
-        {
-            var guests = await _guestService.GetAllGuestsInfoAsync();
-
-            
-
-            return Ok(guests);
-        }
-
+     
         [HttpGet("{guestId}")]
         public async Task<IActionResult> GetGuestInfoById(int guestId)
         {

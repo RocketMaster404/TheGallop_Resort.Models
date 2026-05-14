@@ -39,6 +39,19 @@ namespace TheGallop_Resort.Api.Services
             return guests;
         }
 
+        //public async Task<ServiceResult<Guest>> GetGuestInfoAndBookingsById(int guestId)
+        //{
+        //    var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select( g => new GuestInfoDTO
+        //    {
+        //        FirstName = g.FirstName,
+        //        LastName = g.LastName,
+        //        Email = g.Email,
+        //        Phone = g.PhoneNumber,
+        //        Bookings = g.Bookings.Select()
+        //    })
+
+        //}
+
         public async Task<ServiceResult<GuestInfoDTO>> GetGuestInfoByIdAsync(int guestId)
         {
             var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
