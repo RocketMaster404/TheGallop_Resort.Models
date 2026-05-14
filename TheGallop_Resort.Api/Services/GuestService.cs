@@ -58,19 +58,19 @@ namespace TheGallop_Resort.Api.Services
             return ServiceResult<GuestInfoDTO>.Ok(guest);
         }
 
-        public async Task<Guest> DeleteGuestAsync(int guestId)
+        public async Task<ServiceResult> DeleteGuestAsync(int guestId)
         {
             var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
 
             if (guestToDelete == null)
             {
-                throw new Exception("Guest not found");
+                return ServiceResult.NotFound("Guest not found");
             }
 
             _ctx.Guests.Remove(guestToDelete);
             await _ctx.SaveChangesAsync();
 
-            return guestToDelete;
+            return ServiceResult.Ok();
 
         }
 
@@ -94,6 +94,8 @@ namespace TheGallop_Resort.Api.Services
 
           
         }
+
+        
 
 
 

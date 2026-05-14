@@ -63,7 +63,10 @@ namespace TheGallop_Resort.Api.Controllers
         {
             var guestToDelete = await _guestService.DeleteGuestAsync(guestId);
 
-            
+            if (!guestToDelete.SuccessfulResult)
+            {
+                return NotFound("Guest not found");
+            }
 
             return NoContent();
 
