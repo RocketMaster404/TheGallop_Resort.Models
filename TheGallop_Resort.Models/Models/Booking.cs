@@ -21,7 +21,7 @@ namespace TheGallop_Resort.Models.Models
 
         public int GuestId { get; set; }
 
-        public Guest Guests { get; set; } = null!;
+        public Guest Guest { get; set; } = null!;
 
         public ICollection<RoomReservation> RoomReservations { get; set; } = new List<RoomReservation>();
     }
