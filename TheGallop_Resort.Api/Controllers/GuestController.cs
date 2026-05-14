@@ -25,59 +25,37 @@ namespace TheGallop_Resort.Api.Controllers
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
             var guest = await _guestService.AddGuestAsync(dto);
-
-            //return CreatedAtAction(nameof(GetGuestInfoById), new { guestId = guest.Id }, guest);
-
             return Ok(guest);
 
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAllGuestsInfo()
-        //{
-        //    var guests = await _ctx.Guests.ToListAsync();
+        [HttpGet]
+        public async Task<IActionResult> GetAllGuestsInfo()
+        {
+            var guests = await _guestService.GetAllGuestsInfoAsync();
 
-        //    if(guests.Count == 0)
-        //    {
-        //        return NotFound("No Guests found");
-        //    }
+            
 
-        //    return Ok(guests);
-        //}
+            return Ok(guests);
+        }
 
-        //[HttpGet("{guestId}")]
-        //public async Task<IActionResult> GetGuestInfoById(int guestId)
-        //{
-        //    var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
-        //        g.FirstName,
-        //        g.LastName,
-        //        g.Email,
-        //        g.PhoneNumber
-        //        )).FirstOrDefaultAsync();
+        [HttpGet("{guestId}")]
+        public async Task<IActionResult> GetGuestInfoById(int guestId)
+        {
+            var guest = await _guestService.GetGuestInfoByIdAsync(guestId);
 
-        //    if(guest == null)
-        //    {
-        //        return NotFound("Guest not found");
-        //    }
+            return Ok(guest);
+        }
 
-        //    return Ok(guest);
-        //}
+        [HttpDelete("{guestId}")]
+        public async Task<IActionResult> DeleteGuest(int guestId)
+        {
+            var guestToDelete = await _guestService.DeleteGuestAsync(guestId);
 
-        //[HttpDelete("{guestId}")]
-        //public async Task<IActionResult> DeleteGuest(int guestId)
-        //{
-        //    var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+            
 
-        //    if(guestToDelete == null)
-        //    {
-        //        return NotFound("Guest not found");
-        //    }
+            return NoContent();
 
-        //    _ctx.Guests.Remove(guestToDelete);
-        //    await _ctx.SaveChangesAsync();
-
-        //    return NoContent();
-
-        //}
+        }
     }
 }
