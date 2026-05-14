@@ -9,10 +9,13 @@ namespace TheGallop_Resort.Api.Services
     public class BookingService : IBookingService
     {
         private readonly GaloppDbContext _ctx;
+        private readonly IGuestService _iGuestService;
 
-        public BookingService(GaloppDbContext ctx)
+
+        public BookingService(GaloppDbContext ctx, IGuestService iGuestService)
         {
             _ctx = ctx;
+            _iGuestService = iGuestService;
         }
 
         public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync()
@@ -31,7 +34,7 @@ namespace TheGallop_Resort.Api.Services
                         b.Guests.Email,
                         b.Guests.PhoneNumber
                     ),
-                    Rooms = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
+                    RoomReservation = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
                   (
                       r.Id,
                       r.RoomId,
@@ -48,8 +51,17 @@ namespace TheGallop_Resort.Api.Services
             return booking;
         }
 
-        public async Task<Booking> AddBookingAsync(int guestId)
+        public async Task<ServiceResult<Booking>> AddBookingAsync(int guestId)
         {
+            try
+            {
+                await _iGuestService.GetGuestInfoByIdAsync(guestId);
+            }
+            catch
+            {
+                return ServiceResult<Booking>.ValidationError($"No guest with id {guestId} was found!");
+            }
+
             var booking = new Booking
             {
                 GuestId = guestId
@@ -58,7 +70,7 @@ namespace TheGallop_Resort.Api.Services
             await _ctx.Bookings.AddAsync(booking);
             await _ctx.SaveChangesAsync();
 
-            return booking;
+            return ServiceResult<Booking>.Ok(booking);
         }
     }
 }

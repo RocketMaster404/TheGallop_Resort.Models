@@ -14,6 +14,7 @@ namespace TheGallop_Resort.Api.Controllers
     {
         private readonly IBookingService _bookingService;
 
+
         public BookingController(IBookingService bookingService)
         {
             _bookingService = bookingService;
@@ -30,8 +31,12 @@ namespace TheGallop_Resort.Api.Controllers
         [HttpPost("AddBooking", Name = "AddBooking")]
         public async Task<ActionResult<Booking>> AddBooking(int guestId)
         {
-
             var booking = await _bookingService.AddBookingAsync(guestId);
+
+            if (!booking.SuccessfulResult)
+            {
+                return NotFound(booking.ErrorMessage);
+            }
 
             return Ok(booking);
         }

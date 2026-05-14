@@ -8,6 +8,6 @@ namespace TheGallop_Resort.Api.Services
     {
         Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync();
 
-        Task<Booking> AddBookingAsync(int guestId);
+        Task<ServiceResult<Booking>> AddBookingAsync(int guestId);
     }
 }

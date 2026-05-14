@@ -10,7 +10,7 @@ namespace TheGallop_Resort.Api.DTOs
         public decimal TotalPrice { get; set; }
         public Status Status { get; set; }
         public GuestInfoDTO Guests { get; set; }
-        public IEnumerable<GetRoomReservationResponseDTO> Rooms { get; set; }
+        public IEnumerable<GetRoomReservationResponseDTO> RoomReservation { get; set; }
     }
 
     
