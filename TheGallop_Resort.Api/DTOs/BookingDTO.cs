@@ -10,7 +10,6 @@ namespace TheGallop_Resort.Api.DTOs
         public DateTime CreatedAt { get; set; }
         public decimal TotalPrice { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Status Status { get; set; }
         public GuestInfoDTO Guest { get; set; }
         public IEnumerable<GetRoomReservationResponseDTO> RoomReservation { get; set; }
