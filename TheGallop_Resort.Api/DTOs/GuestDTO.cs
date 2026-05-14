@@ -19,4 +19,5 @@ namespace TheGallop_Resort.Api.DTOs
     }
 
     public record GuestInfoDTO(string FirstName, string LastName, string Email,string Phone);
+    public record GuestInfoWithBookingDTO(string FirstName, string LastName, string Email, string Phone,List<BookingDetailsDTO> Bookings);
 }

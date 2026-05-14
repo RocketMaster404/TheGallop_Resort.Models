@@ -29,7 +29,7 @@ namespace TheGallop_Resort.Models.Models
 
         
 
-        public ICollection<Booking> Bookings = new List<Booking>();
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
 
     }
