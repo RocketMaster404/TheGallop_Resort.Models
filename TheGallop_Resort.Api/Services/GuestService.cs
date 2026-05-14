@@ -39,36 +39,38 @@ namespace TheGallop_Resort.Api.Services
             return guests;
         }
 
-        //public async Task<ServiceResult<Guest>> GetGuestInfoAndBookingsById(int guestId)
-        //{
-        //    var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select( g => new GuestInfoDTO
-        //    {
-        //        FirstName = g.FirstName,
-        //        LastName = g.LastName,
-        //        Email = g.Email,
-        //        Phone = g.PhoneNumber,
-        //        Bookings = g.Bookings.Select()
-        //    })
-
-        //}
-
-        public async Task<ServiceResult<GuestInfoDTO>> GetGuestInfoByIdAsync(int guestId)
+    
+        public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestInfoByIdAsync(int guestId)
         {
-            var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
-               g.FirstName,
-               g.LastName,
-               g.Email,
-               g.PhoneNumber
-               )).FirstOrDefaultAsync();
 
-            if(guest == null)
-            {
-                return ServiceResult<GuestInfoDTO>.NotFound("Guest Not Found");
-            }
+            var guestMatch = await _ctx.Guests.Include(g => g.Bookings).FirstOrDefaultAsync(g => g.Id == guestId);
 
             
 
-            return ServiceResult<GuestInfoDTO>.Ok(guest);
+
+            var guest = await _ctx.Guests.Where(g => g.Id == guestId).AsNoTracking().Select(g => new GuestInfoWithBookingDTO(
+               g.FirstName,
+               g.LastName,
+               g.Email,
+               g.PhoneNumber,
+               g.Bookings.Select(b => new BookingDetailsDTO
+               {
+                   Id = b.Id,
+                   Totalprice = b.TotalPrice,
+                   Status = (Status)b.Status,
+                   CreatedAt = b.CreatedAt
+
+               }).ToList()
+               )).FirstOrDefaultAsync();
+
+            if (guest == null)
+            {
+                return ServiceResult<GuestInfoWithBookingDTO>.NotFound("Guest Not Found");
+            }
+
+
+
+            return ServiceResult<GuestInfoWithBookingDTO>.Ok(guest);
         }
 
         public async Task<ServiceResult> DeleteGuestAsync(int guestId)

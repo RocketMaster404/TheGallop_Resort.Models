@@ -15,6 +15,19 @@ namespace TheGallop_Resort.Api.DTOs
 
     public record UpdateBookingGuestDTO(int bookingId, int guestId);
 
+    public record BookingDetailsDTO
+    {
+        public int Id { get; init; }
+        public decimal Totalprice { get; init; }
+        public Status Status { get; init; }
+        public DateTime CreatedAt { get; init; }
+    }
+        
+        
+        
+        
+       
+
     
 
 }
