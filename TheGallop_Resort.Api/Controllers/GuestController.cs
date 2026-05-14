@@ -25,7 +25,13 @@ namespace TheGallop_Resort.Api.Controllers
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
             var guest = await _guestService.AddGuestAsync(dto);
-            return Ok(guest);
+
+            if (!guest.SuccessfulResult)
+            {
+                return BadRequest(guest.ErrorMessage);
+            }
+
+            return Ok(guest.Data);
 
         }
 
@@ -44,7 +50,12 @@ namespace TheGallop_Resort.Api.Controllers
         {
             var guest = await _guestService.GetGuestInfoByIdAsync(guestId);
 
-            return Ok(guest);
+            if (!guest.SuccessfulResult)
+            {
+                return NotFound("Guest not found");
+            }
+
+            return Ok(guest.Data);
         }
 
         [HttpDelete("{guestId}")]

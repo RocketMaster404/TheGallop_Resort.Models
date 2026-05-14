@@ -39,7 +39,7 @@ namespace TheGallop_Resort.Api.Services
             return guests;
         }
 
-        public async Task<GuestInfoDTO> GetGuestInfoByIdAsync(int guestId)
+        public async Task<ServiceResult<GuestInfoDTO>> GetGuestInfoByIdAsync(int guestId)
         {
             var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
                g.FirstName,
@@ -48,12 +48,14 @@ namespace TheGallop_Resort.Api.Services
                g.PhoneNumber
                )).FirstOrDefaultAsync();
 
-            if (guest == null)
+            if(guest == null)
             {
-                throw new Exception("Guest not found");
+                return ServiceResult<GuestInfoDTO>.NotFound("Guest Not Found");
             }
 
-            return guest;
+            
+
+            return ServiceResult<GuestInfoDTO>.Ok(guest);
         }
 
         public async Task<Guest> DeleteGuestAsync(int guestId)

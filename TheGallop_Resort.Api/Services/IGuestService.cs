@@ -9,7 +9,7 @@ namespace TheGallop_Resort.Api.Services
        
         Task<ServiceResult<Guest>> AddGuestAsync(CreateGuestDTO dto);
         Task<IEnumerable<Guest>> GetAllGuestsInfoAsync();
-        Task<GuestInfoDTO> GetGuestInfoByIdAsync(int guestId);
+        Task<ServiceResult<GuestInfoDTO>> GetGuestInfoByIdAsync(int guestId);
         Task<Guest> DeleteGuestAsync(int guestId);
     }
 }
