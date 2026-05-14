@@ -15,7 +15,6 @@ namespace TheGallop_Resort.Models.Models
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Status Status { get; set; }
         public decimal TotalPrice { get; set; }
 

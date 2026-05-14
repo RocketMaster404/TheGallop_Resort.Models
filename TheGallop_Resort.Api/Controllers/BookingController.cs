@@ -10,7 +10,7 @@ namespace TheGallop_Resort.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingController : ControllerBase
+    public class BookingController : BaseController
     {
         private readonly IBookingService _bookingService;
 
@@ -55,16 +55,30 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
-        public async Task<ActionResult<UpdateBookingGuestDTO>> UpdateGuestOnBooking(UpdateBookingGuestDTO update)
+        public async Task<IActionResult> UpdateGuestOnBooking(UpdateBookingGuestDTO update)
         {
             var booking = await _bookingService.UpdateGuestOnBookingAsync(update);
 
             if (!booking.SuccessfulResult)
             {
-                return NotFound(booking.ErrorMessage);
+                return ToErrorResponse(booking);
             }
 
             return Ok(booking);
         }
+
+        [HttpPut("updateStatusOnBooking", Name = "UpdateStausOnBooking")]
+        public async Task<IActionResult> UpdateBookingStatus(UpdateBookingStatusDTO update)
+        {
+            var booking = await _bookingService.UpdateBookingStatusAsync(update);
+
+            if (!booking.SuccessfulResult)
+            {
+                return ToErrorResponse(booking);
+            }
+
+            return Ok(booking);
+        }
+
     }
 }

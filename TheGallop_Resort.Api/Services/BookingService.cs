@@ -109,20 +109,20 @@ namespace TheGallop_Resort.Api.Services
 
 
 
-        public async Task<ServiceResult<UpdateBookingGuestDTO>> UpdateGuestOnBookingAsync(UpdateBookingGuestDTO update)
+        public async Task<ServiceResult> UpdateGuestOnBookingAsync(UpdateBookingGuestDTO update)
         {
             var guestExist = await _ctx.Guests.AnyAsync(g => g.Id == update.guestId);
 
             if (!guestExist)
             {
-                return ServiceResult<UpdateBookingGuestDTO>.NotFound($"Guest with id {update.guestId} was found!");
+                return ServiceResult.NotFound($"Guest with id {update.guestId} was not found!");
             }
 
             var booking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == update.bookingId);
 
             if (booking == null)
             {
-                return ServiceResult<UpdateBookingGuestDTO>.NotFound($"Booking with id {update.bookingId} was found!");
+                return ServiceResult.NotFound($"Booking with id {update.bookingId} was not found!");
             }
 
             booking.GuestId = update.guestId;
@@ -131,7 +131,24 @@ namespace TheGallop_Resort.Api.Services
             _ctx.Bookings.Update(booking);
             await _ctx.SaveChangesAsync();
 
-            return ServiceResult<UpdateBookingGuestDTO>.Ok(update);
+            return ServiceResult.Ok();
+        }
+
+        public async Task<ServiceResult> UpdateBookingStatusAsync(UpdateBookingStatusDTO update)
+        {
+            var booking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == update.BookingId);
+
+            if (booking == null)
+            {
+                return ServiceResult.NotFound($"Booking with id {update.BookingId} was not found!");
+            }
+
+            booking.Status = update.Status;
+
+            _ctx.Bookings.Update(booking);
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
         }
     }
 }
