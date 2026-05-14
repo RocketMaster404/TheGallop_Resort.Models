@@ -18,9 +18,9 @@ namespace TheGallop_Resort.Api.Services
             _iGuestService = iGuestService;
         }
 
-        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync()
+        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync()
         {
-            var booking = await _ctx.Bookings
+            var bookings = await _ctx.Bookings
                 .AsNoTracking()
                 .Select(b => new GetBookingResponseDTO
                 {
@@ -28,11 +28,11 @@ namespace TheGallop_Resort.Api.Services
                     CreatedAt = b.CreatedAt,
                     TotalPrice = b.TotalPrice,
                     Status = b.Status,
-                    Guests = new GuestInfoDTO(
-                        b.Guests.FirstName,
-                        b.Guests.LastName,
-                        b.Guests.Email,
-                        b.Guests.PhoneNumber
+                    Guest = new GuestInfoDTO(
+                        b.Guest.FirstName,
+                        b.Guest.LastName,
+                        b.Guest.Email,
+                        b.Guest.PhoneNumber
                     ),
                     RoomReservation = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
                   (
@@ -43,12 +43,46 @@ namespace TheGallop_Resort.Api.Services
                   ))
                 }).ToListAsync();
 
-            if (booking.Count == 0)
+            if (bookings.Count == 0)
             {
-                return null;
+                return ServiceResult<IEnumerable<GetBookingResponseDTO>>.NotFound("No bookings were found.");
             }
 
-            return booking;
+            return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
+        }
+
+        public async Task<ServiceResult<GetBookingResponseDTO>> GetBookingByIdAsync(int bookingId)
+        {
+            var bookings = await _ctx.Bookings
+                .AsNoTracking()
+                .Where(b => b.Id == bookingId)
+                .Select(b => new GetBookingResponseDTO
+                {
+                    Id = b.Id,
+                    CreatedAt = b.CreatedAt,
+                    TotalPrice = b.TotalPrice,
+                    Status = b.Status,
+                    Guest = new GuestInfoDTO(
+                        b.Guest.FirstName,
+                        b.Guest.LastName,
+                        b.Guest.Email,
+                        b.Guest.PhoneNumber
+                    ),
+                    RoomReservation = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
+                  (
+                      r.Id,
+                      r.RoomId,
+                      r.CheckIn,
+                      r.CheckOut
+                  ))
+                }).FirstOrDefaultAsync();
+
+            if (bookings is null)
+            {
+                return ServiceResult<GetBookingResponseDTO>.NotFound("No bookings were found.");
+            }
+
+            return ServiceResult<GetBookingResponseDTO>.Ok(bookings);
         }
 
         public async Task<ServiceResult<Booking>> AddBookingAsync(int guestId)
@@ -59,7 +93,7 @@ namespace TheGallop_Resort.Api.Services
             }
             catch
             {
-                return ServiceResult<Booking>.ValidationError($"No guest with id {guestId} was found!");
+                return ServiceResult<Booking>.NotFound($"No guest with id {guestId} was found!");
             }
 
             var booking = new Booking
@@ -72,5 +106,34 @@ namespace TheGallop_Resort.Api.Services
 
             return ServiceResult<Booking>.Ok(booking);
         }
+
+
+
+        //public async Task<ServiceResult<Booking>> UpdateGuestOnBooking(int guestId)
+        //{
+        //    var result = _ctx.Guests.Where(g => g.Id == guestId);
+
+        //    if (result is null)
+        //    {
+        //        return ServiceResult<Booking>.NotFound($"No guest with id {guestId} was found!");
+        //    }
+
+        //    //eriks lista med gästens bokningar
+        //    var booking = GetBookingByIdAsync(result);
+
+
+
+
+
+        //    var booking = new Booking
+        //    {
+        //        GuestId = guestId
+        //    };
+
+        //    await _ctx.Bookings.AddAsync(booking);
+        //    await _ctx.SaveChangesAsync();
+
+        //    return ServiceResult<Booking>.Ok(booking);
+        //}
     }
 }

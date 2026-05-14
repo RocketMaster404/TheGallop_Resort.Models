@@ -6,7 +6,9 @@ namespace TheGallop_Resort.Api.Services
 {
     public interface IBookingService 
     {
-        Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync();
+        Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync();
+
+        Task<ServiceResult<GetBookingResponseDTO>> GetBookingByIdAsync(int bookingId);
 
         Task<ServiceResult<Booking>> AddBookingAsync(int guestId);
     }
