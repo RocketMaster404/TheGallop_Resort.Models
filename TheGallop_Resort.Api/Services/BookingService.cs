@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
+using TheGallop_Resort.Models.Models;
 
 namespace TheGallop_Resort.Api.Services
 {
@@ -43,6 +44,19 @@ namespace TheGallop_Resort.Api.Services
             {
                 return null;
             }
+
+            return booking;
+        }
+
+        public async Task<Booking> AddBookingAsync(int guestId)
+        {
+            var booking = new Booking
+            {
+                GuestId = guestId
+            };
+
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
 
             return booking;
         }
