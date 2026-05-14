@@ -16,7 +16,7 @@ namespace TheGallop_Resort.Api.Services
             _ctx = ctx;
         }
 
-        public async Task<Guest> AddGuestAsync(CreateGuestDTO dto)
+        public async Task<ServiceResult<Guest>> AddGuestAsync(CreateGuestDTO dto)
         {
             var guest = new Guest
             {
@@ -29,22 +29,17 @@ namespace TheGallop_Resort.Api.Services
             await _ctx.Guests.AddAsync(guest);
             await _ctx.SaveChangesAsync();
 
-            return guest;
+            return ServiceResult<Guest>.Ok(guest);
 
         }
-        public async Task<List<Guest>> GetAllGuestsInfoAsync()
+        public async Task<IEnumerable<Guest>> GetAllGuestsInfoAsync()
         {
             var guests = await _ctx.Guests.ToListAsync();
-
-            if (!guests.Any())
-            {
-                throw new Exception("Guests not found");
-            }
 
             return guests;
         }
 
-        public async Task<GuestInfoDTO> GetGuestInfoByIdAsync(int guestId)
+        public async Task<ServiceResult<GuestInfoDTO>> GetGuestInfoByIdAsync(int guestId)
         {
             var guest = await _ctx.Guests.Where(g => g.Id == guestId).Select(g => new GuestInfoDTO(
                g.FirstName,
@@ -53,12 +48,14 @@ namespace TheGallop_Resort.Api.Services
                g.PhoneNumber
                )).FirstOrDefaultAsync();
 
-            if (guest == null)
+            if(guest == null)
             {
-                throw new Exception("Guest not found");
+                return ServiceResult<GuestInfoDTO>.NotFound("Guest Not Found");
             }
 
-            return guest;
+            
+
+            return ServiceResult<GuestInfoDTO>.Ok(guest);
         }
 
         public async Task<Guest> DeleteGuestAsync(int guestId)
@@ -76,6 +73,29 @@ namespace TheGallop_Resort.Api.Services
             return guestToDelete;
 
         }
+
+        public async Task<ServiceResult> UpdateGuestInfoAsync(int guestId, GuestInfoDTO dto)
+        {
+            var guestUpdate = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+
+            if(guestUpdate == null)
+            {
+                return ServiceResult.NotFound("Guest not found");
+            }
+
+            guestUpdate.FirstName = dto.FirstName;
+            guestUpdate.LastName = dto.LastName;
+            guestUpdate.Email = dto.Email;
+            guestUpdate.PhoneNumber = dto.Phone;
+
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+
+          
+        }
+
+
 
        
     }
