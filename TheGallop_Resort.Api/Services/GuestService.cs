@@ -32,14 +32,9 @@ namespace TheGallop_Resort.Api.Services
             return guest;
 
         }
-        public async Task<List<Guest>> GetAllGuestsInfoAsync()
+        public async Task<IEnumerable<Guest>> GetAllGuestsInfoAsync()
         {
             var guests = await _ctx.Guests.ToListAsync();
-
-            if (!guests.Any())
-            {
-                throw new Exception("Guests not found");
-            }
 
             return guests;
         }
