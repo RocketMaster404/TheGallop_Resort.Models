@@ -136,14 +136,14 @@ namespace TheGallop_Resort.Api.Services
 
         public async Task<ServiceResult> UpdateBookingStatusAsync(UpdateBookingStatusDTO update)
         {
-            var booking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == update.bookingId);
+            var booking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == update.BookingId);
 
             if (booking == null)
             {
-                return ServiceResult.NotFound($"Booking with id {update.bookingId} was not found!");
+                return ServiceResult.NotFound($"Booking with id {update.BookingId} was not found!");
             }
 
-            booking.Status = update.status;
+            booking.Status = update.Status;
 
             _ctx.Bookings.Update(booking);
             await _ctx.SaveChangesAsync();
