@@ -9,7 +9,7 @@ namespace TheGallop_Resort.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GuestController : Controller
+    public class GuestController : HelperController
     {
 
         private readonly IGuestService _guestService;
@@ -66,6 +66,18 @@ namespace TheGallop_Resort.Api.Controllers
             
 
             return NoContent();
+
+        }
+
+        [HttpPost("{guestId}")]
+        public async Task<IActionResult> UpdateGuestInfo(int guestId,GuestInfoDTO dto)
+        {
+            var guest = await _guestService.UpdateGuestInfoAsync(guestId, dto);
+
+            if (!guest.SuccessfulResult)
+            {
+                return ToErrorResponse(guest);
+            }
 
         }
     }

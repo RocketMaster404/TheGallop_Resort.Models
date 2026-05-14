@@ -74,6 +74,29 @@ namespace TheGallop_Resort.Api.Services
 
         }
 
+        public async Task<ServiceResult> UpdateGuestInfoAsync(int guestId, GuestInfoDTO dto)
+        {
+            var guestUpdate = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+
+            if(guestUpdate == null)
+            {
+                return ServiceResult.NotFound("Guest not found");
+            }
+
+            guestUpdate.FirstName = dto.FirstName;
+            guestUpdate.LastName = dto.LastName;
+            guestUpdate.Email = dto.Email;
+            guestUpdate.PhoneNumber = dto.Phone;
+
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+
+          
+        }
+
+
+
        
     }
 }
