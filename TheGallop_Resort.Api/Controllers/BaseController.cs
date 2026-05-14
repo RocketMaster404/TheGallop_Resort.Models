@@ -3,10 +3,11 @@ using TheGallop_Resort.Api.Services;
 
 namespace TheGallop_Resort.Api.Controllers
 {
-    public class HelperController : Controller
+    public abstract class BaseController : Controller
     {
 
-        public ActionResult ToErrorResponse(ServiceResult result)
+        [NonAction]
+        protected ActionResult ToErrorResponse(ServiceResult result)
         {
             return result.Status switch
             {
