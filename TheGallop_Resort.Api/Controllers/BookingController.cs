@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
+using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
 
 namespace TheGallop_Resort.Api.Controllers
@@ -11,55 +12,41 @@ namespace TheGallop_Resort.Api.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly GaloppDbContext _ctx;
+        private readonly IBookingService _bookingService;
 
-        public BookingController(GaloppDbContext ctx)
+        //private readonly GaloppDbContext _ctx;
+
+        //public BookingController(GaloppDbContext ctx)
+        //{
+        //    _ctx = ctx;
+        //}
+
+        public BookingController(IBookingService bookingService)
         {
-            _ctx = ctx;
+            _bookingService = bookingService;
         }
 
         [HttpGet("getAllBookings", Name = "GetAllBooking")]
         public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookings()
         {
-            var booking = await _ctx.Bookings
-                .AsNoTracking()
-                .Select(b => new GetBookingResponseDTO
-                {
-                    Id = b.Id,
-                    CreatedAt = b.CreatedAt,
-                    TotalPrice = b.TotalPrice,
-                    Status = b.Status,
-                    Guests = new GuestInfoDTO(
-                        b.Guests.FirstName,
-                        b.Guests.LastName,
-                        b.Guests.Email,
-                        b.Guests.PhoneNumber
-                    ),
-                    Rooms = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
-                  (
-                      r.Id,
-                      r.RoomId,
-                      r.CheckIn,
-                      r.CheckOut
-                  ))
-                }).ToListAsync();
+            var bookings = await _bookingService.GetAllBookingsAsync();
 
-            return Ok(booking);
+            return Ok(bookings);
         }
 
-        [HttpPost("AddBooking", Name = "AddBooking")]
-        public async Task<IActionResult> AddBooking(int guestId)
-        {
+        //[HttpPost("AddBooking", Name = "AddBooking")]
+        //public async Task<IActionResult> AddBooking(int guestId)
+        //{
 
-            var booking = new Booking
-            {
-                GuestId = guestId
-            };
+        //    var booking = new Booking
+        //    {
+        //        GuestId = guestId
+        //    };
 
-            await _ctx.Bookings.AddAsync(booking);
-            await _ctx.SaveChangesAsync();
+        //    await _ctx.Bookings.AddAsync(booking);
+        //    await _ctx.SaveChangesAsync();
 
-            return Ok(booking);
-        }
+        //    return Ok(booking);
+        //}
     }
 }
