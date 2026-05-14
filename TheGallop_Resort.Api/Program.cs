@@ -22,6 +22,7 @@ namespace TheGallop_Resort.Api
             builder.Services.AddDbContext<Data.GaloppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<IGuestService, GuestService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
 
             var app = builder.Build();
 
