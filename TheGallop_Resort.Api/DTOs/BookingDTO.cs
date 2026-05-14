@@ -21,8 +21,6 @@ namespace TheGallop_Resort.Api.DTOs
     public record UpdateBookingStatusDTO
     {
         public int BookingId { get; set; }
-
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Status Status { get; set; }
     }
 }
