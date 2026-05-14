@@ -47,21 +47,15 @@ namespace TheGallop_Resort.Api.Controllers
             return Ok(guest);
         }
 
-        //[HttpDelete("{guestId}")]
-        //public async Task<IActionResult> DeleteGuest(int guestId)
-        //{
-        //    var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+        [HttpDelete("{guestId}")]
+        public async Task<IActionResult> DeleteGuest(int guestId)
+        {
+            var guestToDelete = await _guestService.DeleteGuestAsync(guestId);
 
-        //    if(guestToDelete == null)
-        //    {
-        //        return NotFound("Guest not found");
-        //    }
+            
 
-        //    _ctx.Guests.Remove(guestToDelete);
-        //    await _ctx.SaveChangesAsync();
+            return NoContent();
 
-        //    return NoContent();
-
-        //}
+        }
     }
 }
