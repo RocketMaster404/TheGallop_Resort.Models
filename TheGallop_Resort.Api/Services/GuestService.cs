@@ -26,12 +26,23 @@ namespace TheGallop_Resort.Api.Services
                 PhoneNumber = dto.Phone
             };
 
+            bool emailMatch = await _ctx.Guests.AnyAsync(e => e.Email == dto.Email);
+
+            if (emailMatch)
+            {
+                return ServiceResult<Guest>.ValidationError("Duplicated email");
+            }
+
+            
+
             await _ctx.Guests.AddAsync(guest);
             await _ctx.SaveChangesAsync();
 
             return ServiceResult<Guest>.Ok(guest);
 
         }
+
+        
         public async Task<IEnumerable<Guest>> GetAllGuestsInfoAsync()
         {
             var guests = await _ctx.Guests.ToListAsync();

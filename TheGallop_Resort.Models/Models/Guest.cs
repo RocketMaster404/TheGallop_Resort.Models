@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace TheGallop_Resort.Models.Models
 {
+    [Index(nameof(Email), IsUnique = true)]
     public class Guest
     {
         public int Id { get; set; }
