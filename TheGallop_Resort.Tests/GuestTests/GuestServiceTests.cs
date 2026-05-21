@@ -1,5 +1,8 @@
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TheGallop_Resort.Api.Data;
+using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
 
 namespace TheGallop_Resort.Tests;
@@ -24,7 +27,19 @@ public class GuestServiceTests
     }
       
     [TestMethod]
-    public void TestMethod1()
+    public async Task AddGuest_AddValidGuest_ReturnOne()
     {
+        var guestDto = new CreateGuestDTO()
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "Test@Testsson.com",
+            Phone = "0727435550"
+        };
+
+        var result = await _service.AddGuestAsync(guestDto);
+
+        result.SuccessfulResult.Should().BeTrue();
+        _ctx.Guests.Count().Should().Be(1);
     }
 }
