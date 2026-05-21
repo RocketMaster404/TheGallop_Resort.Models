@@ -15,6 +15,8 @@ namespace TheGallop_Resort.Api.DTOs
         public IEnumerable<GetRoomReservationResponseDTO> RoomReservation { get; set; }
     }
 
+    public record SearchBookingByIdDTO(int bookingId);
+
     public record UpdateBookingGuestDTO(int bookingId, int guestId);
 
     public record UpdateBookingStatusDTO
@@ -29,12 +31,4 @@ namespace TheGallop_Resort.Api.DTOs
         public Status Status { get; init; }
         public DateTime CreatedAt { get; init; }
     }
-        
-        
-        
-        
-       
-
-    
-
 }
