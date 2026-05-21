@@ -17,8 +17,9 @@ namespace TheGallop_Resort.Api.Services
         {
             var roomDetailExists = await _ctx.RoomDetails
                 .AnyAsync(rd => rd.Id == dto.RoomDetailId);
-            if (roomDetailExists) {
-                return ServiceResult<RoomCategory>.NotFound("Room Detail not found");
+            if (!roomDetailExists)
+            {
+                return ServiceResult<RoomCategory>.ValidationError("Room Detail not found");
             }
 
             var roomCategory = new RoomCategory
@@ -36,12 +37,15 @@ namespace TheGallop_Resort.Api.Services
 
         public async Task<IEnumerable<RoomCategory>> GetAllRoomCategoriesAsync()
         {
-            return await _ctx.RoomCategories.ToListAsync();
+            return await _ctx.RoomCategories
+                .Include(rc => rc.RoomDetail)
+                .ToListAsync();
         }
         public async Task<ServiceResult<RoomCategory>> GetRoomCategoryByIdAsync(int roomCategoryId)
         {
-            var roomCategory = await _ctx.RoomCategories.FirstOrDefaultAsync(rc => rc.Id == roomCategoryId);
-            if (roomCategory == null) 
+            var roomCategory = await _ctx.RoomCategories.Include(rc => rc.RoomDetail).FirstOrDefaultAsync(rc => rc.Id == roomCategoryId);
+            
+            if (roomCategory == null)
             {
                 return ServiceResult<RoomCategory>.NotFound("Room category not found");
             }
@@ -55,12 +59,38 @@ namespace TheGallop_Resort.Api.Services
                 .FirstOrDefaultAsync(rc => rc.Id == roomCategoryId);
 
             if (roomCategory == null)
-            { 
+            {
                 return ServiceResult.NotFound("Room category not found");
-            
+
             }
 
             _ctx.RoomCategories.Remove(roomCategory);
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+        }
+
+        public async Task<ServiceResult> UpdateRoomCategoryAsync(int roomCategoryId, RoomCategoryDTO dto)
+        {
+            var roomCategory = await _ctx.RoomCategories.FirstOrDefaultAsync(rc => rc.Id == roomCategoryId);
+
+            if (roomCategory == null)
+            {
+                return ServiceResult.NotFound("Room Category not found");
+            }
+
+            var roomDetailExists = await _ctx.RoomDetails
+                    .AnyAsync(rd => rd.Id == dto.RoomDetailId);
+
+            if (!roomDetailExists)
+            {
+                return ServiceResult.ValidationError("Room Detail not found");
+            }
+
+            roomCategory.Type = dto.Type;
+            roomCategory.CategoryPrice = dto.CategoryPrice;
+            roomCategory.RoomDetailId = dto.RoomDetailId;
+
             await _ctx.SaveChangesAsync();
 
             return ServiceResult.Ok();

@@ -9,7 +9,6 @@ namespace TheGallop_Resort.Api.Services
         Task<IEnumerable<RoomCategory>> GetAllRoomCategoriesAsync();
         Task<ServiceResult<RoomCategory>> GetRoomCategoryByIdAsync(int roomCategoryId);
         Task<ServiceResult> DeleteRoomCategoryAsync(int roomCategoryId);
-
-
+        Task <ServiceResult> UpdateRoomCategoryAsync(int roomCategoryId, RoomCategoryDTO dto);
     }
 }
