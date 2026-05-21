@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
@@ -13,10 +14,12 @@ namespace TheGallop_Resort.Api.Controllers
     {
 
         private readonly IGuestService _guestService;
+        private IValidator<CreateGuestDTO> _createGuestValidator;
 
-        public GuestController(IGuestService guestService)
+        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator)
         {
             _guestService = guestService;
+            _createGuestValidator = createGuestValidator;
         }
 
         [HttpGet]
@@ -35,6 +38,15 @@ namespace TheGallop_Resort.Api.Controllers
         [HttpPost("/Guest")]
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
+
+            var validation = await _createGuestValidator.ValidateAsync(dto);
+
+            if (!validation.IsValid)
+            {
+                return BadRequest();
+            }
+
+
             var guest = await _guestService.AddGuestAsync(dto);
 
             if (!guest.SuccessfulResult)

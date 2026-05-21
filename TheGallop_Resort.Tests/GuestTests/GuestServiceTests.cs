@@ -40,23 +40,17 @@ public class GuestServiceTests
         var result = await _service.AddGuestAsync(guestDto);
 
         result.SuccessfulResult.Should().BeTrue();
-        _ctx.Guests.Count().Should().Be(1);
+        var guestCount = await _ctx.Guests.CountAsync();
+        guestCount.Should().Be(1);
+
+        var guestCheck = await _ctx.Guests.FirstAsync();
+
+        guestCheck.FirstName.Should().Be(guestDto.FirstName);
+        guestCheck.LastName.Should().Be(guestDto.LastName);
+        guestCheck.Email.Should().Be(guestDto.Email);
+        guestCheck.PhoneNumber.Should().Be(guestDto.Phone);
+
     }
 
-    [TestMethod]
-    public async Task AddGuest_AddInValidEmail_ReturnZero()
-    {
-        var guestDto = new CreateGuestDTO()
-        {
-            FirstName = "Test",
-            LastName = "Testsson",
-            Email = "TestTestssoncom",
-            Phone = "0727435550"
-        };
 
-        var result = await _service.AddGuestAsync(guestDto);
-
-        result.SuccessfulResult.Should().BeFalse();
-        _ctx.Guests.Count().Should().Be(0);
-    }
 }

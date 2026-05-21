@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using TheGallop_Resort.Api.Data;
@@ -25,7 +26,7 @@ namespace TheGallop_Resort.Api
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<Data.GaloppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            builder.Services.AddValidatorsFromAssemblyContaining<Program>();
             builder.Services.AddScoped<IGuestService, GuestService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
 
