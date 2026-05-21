@@ -1,5 +1,7 @@
 using FakeItEasy;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.DTOs;
@@ -14,10 +16,17 @@ public class GuestControllerTest
     [TestMethod]
     public async Task AddGuest_AddValidGuest_Return200()
     {
+        var fakeService = A.Fake<IGuestService>();
+        var fakeValidator = A.Fake<IValidator<CreateGuestDTO>>();
 
-        var fake = A.Fake<IGuestService>();
+        var controller = new GuestController(
+            fakeService,
+            fakeValidator);
 
-        var controller = new GuestController(fake);
+        A.CallTo(() => fakeValidator.ValidateAsync(
+                A<CreateGuestDTO>._,
+                default))
+            .Returns(new ValidationResult());
 
         var guestDto = new CreateGuestDTO
         {
@@ -35,12 +44,10 @@ public class GuestControllerTest
             PhoneNumber = guestDto.Phone
         };
 
-        A.CallTo(() => fake.AddGuestAsync(A<CreateGuestDTO>._))
+        A.CallTo(() => fakeService.AddGuestAsync(A<CreateGuestDTO>._))
             .Returns(ServiceResult<Guest>.Ok(guest));
 
-
         IActionResult result = await controller.AddGuest(guestDto);
-
 
         var okResult = result.Should()
             .BeAssignableTo<OkObjectResult>()
@@ -55,7 +62,7 @@ public class GuestControllerTest
         returnedGuest.Email.Should().Be(guestDto.Email);
         returnedGuest.PhoneNumber.Should().Be(guestDto.Phone);
 
-        A.CallTo(() => fake.AddGuestAsync(A<CreateGuestDTO>._))
+        A.CallTo(() => fakeService.AddGuestAsync(A<CreateGuestDTO>._))
             .MustHaveHappenedOnceExactly();
     }
 }
