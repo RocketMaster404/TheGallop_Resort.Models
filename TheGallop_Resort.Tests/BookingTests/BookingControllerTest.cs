@@ -27,10 +27,10 @@ public class BookingControllerTest
             TotalPrice = 1000,
             Status = Status.Confirmed,
             Guest = new GuestInfoDTO
-                ("Anna",
-                "Andersson",
-                "anna@mail.com", 
-                "0701234567"),
+                ("Test",
+                "Testssson",
+                "test@mail.com", 
+                "0700000000"),
             RoomReservation = new List<GetRoomReservationResponseDTO>()
         };
 
@@ -63,7 +63,7 @@ public class BookingControllerTest
             Id = 1,
             TotalPrice = 2000,
             Status = Status.Confirmed,
-            Guest = new GuestInfoDTO("Olle", "Persson", "olle@mail.com", "0709998877"),
+            Guest = new GuestInfoDTO("Test", "Testsson", "test@mail.com", "0700000000"),
             RoomReservation = new List<GetRoomReservationResponseDTO>()
         };
 
@@ -87,5 +87,63 @@ public class BookingControllerTest
 
         serviceResult.Should().NotBeNull();
         serviceResult.Data.Should().HaveCount(1);
+    }
+
+    [TestMethod]
+    public async Task AddBooking_AddValidBooking_ReturnOk()
+    {
+        var fake = A.Fake<IBookingService>();
+
+        var controller = new BookingController(fake);
+
+        var testGuestId = 1;
+
+        var testBooking = new Booking { Id = 1, GuestId = testGuestId };
+
+        A.CallTo(() => fake.AddBookingAsync(testGuestId))
+            .Returns(ServiceResult<Booking>.Ok(testBooking));
+
+        var result = await controller.AddBooking(testGuestId);
+
+        var okResult = result.Result
+            .Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<ServiceResult<Booking>>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.Data.GuestId.Should().Be(testGuestId);
+    }
+
+    [TestMethod]
+    public async Task UpdateGuestOnBookingAsync_UpdateValidGuestOnBooking_ReturnOk()
+    {
+        var fake = A.Fake<IBookingService>();
+
+        var controller = new BookingController(fake);
+
+        var updatedDTO = new UpdateBookingGuestDTO(bookingId: 1, guestId: 2);
+
+        A.CallTo(() => fake.UpdateGuestOnBookingAsync(updatedDTO))
+            .Returns(ServiceResult.Ok());
+
+        var result = await controller.UpdateGuestOnBooking(updatedDTO);
+
+        var okResult = result
+            .Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<ServiceResult>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.SuccessfulResult.Should().BeTrue();
     }
 }
