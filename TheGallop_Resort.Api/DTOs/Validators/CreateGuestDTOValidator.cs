@@ -10,13 +10,13 @@ namespace TheGallop_Resort.Api.DTOs.Validators
             RuleFor(g => g.FirstName)
                 .NotEmpty().MinimumLength(2)
                 .MaximumLength(50)
-                .WithMessage("Invalid numver of Characters");
+                .WithMessage("Invalid number of Characters");
 
 
             RuleFor(g => g.LastName).NotEmpty()
                 .MinimumLength(2)
                 .MaximumLength(50)
-                .WithMessage("Invalid numbers of characers");
+                .WithMessage("Invalid numbers of characters");
 
             RuleFor(g => g.Email).NotEmpty().EmailAddress();
 
