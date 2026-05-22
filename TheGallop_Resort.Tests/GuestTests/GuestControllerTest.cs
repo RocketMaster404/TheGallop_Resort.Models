@@ -2,6 +2,7 @@ using FakeItEasy;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TheGallop_Resort.Api.Controllers;
@@ -34,6 +35,24 @@ public class GuestControllerTest
 
         A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
             .Returns(ServiceResult<GuestInfoWithBookingDTO>.Ok(guest));
+
+        IActionResult result = await controller.GetGuestInfoById(1);
+
+        var resultOk = result.Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var returnedGuest = resultOk.Value.Should()
+        .BeAssignableTo<GuestInfoWithBookingDTO>()
+        .Subject;
+
+        returnedGuest.FirstName.Should().Be(guest.FirstName);
+        returnedGuest.LastName.Should().Be(guest.LastName);
+        returnedGuest.Email.Should().Be(guest.Email);
+        returnedGuest.Phone.Should().Be(guest.Phone);
+
+        A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
+            .MustHaveHappenedOnceExactly();
 
 
     }
