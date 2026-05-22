@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheGallop_Resort.Api.Data;
+using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
 
@@ -100,6 +101,34 @@ namespace TheGallop_Resort.Tests.BookingTests
             result.Status.Should().Be(ServiceResultStatus.Success);
 
             result.Data.Id.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task AddBookingAsync_AddBookingToExistingGuest_ReturnOK()
+        {
+            var fakeGuestId = 1;
+
+            var fakeGuestDto = new GuestInfoWithBookingDTO(
+                 "Test",
+                 "Testsson",
+                 "test@test.com",
+                 "0700000000",
+                 new List<BookingDetailsDTO>()
+                );
+
+            A.CallTo(() => _iGuestService.GetGuestInfoByIdAsync(fakeGuestId))
+            .Returns(ServiceResult<GuestInfoWithBookingDTO>.Ok(fakeGuestDto));
+
+            var result = await _bookingService.AddBookingAsync(fakeGuestId);
+
+            result.SuccessfulResult.Should().BeTrue();
+
+            result.Status.Should().Be(ServiceResultStatus.Success);
+
+            result.Data.Id.Should().Be(fakeGuestId);
+
+            var count = await _ctx.Bookings.CountAsync();
+            count.Should().Be(1);
         }
     }
 }
