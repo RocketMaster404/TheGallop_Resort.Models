@@ -146,4 +146,32 @@ public class BookingControllerTest
         serviceResult.Should().NotBeNull();
         serviceResult.SuccessfulResult.Should().BeTrue();
     }
+
+    [TestMethod]
+    public async Task UpdateBookingStatus_UpdateValidBookingStatus_ReturnOk()
+    {
+        var fake = A.Fake<IBookingService>();
+
+        var controller = new BookingController(fake);
+
+        var updatedDTO = new UpdateBookingStatusDTO(BookingId: 1, Status: Status.Cancelled);
+       
+        A.CallTo(() => fake.UpdateBookingStatusAsync(updatedDTO))
+            .Returns(ServiceResult.Ok());
+
+        var result = await controller.UpdateBookingStatus(updatedDTO);
+
+        var okResult = result
+            .Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<ServiceResult>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.SuccessfulResult.Should().BeTrue();
+    }
 }
