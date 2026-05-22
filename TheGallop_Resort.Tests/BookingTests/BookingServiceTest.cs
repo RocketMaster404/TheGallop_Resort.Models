@@ -90,7 +90,7 @@ namespace TheGallop_Resort.Tests.BookingTests
                 CreatedAt = DateTime.Now
             };
 
-            _ctx.Bookings.Add(booking);
+            await _ctx.Bookings.AddAsync(booking);
 
             await _ctx.SaveChangesAsync();
 
@@ -129,6 +129,91 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             var count = await _ctx.Bookings.CountAsync();
             count.Should().Be(1);
+        }
+
+        [TestMethod]
+        public async Task UpdateGuestOnBookingAsync_UpdatingGuestOnExistingBooking_NewGuestOnBooking()
+        {
+            var guest1 = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var guest2 = new Guest
+            {
+                Id = 2,
+                FirstName = "NyTest",
+                LastName = "NyTestsson",
+                Email = "test@extra.com",
+                PhoneNumber = "0789123419"
+            };
+
+            var booking = new Booking
+            {
+                Id = 1,
+                Guest = guest1,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now
+            };
+
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.Guests.AddRangeAsync(guest1, guest2);
+
+            await _ctx.SaveChangesAsync();
+
+            var updatedDto = new UpdateBookingGuestDTO(booking.Id, guest2.Id);
+
+            var result = await _bookingService.UpdateGuestOnBookingAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeTrue();
+
+            result.Status.Should().Be(ServiceResultStatus.Success);
+
+            var checkGuest = await _ctx.Bookings.FirstOrDefaultAsync();
+            checkGuest.Guest.FirstName.Should().Be("NyTest");
+        }
+
+        [TestMethod]
+        public async Task UpdateBookingStatusAsync_UpdateValidBooking_ReturnTrue()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var booking = new Booking
+            {
+                Id = 3,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now
+            };
+
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.Guests.AddAsync(guest);
+
+            await _ctx.SaveChangesAsync();
+
+            var updatedDto = new UpdateBookingStatusDTO(booking.Id, Status.Cancelled);
+
+            var result = await _bookingService.UpdateBookingStatusAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeTrue();
+
+            result.Status.Should().Be(ServiceResultStatus.Success);
+
+            var checkStatus = await _ctx.Bookings.FirstOrDefaultAsync();
+            checkStatus.Status.Should().Be(Status.Cancelled);
         }
     }
 }
