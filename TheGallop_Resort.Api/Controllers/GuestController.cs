@@ -16,6 +16,11 @@ namespace TheGallop_Resort.Api.Controllers
         private readonly IGuestService _guestService;
         private IValidator<CreateGuestDTO> _createGuestValidator;
 
+        public GuestController(IGuestService guestService)
+        {
+            _guestService = guestService;
+        }
+
         public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator)
         {
             _guestService = guestService;

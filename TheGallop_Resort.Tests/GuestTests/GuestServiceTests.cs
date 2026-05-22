@@ -11,8 +11,8 @@ namespace TheGallop_Resort.Tests;
 public class GuestServiceTests
 {
 
-    private GaloppDbContext? _ctx;
-    private GuestService? _service;
+    private GaloppDbContext _ctx;
+    private GuestService _service;
 
     [TestInitialize]
     public void setup()
@@ -49,6 +49,32 @@ public class GuestServiceTests
         guestCheck.LastName.Should().Be(guestDto.LastName);
         guestCheck.Email.Should().Be(guestDto.Email);
         guestCheck.PhoneNumber.Should().Be(guestDto.Phone);
+
+    }
+
+    [TestMethod]
+    public async Task UpdateGuestInfoAsync_UpdateGuest_ReturnNewObject()
+    {
+
+        var guestDto = new CreateGuestDTO()
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "Test@Testsson.com",
+            Phone = "0727435550"
+        };
+
+        await _service.AddGuestAsync(guestDto);
+
+        var guestDtoUpdate = new GuestInfoDTO("Ove","Sundberg","ove@sundberg.com","0727673521");
+       
+        await _service.UpdateGuestInfoAsync(1, guestDtoUpdate);
+
+        var guestCheck = await _ctx.Guests.FirstAsync();
+        guestCheck.FirstName.Should().Be(guestDtoUpdate.FirstName);
+        guestCheck.LastName.Should().Be(guestDtoUpdate.LastName);
+        guestCheck.Email.Should().Be(guestDtoUpdate.Email);
+        guestCheck.PhoneNumber.Should().Be(guestDtoUpdate.Phone);
 
     }
 
