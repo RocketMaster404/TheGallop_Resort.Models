@@ -65,4 +65,38 @@ public class GuestControllerTest
         A.CallTo(() => fakeService.AddGuestAsync(A<CreateGuestDTO>._))
             .MustHaveHappenedOnceExactly();
     }
+
+    [TestMethod]
+    public async Task UpdateGuest_CheckUpdatedGuestInfo_ReturnUpdatedObject()
+    {
+        var fake = A.Fake<IGuestService>();
+
+        var controller = new GuestController(fake);
+
+        var updatedGuestInfo = new GuestInfoDTO(
+            "Ove",
+            "Sundberg",
+            "Ove@Sundberg.com",
+            "078981232");
+        GuestInfoDTO? capturedDto = null;
+
+            A.CallTo(() => fake.UpdateGuestInfoAsync(1, A<GuestInfoDTO>._))
+            .Invokes((int id, GuestInfoDTO dto) =>
+            {
+                capturedDto = dto;
+            }).Returns(ServiceResult.Ok());
+
+
+        IActionResult result = await controller.UpdateGuestInfo(1, updatedGuestInfo);
+
+        result.Should().BeAssignableTo<NoContentResult>();
+
+        capturedDto.Should().NotBeNull();
+        capturedDto!.FirstName.Should().Be(updatedGuestInfo.FirstName);
+        capturedDto.LastName.Should().Be(updatedGuestInfo.LastName);
+        capturedDto.Email.Should().Be(updatedGuestInfo.Email);
+        capturedDto.Phone.Should().Be(updatedGuestInfo.Phone);
+
+    }
+
 }
