@@ -43,5 +43,15 @@ public class BookingValidatorsTests
         result.ShouldHaveValidationErrorFor(x => x.Status);
     }
 
+    [TestMethod]
+    public void UpdateBookingStatus_NegativeBookingId_ReturnError()
+    {
+        var validator = new UpdateBookingStatusDTOValidator();
+        var booking = new UpdateBookingStatusDTO(-1, Status.Confirmed);
+
+        var result = validator.TestValidate(booking);
+
+        result.ShouldHaveValidationErrorFor(x => x.BookingId);
+    }
 
 }
