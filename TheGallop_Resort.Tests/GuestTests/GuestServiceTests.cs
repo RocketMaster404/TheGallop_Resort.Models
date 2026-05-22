@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
@@ -22,8 +21,6 @@ public class GuestServiceTests
 
         _ctx = new GaloppDbContext(options);
         _service = new GuestService(_ctx);
-
-
     }
       
     [TestMethod]
@@ -75,6 +72,48 @@ public class GuestServiceTests
         guestCheck.LastName.Should().Be(guestDtoUpdate.LastName);
         guestCheck.Email.Should().Be(guestDtoUpdate.Email);
         guestCheck.PhoneNumber.Should().Be(guestDtoUpdate.Phone);
+
+    }
+
+    [TestMethod]
+    public async Task DeleteGuestAsync_DeleteGuest_ReturnZero()
+    {
+        var guestDto = new CreateGuestDTO()
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "098236752"
+        };
+
+        await _service.AddGuestAsync(guestDto);
+
+        await _service.DeleteGuestAsync(1);
+
+        _ctx.Guests.Should().BeEmpty();         
+    }
+
+    [TestMethod]
+    public async Task GetGuestInfoByIdAsync_GetUserInfo_ReturnGuestInfo()
+    {
+        var guestDto = new CreateGuestDTO()
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.se",
+            Phone = "098727262"
+        };
+
+        await _service.AddGuestAsync(guestDto);
+
+        var guest = await _service.GetGuestInfoByIdAsync(1);
+
+        guest.Should().NotBeNull();
+
+        guest.Data.FirstName.Should().Be(guestDto.FirstName);
+        guest.Data.LastName.Should().Be(guestDto.LastName);
+        guest.Data.Email.Should().Be(guestDto.Email);
+        guest.Data.Phone.Should().Be(guestDto.Phone);
 
     }
 
