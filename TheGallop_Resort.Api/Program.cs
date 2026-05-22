@@ -29,6 +29,7 @@ namespace TheGallop_Resort.Api
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
             builder.Services.AddScoped<IGuestService, GuestService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IRoomCategoryService, RoomCategoryService>();
 
             var app = builder.Build();
 
