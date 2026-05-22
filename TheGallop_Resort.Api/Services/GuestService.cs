@@ -15,8 +15,43 @@ namespace TheGallop_Resort.Api.Services
         {
             _ctx = ctx;
         }
+        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetUserBookingHistoryAsync(int guestId)
+        {
+            var bookings = await _ctx.Bookings
+                .Where(b => b.GuestId == guestId &&
+                            b.RoomReservations.Any(rr => rr.CheckOut < DateTime.Now))
+                .Select(b => new GetBookingResponseDTO
+                {
+                    Id = b.Id,
+                    CreatedAt = b.CreatedAt,
+                    TotalPrice = b.TotalPrice,
+                    Status = b.Status,
 
-       
+                    Guest = new GuestInfoDTO
+                    (
+
+                        b.Guest.FirstName,
+                        b.Guest.LastName,
+                        b.Guest.Email,
+                        b.Guest.PhoneNumber
+                    ),
+
+                    RoomReservation = b.RoomReservations
+                        .Where(rr => rr.CheckOut < DateTime.Now)
+                        .Select(rr => new GetRoomReservationResponseDTO
+                        (
+                            rr.Id,
+                            rr.RoomId,
+                            rr.CheckIn,
+                            rr.CheckOut
+                        ))
+                })
+                .ToListAsync();
+
+            return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
+
+        }
+
         public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestBookingHistory(int userId)
         {
 
@@ -46,7 +81,7 @@ namespace TheGallop_Resort.Api.Services
             return ServiceResult<GuestInfoWithBookingDTO>.Ok(guest);
 
         }
-        
+
 
         public async Task<ServiceResult<Guest>> AddGuestAsync(CreateGuestDTO dto)
         {
@@ -65,7 +100,7 @@ namespace TheGallop_Resort.Api.Services
                 return ServiceResult<Guest>.ValidationError("Duplicated email");
             }
 
-            
+
 
             await _ctx.Guests.AddAsync(guest);
             await _ctx.SaveChangesAsync();
@@ -74,7 +109,7 @@ namespace TheGallop_Resort.Api.Services
 
         }
 
-        
+
         public async Task<IEnumerable<Guest>> GetAllGuestsInfoAsync()
         {
             var guests = await _ctx.Guests.ToListAsync();
@@ -82,7 +117,7 @@ namespace TheGallop_Resort.Api.Services
             return guests;
         }
 
-    
+
         public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestInfoByIdAsync(int guestId)
         {
 
@@ -131,7 +166,7 @@ namespace TheGallop_Resort.Api.Services
         {
             var guestUpdate = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
 
-            if(guestUpdate == null)
+            if (guestUpdate == null)
             {
                 return ServiceResult.NotFound("Guest not found");
             }
@@ -145,13 +180,13 @@ namespace TheGallop_Resort.Api.Services
 
             return ServiceResult.Ok();
 
-          
+
         }
 
-        
 
 
 
-       
+
+
     }
 }
