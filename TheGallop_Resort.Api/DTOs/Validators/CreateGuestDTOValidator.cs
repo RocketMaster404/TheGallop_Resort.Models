@@ -25,8 +25,6 @@ namespace TheGallop_Resort.Api.DTOs.Validators
             .Matches(@"^\+?[\d\s\-\(\)]{7,20}$")
             .WithMessage("Invalid phone number format");
 
-
-
         }
 
 
