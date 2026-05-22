@@ -42,4 +42,22 @@ public class GuestValidatorsTests
 
         result.ShouldHaveValidationErrorFor(g => g.Phone);
     }
+
+    [TestMethod]
+    public void Validate_InvalidFirstName_ReturnError()
+    {
+        var validator = new CreateGuestDTOValidator();
+
+        var dto = new CreateGuestDTO()
+        {
+            FirstName = "E",
+            LastName = "Testsson",
+            Email = "Test@testsson.se",
+            Phone = "0727435550"
+        };
+
+        var result = validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(g => g.FirstName);
+    }
 }

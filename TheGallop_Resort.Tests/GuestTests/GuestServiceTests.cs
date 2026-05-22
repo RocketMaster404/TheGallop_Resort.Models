@@ -11,8 +11,8 @@ namespace TheGallop_Resort.Tests;
 public class GuestServiceTests
 {
 
-    private GaloppDbContext? _ctx;
-    private GuestService? _service;
+    private GaloppDbContext _ctx;
+    private GuestService _service;
 
     [TestInitialize]
     public void setup()
