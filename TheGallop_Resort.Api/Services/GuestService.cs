@@ -15,7 +15,7 @@ namespace TheGallop_Resort.Api.Services
         {
             _ctx = ctx;
         }
-        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetUserBookingHistoryAsync(int guestId)
+        public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetUserBookingHistoryAsync(int guestId)
         {
             var bookings = await _ctx.Bookings
                 .Where(b => b.GuestId == guestId &&
@@ -48,7 +48,7 @@ namespace TheGallop_Resort.Api.Services
                 })
                 .ToListAsync();
 
-            return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
+            return ServiceResult<List<GetBookingResponseDTO>>.Ok(bookings);
 
         }
 
