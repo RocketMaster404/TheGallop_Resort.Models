@@ -87,6 +87,11 @@ namespace TheGallop_Resort.Api.Services
 
         public async Task<ServiceResult<Booking>> AddBookingAsync(int guestId)
         {
+            if (guestId <= 0)
+            {
+                return ServiceResult<Booking>.ValidationError($"GuestId can't be a negative number.");
+            }
+
             try
             {
                 await _iGuestService.GetGuestInfoByIdAsync(guestId);
