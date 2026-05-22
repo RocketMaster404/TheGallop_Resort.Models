@@ -24,4 +24,22 @@ public class GuestValidatorsTests
 
         result.ShouldHaveValidationErrorFor(g => g.Email);
     }
+
+    [TestMethod]
+    public void Validate_InvalidPhone_ReturnError()
+    {
+        var validator = new CreateGuestDTOValidator();
+
+        var dto = new CreateGuestDTO()
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "Test@testsson.se",
+            Phone = "FElaktigt nummer"
+        };
+
+        var result = validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(g => g.Phone);
+    }
 }
