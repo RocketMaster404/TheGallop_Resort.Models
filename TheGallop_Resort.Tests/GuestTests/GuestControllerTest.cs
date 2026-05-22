@@ -20,7 +20,8 @@ public class GuestControllerTest
     public async Task GetGuestInfoById_CheckGuestInfo_ReturnOk()
     {
         var fake = A.Fake<IGuestService>();
-        var controller = new GuestController(fake);
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var controller = new GuestController(fake,validator);
 
         var guest = new GuestInfoWithBookingDTO(
             "Test",
@@ -115,8 +116,9 @@ public class GuestControllerTest
     public async Task UpdateGuest_CheckUpdatedGuestInfo_ReturnUpdatedObject()
     {
         var fake = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
 
-        var controller = new GuestController(fake);
+        var controller = new GuestController(fake,validator);
 
         var updatedGuestInfo = new GuestInfoDTO(
             "Ove",
@@ -147,13 +149,14 @@ public class GuestControllerTest
     [TestMethod]
     public async Task DeleteGuest_Return_NoContent()
     {
-        
+
         var fake = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
 
         A.CallTo(() => fake.DeleteGuestAsync(1))
             .Returns(ServiceResult.Ok());
 
-        var controller = new GuestController(fake);
+        var controller = new GuestController(fake,validator);
 
         
         IActionResult result = await controller.DeleteGuest(1);

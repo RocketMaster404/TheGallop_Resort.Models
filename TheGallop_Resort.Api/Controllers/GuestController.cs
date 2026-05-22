@@ -16,15 +16,28 @@ namespace TheGallop_Resort.Api.Controllers
         private readonly IGuestService _guestService;
         private IValidator<CreateGuestDTO> _createGuestValidator;
 
-        public GuestController(IGuestService guestService)
-        {
-            _guestService = guestService;
-        }
+        //public GuestController(IGuestService guestService)
+        //{
+        //    _guestService = guestService;
+        //}
 
         public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator)
         {
             _guestService = guestService;
             _createGuestValidator = createGuestValidator;
+        }
+
+        [HttpGet("{guestId}/GuestBookingHistory")]
+        public async Task<IActionResult> GetUsersBookingHistory(int guestId)
+        {
+            var guest = await _guestService.GetUserBookingHistoryAsync(guestId);
+
+            if(!guest.SuccessfulResult)
+            {
+                return NotFound("Guest not found");
+            }
+
+            return Ok(guest);
         }
 
         [HttpGet]
