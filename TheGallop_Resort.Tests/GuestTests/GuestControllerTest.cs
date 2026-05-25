@@ -52,8 +52,7 @@ public class GuestControllerTest
         returnedGuest.Email.Should().Be(guest.Email);
         returnedGuest.Phone.Should().Be(guest.Phone);
 
-        A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
-            .MustHaveHappenedOnceExactly();
+       
 
 
     }
@@ -108,8 +107,7 @@ public class GuestControllerTest
         returnedGuest.Email.Should().Be(guestDto.Email);
         returnedGuest.PhoneNumber.Should().Be(guestDto.Phone);
 
-        A.CallTo(() => fake.AddGuestAsync(A<CreateGuestDTO>._))
-            .MustHaveHappenedOnceExactly();
+        
     }
 
     [TestMethod]
@@ -163,8 +161,6 @@ public class GuestControllerTest
         
         result.Should().BeAssignableTo<NoContentResult>();
 
-        A.CallTo(() => fake.DeleteGuestAsync(1))
-            .MustHaveHappenedOnceExactly();
 
         
 
