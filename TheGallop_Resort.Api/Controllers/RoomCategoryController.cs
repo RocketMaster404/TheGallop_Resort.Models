@@ -6,7 +6,7 @@ namespace TheGallop_Resort.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RoomCategoryController : Controller
+    public class RoomCategoryController : BaseController
     {
         private readonly IRoomCategoryService _roomCategoryService;
 
@@ -23,11 +23,12 @@ namespace TheGallop_Resort.Api.Controllers
 
             if(!result.SuccessfulResult)
             {
-                if (result.Status == ServiceResultStatus.ValidationError)
-                {
-                    ModelState.AddModelError(nameof(dto.RoomDetailId), result.ErrorMessage!);
-                    return ValidationProblem(ModelState);
-                }
+                // Change to send the error message through BaseController
+                //if (result.Status == ServiceResultStatus.ValidationError)
+                //{
+                //    ModelState.AddModelError(nameof(dto.RoomDetailId), result.ErrorMessage!);
+                //    return ValidationProblem(ModelState);
+                //}
 
                     return NotFound(result.ErrorMessage);
                 
