@@ -30,6 +30,7 @@ namespace TheGallop_Resort.Tests.BookingTests
             _ctx = new GaloppDbContext(options);
             _iGuestService = A.Fake<IGuestService>();
 
+            
 
             _bookingService = new BookingService(_ctx, _iGuestService);
 
@@ -128,7 +129,7 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
 
-            result.Data.Id.Should().Be(fakeGuestId);
+            result.Data.GuestId.Should().Be(fakeGuestId);
 
             var count = await _ctx.Bookings.CountAsync();
             count.Should().Be(1);
