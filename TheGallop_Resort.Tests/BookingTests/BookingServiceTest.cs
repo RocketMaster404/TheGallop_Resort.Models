@@ -47,7 +47,7 @@ namespace TheGallop_Resort.Tests.BookingTests
                 PhoneNumber = "0765975412"
             };
 
-            var booking = new Booking
+            var booking1 = new Booking
             {
                 Id = 1,
                 Guest = guest,
@@ -56,7 +56,16 @@ namespace TheGallop_Resort.Tests.BookingTests
                 CreatedAt = DateTime.Now
             };
 
-            _ctx.Bookings.Add(booking);
+            var booking2 = new Booking
+            {
+                Id = 2,
+                Guest = guest,
+                TotalPrice = 1300,
+                Status = Status.Preliminary,
+                CreatedAt = DateTime.Now
+            };
+
+            _ctx.Bookings.AddRange(booking1, booking2);
 
             await _ctx.SaveChangesAsync();
 
@@ -64,7 +73,7 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
 
-            result.Data.Should().HaveCount(1);
+            result.Data.Should().HaveCount(2);
         }
 
         [TestMethod]
