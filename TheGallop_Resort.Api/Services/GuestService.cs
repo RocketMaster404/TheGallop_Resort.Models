@@ -15,7 +15,7 @@ namespace TheGallop_Resort.Api.Services
         {
             _ctx = ctx;
         }
-        public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetUserBookingHistoryAsync(int guestId)
+        public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetGuestBookingHistoryAsync(int guestId)
         {
             var bookings = await _ctx.Bookings
                 .Where(b => b.GuestId == guestId &&
@@ -52,35 +52,7 @@ namespace TheGallop_Resort.Api.Services
 
         }
 
-        public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestBookingHistory(int userId)
-        {
-
-            var guest = await _ctx.Guests.Where(g => g.Id == userId).AsNoTracking().Select(g => new GuestInfoWithBookingDTO(
-               g.FirstName,
-               g.LastName,
-               g.Email,
-               g.PhoneNumber,
-               g.Bookings.Select(b => new BookingDetailsDTO
-               {
-                   Id = b.Id,
-                   Totalprice = b.TotalPrice,
-                   Status = (Status)b.Status,
-                   CreatedAt = b.CreatedAt
-
-               }).ToList()
-               )).FirstOrDefaultAsync();
-
-
-            if (guest == null)
-            {
-                return ServiceResult<GuestInfoWithBookingDTO>.NotFound("Guest Not Found");
-            }
-
-
-
-            return ServiceResult<GuestInfoWithBookingDTO>.Ok(guest);
-
-        }
+      
 
 
         public async Task<ServiceResult<Guest>> AddGuestAsync(CreateGuestDTO dto)

@@ -30,7 +30,7 @@ namespace TheGallop_Resort.Api.Controllers
         [HttpGet("{guestId}/GuestBookingHistory")]
         public async Task<IActionResult> GetUsersBookingHistory(int guestId)
         {
-            var guest = await _guestService.GetUserBookingHistoryAsync(guestId);
+            var guest = await _guestService.GetGuestBookingHistoryAsync(guestId);
 
             if(!guest.SuccessfulResult)
             {
