@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
@@ -17,6 +18,14 @@ namespace TheGallop_Resort.Api.Services
         }
         public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetGuestBookingHistoryAsync(int guestId)
         {
+            var guestCheck = await _ctx.Guests.AnyAsync(g => g.Id == guestId);
+
+            if (!guestCheck)
+            {
+                return ServiceResult<List<GetBookingResponseDTO>>
+                .ValidationError("Guest not found");
+            }
+
             var bookings = await _ctx.Bookings
                 .Where(b => b.GuestId == guestId &&
                             b.RoomReservations.Any(rr => rr.CheckOut < DateTime.Now))
@@ -47,6 +56,13 @@ namespace TheGallop_Resort.Api.Services
                         ))
                 })
                 .ToListAsync();
+
+            if(!bookings.Any())
+            {
+                return ServiceResult<List<GetBookingResponseDTO>>
+                .ValidationError("Not booking history");
+            }
+            
 
             return ServiceResult<List<GetBookingResponseDTO>>.Ok(bookings);
 
