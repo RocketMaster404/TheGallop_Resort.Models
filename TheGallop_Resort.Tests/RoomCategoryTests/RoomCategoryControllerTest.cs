@@ -1,60 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
 using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
-using Xunit;
-using Assert = Xunit.Assert;
 
-namespace TheGallop_Resort.Tests.RoomCategoryTests
+namespace TheGallop_Resort.Tests;
+
+[TestClass]
+public class RoomCategoryControllerTest
 {
-    public class RoomCategoryControllerTests
+
+    [TestMethod]
+public async Task AddRoomCategory_AddValidRoomCategory_Return200()
+{
+    var fake = A.Fake<IRoomCategoryService>();
+    var controller = new RoomCategoryController(fake);
+
+    var roomCategoryDto = new RoomCategoryDTO
     {
-        [Fact]
-        public async Task AddRoomCategory_ReturnsOk_WhenServiceSucceeds()
-        {
-            // Arrange
-            var dto = new RoomCategoryDTO
-            {
-                Type = RoomType.DoubleBed,
-                CategoryPrice = 1800,
-                RoomDetailId = 1
-            };
+        Type = RoomType.DoubleBed,
+        CategoryPrice = 1800,
+        RoomDetailId = 1
+    };
 
-            var createdRoomCategory = new RoomCategory
-            { 
-                Id = 1,
-                Type = RoomType.DoubleBed,
-                CategoryPrice = 1800,
-                RoomDetailId = 1
-            };
+    var roomCategory = new RoomCategory
+    {
+        Id = 1,
+        Type = roomCategoryDto.Type,
+        CategoryPrice = roomCategoryDto.CategoryPrice,
+        RoomDetailId = roomCategoryDto.RoomDetailId
+    };
 
-            var serviceMock = new Mock<IRoomCategoryService>();
+    A.CallTo(() => fake.AddRoomCategoryAsync(A<RoomCategoryDTO>._))
+        .Returns(ServiceResult<RoomCategory>.Ok(roomCategory));
 
-            serviceMock.Setup(s => s.AddRoomCategoryAsync(dto))
-                .ReturnsAsync(ServiceResult<RoomCategory>.Ok(createdRoomCategory));
+    IActionResult result = await controller.AddRoomCategory(roomCategoryDto);
 
-            var controller = new RoomCategoryController(serviceMock.Object);
+    var okResult = result.Should()
+        .BeAssignableTo<OkObjectResult>()
+        .Subject;
 
-            // Act
-            var result = await controller.AddRoomCategory(dto);
+    var returnedRoomCategory = okResult.Value.Should()
+        .BeAssignableTo<RoomCategory>()
+        .Subject;
+    returnedRoomCategory.Type.Should().Be(roomCategoryDto.Type);
+    returnedRoomCategory.CategoryPrice.Should().Be(roomCategoryDto.CategoryPrice);
+    returnedRoomCategory.RoomDetailId.Should().Be(roomCategoryDto.RoomDetailId);
 
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnedRoomCategory = Assert.IsType<RoomCategory>(okResult.Value);
-
-            Assert.Equal(1, returnedRoomCategory.Id);
-            Assert.Equal(RoomType.DoubleBed, returnedRoomCategory.Type);
-            Assert.Equal(1800, returnedRoomCategory.CategoryPrice);
-            Assert.Equal(1, returnedRoomCategory.RoomDetailId);
-            
-
-        }
-    }
+    A.CallTo(() => fake.AddRoomCategoryAsync(A<RoomCategoryDTO>._))
+        .MustHaveHappenedOnceExactly();
+}
 }
