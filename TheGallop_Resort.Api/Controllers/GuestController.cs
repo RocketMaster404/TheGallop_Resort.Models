@@ -73,6 +73,10 @@ namespace TheGallop_Resort.Api.Controllers
             }
 
             return Ok(guest.Data);
+            //return CreatedAtAction(
+            //nameof(GetGuestInfoById),
+            //new { Id = guest.Data.Id },
+            //guest.Data);
 
         }
 
