@@ -1,5 +1,7 @@
 using FakeItEasy;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.DTOs;
@@ -11,12 +13,23 @@ namespace TheGallop_Resort.Tests;
 [TestClass]
 public class BookingControllerTest
 {
+    private IBookingService _fakeBookingService;
+    private IValidator<UpdateBookingStatusDTO> _updateStatusValidator;
+    private IValidator<UpdateBookingGuestDTO> _updateGuestValidator;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _fakeBookingService = A.Fake<IBookingService>();
+        _updateStatusValidator = A.Fake<IValidator<UpdateBookingStatusDTO>>();
+        _updateGuestValidator = A.Fake<IValidator<UpdateBookingGuestDTO>>();
+    }
+
     [TestMethod]
     public async Task GetBookingById_CheckIfIdExist_ReturnSpecificBooking()
     {
-        var fake = A.Fake<IBookingService>();
 
-        var controller = new BookingController(fake);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
 
         var testId = 1;
 
@@ -29,12 +42,12 @@ public class BookingControllerTest
             Guest = new GuestInfoDTO
                 ("Test",
                 "Testssson",
-                "test@mail.com", 
+                "test@mail.com",
                 "0700000000"),
             RoomReservation = new List<GetRoomReservationResponseDTO>()
         };
 
-        A.CallTo(() => fake.GetBookingByIdAsync(testId))
+        A.CallTo(() => _fakeBookingService.GetBookingByIdAsync(testId))
             .Returns(ServiceResult<GetBookingResponseDTO>.Ok(booking));
 
         //Act
@@ -52,9 +65,7 @@ public class BookingControllerTest
     [TestMethod]
     public async Task GetAllBookings_GetAllBookings_ReturnListOfBookings()
     {
-        var fake = A.Fake<IBookingService>();
-
-        var controller = new BookingController(fake);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
 
         var bookings = new List<GetBookingResponseDTO>();
 
@@ -70,7 +81,7 @@ public class BookingControllerTest
         bookings.Add(booking);
 
 
-        A.CallTo(() => fake.GetAllBookingsAsync())
+        A.CallTo(() => _fakeBookingService.GetAllBookingsAsync())
             .Returns(ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings));
 
         var result = await controller.GetAllBookings();
@@ -92,15 +103,14 @@ public class BookingControllerTest
     [TestMethod]
     public async Task AddBooking_AddValidBooking_ReturnOk()
     {
-        var fake = A.Fake<IBookingService>();
 
-        var controller = new BookingController(fake);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
 
         var testGuestId = 1;
 
         var testBooking = new Booking { Id = 1, GuestId = testGuestId };
 
-        A.CallTo(() => fake.AddBookingAsync(testGuestId))
+        A.CallTo(() => _fakeBookingService.AddBookingAsync(testGuestId))
             .Returns(ServiceResult<Booking>.Ok(testBooking));
 
         var result = await controller.AddBooking(testGuestId);
@@ -122,13 +132,14 @@ public class BookingControllerTest
     [TestMethod]
     public async Task UpdateGuestOnBookingAsync_UpdateValidGuestOnBooking_ReturnOk()
     {
-        var fake = A.Fake<IBookingService>();
-
-        var controller = new BookingController(fake);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
 
         var updatedDTO = new UpdateBookingGuestDTO(bookingId: 1, guestId: 2);
 
-        A.CallTo(() => fake.UpdateGuestOnBookingAsync(updatedDTO))
+        A.CallTo(() => _updateGuestValidator.ValidateAsync(updatedDTO, default))
+            .Returns(new ValidationResult());
+
+        A.CallTo(() => _fakeBookingService.UpdateGuestOnBookingAsync(updatedDTO))
             .Returns(ServiceResult.Ok());
 
         var result = await controller.UpdateGuestOnBooking(updatedDTO);
@@ -150,13 +161,14 @@ public class BookingControllerTest
     [TestMethod]
     public async Task UpdateBookingStatus_UpdateValidBookingStatus_ReturnOk()
     {
-        var fake = A.Fake<IBookingService>();
-
-        var controller = new BookingController(fake);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
 
         var updatedDTO = new UpdateBookingStatusDTO(BookingId: 1, Status: Status.Cancelled);
-       
-        A.CallTo(() => fake.UpdateBookingStatusAsync(updatedDTO))
+
+        A.CallTo(() => _updateStatusValidator.ValidateAsync(updatedDTO, default))
+            .Returns(new ValidationResult());
+
+        A.CallTo(() => _fakeBookingService.UpdateBookingStatusAsync(updatedDTO))
             .Returns(ServiceResult.Ok());
 
         var result = await controller.UpdateBookingStatus(updatedDTO);

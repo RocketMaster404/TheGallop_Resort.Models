@@ -6,12 +6,12 @@ namespace TheGallop_Resort.Api.DTOs
 
     public record GetBookingResponseDTO
     {
-        public int Id { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public decimal TotalPrice { get; set; }
-        public Status Status { get; set; }
-        public GuestInfoDTO Guest { get; set; }
-        public IEnumerable<GetRoomReservationResponseDTO> RoomReservation { get; set; }
+        public int Id { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public decimal TotalPrice { get; init; }
+        public Status Status { get; init; }
+        public GuestInfoDTO Guest { get; init; }
+        public IEnumerable<GetRoomReservationResponseDTO> RoomReservation { get; init; }
     }
 
     public record SearchBookingByIdDTO(int bookingId);
