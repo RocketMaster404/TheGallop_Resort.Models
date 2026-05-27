@@ -48,17 +48,18 @@ namespace TheGallop_Resort.Api.Controllers
             return Ok(booking);
         }
 
-        [HttpPost("AddBooking/{guestId}", Name = "AddBooking")]
-        public async Task<ActionResult<Booking>> AddBooking(int guestId)
+        [HttpPost("CreateBooking", Name = "CreateBooking")]
+        //DTO
+        public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
         {
-            var booking = await _bookingService.AddBookingAsync(guestId);
+            var result = await _bookingService.CreateBookingAsync(dto);
 
-            if (!booking.SuccessfulResult)
+            if (!result.SuccessfulResult)
             {
-                return NotFound(booking.ErrorMessage);
+                return BadRequest(result.ErrorMessage);
             }
 
-            return Ok(booking);
+            return Ok(result.Data);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]

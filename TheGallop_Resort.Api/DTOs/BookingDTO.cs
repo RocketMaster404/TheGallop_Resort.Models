@@ -26,4 +26,30 @@ namespace TheGallop_Resort.Api.DTOs
         public Status Status { get; init; }
         public DateTime CreatedAt { get; init; }
     }
+
+    public record GetInputFromUserCreateDTO
+    {
+        public int GuestId { get; init; } 
+        public DateOnly CheckIn { get; init; }
+        public DateOnly CheckOut { get; init; }
+        public int Children { get; init; }
+        public int Adults { get; init; }
+        public RoomType Type { get; init; }
+    }
+
+    public record CreateBookingDTO
+    {
+        public int GuestId { get; init; }
+
+    }
+
+    public record GetFullBookingResponsDTO
+    {
+        public int Id { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public decimal TotalPrice { get; init; }
+        public Status Status { get; init; }
+        public int GuestId { get; init; }
+        public IEnumerable<GetFullRoomReservationResponse> RoomReservations { get; init; } = new List<GetFullRoomReservationResponse>();
+    }
 }

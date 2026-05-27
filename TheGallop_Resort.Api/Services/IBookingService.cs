@@ -13,6 +13,6 @@ namespace TheGallop_Resort.Api.Services
         Task<ServiceResult> UpdateGuestOnBookingAsync(UpdateBookingGuestDTO update);
         Task<ServiceResult> UpdateBookingStatusAsync(UpdateBookingStatusDTO update);
 
-        Task<ServiceResult<Booking>> AddBookingAsync(int guestId);
+        Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto);
     }
 }
