@@ -2,7 +2,7 @@
 
 namespace TheGallop_Resort.Api.Services
 {
-    public interface IRoomService
+    public interface IRoomDetailService
     {
         Task<RoomInfoDTO> AddRoomAsync(CreateRoomDTO dto);
     }
