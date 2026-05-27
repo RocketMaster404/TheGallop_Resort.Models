@@ -63,7 +63,15 @@ public class GuestServiceTests
 
         await _service.AddGuestAsync(guestDto);
 
-        var guestDtoUpdate = new GuestInfoDTO("Ove","Sundberg","ove@sundberg.com","0727673521");
+        var guestDtoUpdate = new UpdateGuestInfoDTO
+        {
+            FirstName = "Ove",
+            LastName = "Sundberg",
+            Email = "ove@sundberg.com",
+            Phone = "0727673521"
+        };
+            
+            
        
         await _service.UpdateGuestInfoAsync(1, guestDtoUpdate);
 
