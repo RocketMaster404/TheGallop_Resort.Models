@@ -129,7 +129,7 @@ namespace TheGallop_Resort.Api.Services
                 RoomStatus = RoomStatus.Confirmed,
                 Adults = roomReservationDTO.Adults,
                 Children = roomReservationDTO.Children,
-                PricePerNight = 800,
+                PricePerNight = 1000,
                 RoomId = room.Id,
               
             };
