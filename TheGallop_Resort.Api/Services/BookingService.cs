@@ -28,7 +28,7 @@ namespace TheGallop_Resort.Api.Services
                     CreatedAt = b.CreatedAt,
                     TotalPrice = b.TotalPrice,
                     Status = b.Status,
-                    Guest = new GuestInfoDTO(
+                    Guest = new GuestInfoDTO (
                         b.Guest.FirstName,
                         b.Guest.LastName,
                         b.Guest.Email,

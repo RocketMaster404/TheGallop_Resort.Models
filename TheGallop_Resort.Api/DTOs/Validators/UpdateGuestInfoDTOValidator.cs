@@ -1,0 +1,28 @@
+﻿using FluentValidation;
+
+namespace TheGallop_Resort.Api.DTOs.Validators
+{
+    public class UpdateGuestInfoDTOValidator : AbstractValidator<UpdateGuestInfoDTO>
+    {
+        public UpdateGuestInfoDTOValidator()
+        {
+            RuleFor(g => g.FirstName)
+                .NotEmpty().MinimumLength(2)
+                .MaximumLength(50)
+                .WithMessage("Invalid number of Characters");
+
+
+            RuleFor(g => g.LastName).NotEmpty()
+                .MinimumLength(2)
+                .MaximumLength(50)
+                .WithMessage("Invalid numbers of characters");
+
+            RuleFor(g => g.Email).NotEmpty().EmailAddress();
+
+            RuleFor(g => g.Phone)
+            .NotEmpty()
+            .Matches(@"^\+?[\d\s\-\(\)]{7,20}$")
+            .WithMessage("Invalid phone number format");
+        }
+    }
+}

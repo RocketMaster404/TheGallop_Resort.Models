@@ -11,7 +11,7 @@ namespace TheGallop_Resort.Api.Services
         Task<IEnumerable<Guest>> GetAllGuestsInfoAsync();
         Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestInfoByIdAsync(int guestId);
         Task<ServiceResult> DeleteGuestAsync(int guestId);
-        Task<ServiceResult> UpdateGuestInfoAsync(int guestId, GuestInfoDTO dto);
+        Task<ServiceResult> UpdateGuestInfoAsync(int guestId, UpdateGuestInfoDTO dto);
         Task<ServiceResult<List<GetBookingResponseDTO>>> GetGuestBookingHistoryAsync(int guestId);
     }
 }

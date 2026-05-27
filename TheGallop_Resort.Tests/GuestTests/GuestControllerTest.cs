@@ -37,7 +37,7 @@ public class GuestControllerTest
         A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
             .Returns(ServiceResult<GuestInfoWithBookingDTO>.Ok(guest));
 
-        IActionResult result = await controller.GetGuestInfoById(1);
+        ActionResult<GuestInfoWithBookingDTO> result = await controller.GetGuestInfoById(1);
 
         var resultOk = result.Should()
             .BeAssignableTo<OkObjectResult>()
@@ -118,15 +118,19 @@ public class GuestControllerTest
 
         var controller = new GuestController(fake,validator);
 
-        var updatedGuestInfo = new GuestInfoDTO(
-            "Ove",
-            "Sundberg",
-            "Ove@Sundberg.com",
-            "078981232");
-        GuestInfoDTO? capturedDto = null;
+       
 
-            A.CallTo(() => fake.UpdateGuestInfoAsync(1, A<GuestInfoDTO>._))
-            .Invokes((int id, GuestInfoDTO dto) =>
+        var updatedGuestInfo = new UpdateGuestInfoDTO
+        {
+            FirstName = "Ove",
+           LastName = "Sundberg",
+            Email = "Ove@Sundberg.com",
+            Phone ="078981232"
+        };
+        UpdateGuestInfoDTO? capturedDto = null;
+
+            A.CallTo(() => fake.UpdateGuestInfoAsync(1, A<UpdateGuestInfoDTO>._))
+            .Invokes((int id, UpdateGuestInfoDTO dto) =>
             {
                 capturedDto = dto;
             }).Returns(ServiceResult.Ok());

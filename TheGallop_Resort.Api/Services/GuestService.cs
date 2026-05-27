@@ -150,7 +150,7 @@ namespace TheGallop_Resort.Api.Services
 
         }
 
-        public async Task<ServiceResult> UpdateGuestInfoAsync(int guestId, GuestInfoDTO dto)
+        public async Task<ServiceResult> UpdateGuestInfoAsync(int guestId, UpdateGuestInfoDTO dto)
         {
             var guestUpdate = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
 

@@ -10,7 +10,7 @@ public class GuestValidatorsTests
     [TestMethod]
     public void Validate_InvalidEmail_ReturnError()
     {
-        var validator = new CreateGuestDTOValidator();
+        var validator = new GuestValidator();
 
         var dto = new CreateGuestDTO()
         {
@@ -28,7 +28,7 @@ public class GuestValidatorsTests
     [TestMethod]
     public void Validate_InvalidPhone_ReturnError()
     {
-        var validator = new CreateGuestDTOValidator();
+        var validator = new GuestValidator();
 
         var dto = new CreateGuestDTO()
         {
@@ -46,7 +46,7 @@ public class GuestValidatorsTests
     [TestMethod]
     public void Validate_InvalidFirstName_ReturnError()
     {
-        var validator = new CreateGuestDTOValidator();
+        var validator = new GuestValidator();
 
         var dto = new CreateGuestDTO()
         {
@@ -64,7 +64,7 @@ public class GuestValidatorsTests
     [TestMethod]
     public void Validate_InvalidLastName_ReturnError()
     {
-        var validator = new CreateGuestDTOValidator();
+        var validator = new GuestValidator();
 
         var dto = new CreateGuestDTO()
         {

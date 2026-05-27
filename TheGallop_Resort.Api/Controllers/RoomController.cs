@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
@@ -23,7 +24,7 @@ namespace TheGallop_Resort.Api.Controllers
             //Checking that RoomCategory exists
             var roomCategoryExists = await _galoppDbContext.RoomCategories.AnyAsync(rc => rc.Id == dto.RoomCategoryId);
 
-            if (!roomCategoryExists) 
+            if (!roomCategoryExists)
             {
                 ModelState.AddModelError(nameof(dto.RoomCategoryId), "Room category does not exist.");
                 return ValidationProblem(ModelState);
@@ -54,6 +55,8 @@ namespace TheGallop_Resort.Api.Controllers
             return Ok(room);
             
         }
+
+        
 
     }
 }
