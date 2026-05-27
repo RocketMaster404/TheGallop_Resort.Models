@@ -88,6 +88,8 @@ namespace TheGallop_Resort.Api.Services
         //DTOist
         public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
+            var room = await _ctx.RoomCategories.FirstOrDefaultAsync(r => r.Type == dto.Type);
+           
             var bookingDTO = new CreateBookingDTO
             {
                 GuestId = dto.GuestId,
@@ -106,13 +108,17 @@ namespace TheGallop_Resort.Api.Services
             await _ctx.Bookings.AddAsync(booking);
             await _ctx.SaveChangesAsync();
 
+
+            var roomCategoryDTO = new AddCategoryToBookingDTO(dto.Type);
+
             var roomReservationDTO = new CreateRoomReservationDTO
                 (
                 booking.Id,
-                dto.CheckIn,
-                dto.CheckOut,
+                dto.CheckIn.ToDateTime(TimeOnly.MinValue),
+                dto.CheckOut.ToDateTime(TimeOnly.MinValue),
                 dto.Adults,
-                dto.Children
+                dto.Children,
+                roomCategoryDTO.Type
                 );
 
             var roomReservation = new RoomReservation
@@ -124,7 +130,7 @@ namespace TheGallop_Resort.Api.Services
                 Adults = roomReservationDTO.Adults,
                 Children = roomReservationDTO.Children,
                 PricePerNight = 800,
-                RoomId = 1,
+                RoomId = room.Id,
               
             };
 
@@ -142,9 +148,9 @@ namespace TheGallop_Resort.Api.Services
                 RoomReservations = booking.RoomReservations.Select(r => new GetFullRoomReservationResponse
                 (
                     r.Id,
-                    r.RoomId,
-                    r.CheckIn,
-                    r.CheckOut,
+                    dto.Type,
+                    DateOnly.FromDateTime(r.CheckIn),
+                    DateOnly.FromDateTime(r.CheckOut),
                     r.Adults,
                     r.Children,
                     r.PricePerNight
