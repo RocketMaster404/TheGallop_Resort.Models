@@ -88,7 +88,7 @@ namespace TheGallop_Resort.Api.Services
         //DTOist
         public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
-            var room = await _ctx.RoomCategories.FirstOrDefaultAsync(r => r.Type == dto.Type);
+            var room = await _ctx.Rooms.FirstOrDefaultAsync(r => r.RoomCategory.Type == dto.Type);
            
             var bookingDTO = new CreateBookingDTO
             {
