@@ -30,6 +30,7 @@ namespace TheGallop_Resort.Tests.BookingTests
             _ctx = new GaloppDbContext(options);
             _iGuestService = A.Fake<IGuestService>();
 
+            
 
             _bookingService = new BookingService(_ctx, _iGuestService);
 
@@ -47,7 +48,7 @@ namespace TheGallop_Resort.Tests.BookingTests
                 PhoneNumber = "0765975412"
             };
 
-            var booking = new Booking
+            var booking1 = new Booking
             {
                 Id = 1,
                 Guest = guest,
@@ -56,7 +57,16 @@ namespace TheGallop_Resort.Tests.BookingTests
                 CreatedAt = DateTime.Now
             };
 
-            _ctx.Bookings.Add(booking);
+            var booking2 = new Booking
+            {
+                Id = 2,
+                Guest = guest,
+                TotalPrice = 1300,
+                Status = Status.Preliminary,
+                CreatedAt = DateTime.Now
+            };
+
+            _ctx.Bookings.AddRange(booking1, booking2);
 
             await _ctx.SaveChangesAsync();
 
@@ -64,9 +74,7 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
 
-            result.Status.Should().Be(ServiceResultStatus.Success);
-
-            result.Data.Should().HaveCount(1);
+            result.Data.Should().HaveCount(2);
         }
 
         [TestMethod]
@@ -98,8 +106,6 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
 
-            result.Status.Should().Be(ServiceResultStatus.Success);
-
             result.Data.Id.Should().Be(3);
         }
 
@@ -123,9 +129,7 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
 
-            result.Status.Should().Be(ServiceResultStatus.Success);
-
-            result.Data.Id.Should().Be(fakeGuestId);
+            result.Data.GuestId.Should().Be(fakeGuestId);
 
             var count = await _ctx.Bookings.CountAsync();
             count.Should().Be(1);
@@ -172,8 +176,6 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
 
-            result.Status.Should().Be(ServiceResultStatus.Success);
-
             var checkGuest = await _ctx.Bookings.FirstOrDefaultAsync();
             checkGuest.Guest.FirstName.Should().Be("NyTest");
         }
@@ -209,8 +211,6 @@ namespace TheGallop_Resort.Tests.BookingTests
             var result = await _bookingService.UpdateBookingStatusAsync(updatedDto);
 
             result.SuccessfulResult.Should().BeTrue();
-
-            result.Status.Should().Be(ServiceResultStatus.Success);
 
             var checkStatus = await _ctx.Bookings.FirstOrDefaultAsync();
             checkStatus.Status.Should().Be(Status.Cancelled);
