@@ -52,14 +52,14 @@ namespace TheGallop_Resort.Api.Controllers
         //DTO
         public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
         {
-            var booking = await _bookingService.CreateBookingAsync(dto);
+            var result = await _bookingService.CreateBookingAsync(dto);
 
-            if (!booking.SuccessfulResult)
+            if (!result.SuccessfulResult)
             {
-                return BadRequest(booking.ErrorMessage);
+                return BadRequest(result.ErrorMessage);
             }
 
-            return Ok();
+            return Ok(result.Data);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]

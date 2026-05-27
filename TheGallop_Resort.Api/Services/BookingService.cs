@@ -125,10 +125,8 @@ namespace TheGallop_Resort.Api.Services
                 Children = roomReservationDTO.Children,
                 PricePerNight = 800,
                 RoomId = 1,
-                RoomId 
+              
             };
-
-            booking.RoomReservations.Add(roomReservation);
 
             await _ctx.RoomReservations.AddAsync(roomReservation);
             await _ctx.SaveChangesAsync();

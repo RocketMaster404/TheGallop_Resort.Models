@@ -39,10 +39,6 @@ namespace TheGallop_Resort.Api.DTOs
     public record CreateBookingDTO
     {
         public int GuestId { get; init; }
-        public DateTime CreatedAt { get; init; } 
-        public Status Status { get; init; }
-        public decimal TotalPrice { get; init; }
-        public ICollection<RoomReservation> RoomReservations { get; set; } = new List<RoomReservation>();
 
     }
 
