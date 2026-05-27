@@ -85,31 +85,75 @@ namespace TheGallop_Resort.Api.Services
             return ServiceResult<GetBookingResponseDTO>.Ok(bookings);
         }
 
-        public async Task<ServiceResult<Booking>> AddBookingAsync(int guestId)
+        //DTOist
+        public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
-            if (guestId <= 0)
+            var bookingDTO = new CreateBookingDTO
             {
-                return ServiceResult<Booking>.ValidationError($"GuestId can't be a negative number.");
-            }
-
-            try
-            {
-                await _iGuestService.GetGuestInfoByIdAsync(guestId);
-            }
-            catch
-            {
-                return ServiceResult<Booking>.NotFound($"No guest with id {guestId} was found!");
-            }
+                GuestId = dto.GuestId,
+            };
 
             var booking = new Booking
             {
-                GuestId = guestId
+                CreatedAt = DateTime.Now,
+                GuestId = bookingDTO.GuestId,
+                Status = Status.Confirmed,
+                TotalPrice = 0,
+                RoomReservations = new List<RoomReservation>()
+
             };
 
             await _ctx.Bookings.AddAsync(booking);
             await _ctx.SaveChangesAsync();
 
-            return ServiceResult<Booking>.Ok(booking);
+            var roomReservationDTO = new CreateRoomReservationDTO
+                (
+                booking.Id,
+                dto.CheckIn,
+                dto.CheckOut,
+                dto.Adults,
+                dto.Children
+                );
+
+            var roomReservation = new RoomReservation
+            {
+                BookingId = booking.Id,
+                CheckIn = roomReservationDTO.CheckIn,
+                CheckOut = roomReservationDTO.CheckOut,
+                RoomStatus = RoomStatus.Confirmed,
+                Adults = roomReservationDTO.Adults,
+                Children = roomReservationDTO.Children,
+                PricePerNight = 800,
+                RoomId = 1,
+                RoomId 
+            };
+
+            booking.RoomReservations.Add(roomReservation);
+
+            await _ctx.RoomReservations.AddAsync(roomReservation);
+            await _ctx.SaveChangesAsync();
+
+            var response = new GetFullBookingResponsDTO
+            {
+                Id = booking.Id,
+                CreatedAt = booking.CreatedAt,
+                Status = booking.Status,
+                TotalPrice = booking.TotalPrice,
+                GuestId = booking.GuestId,
+
+                RoomReservations = booking.RoomReservations.Select(r => new GetFullRoomReservationResponse
+                (
+                    r.Id,
+                    r.RoomId,
+                    r.CheckIn,
+                    r.CheckOut,
+                    r.Adults,
+                    r.Children,
+                    r.PricePerNight
+                ))
+            };
+
+            return ServiceResult<GetFullBookingResponsDTO>.Ok(response);
         }
 
 
