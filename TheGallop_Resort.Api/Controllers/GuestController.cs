@@ -113,7 +113,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validator.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validator.Errors);
             }
 
             var guest = await _guestService.UpdateGuestInfoAsync(guestId, dto);

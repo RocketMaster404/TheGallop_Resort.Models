@@ -21,7 +21,8 @@ public class GuestControllerTest
     {
         var fake = A.Fake<IGuestService>();
         var validator = A.Fake<IValidator<CreateGuestDTO>>();
-        var controller = new GuestController(fake,validator);
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+        var controller = new GuestController(fake,validator,validatorUpdateGuest);
 
         var guest = new GuestInfoWithBookingDTO(
             "Test",
@@ -63,10 +64,11 @@ public class GuestControllerTest
     {
         var fake = A.Fake<IGuestService>();
         var fakeValidator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
         var controller = new GuestController(
             fake,
-            fakeValidator);
+            fakeValidator,validatorUpdateGuest);
 
         A.CallTo(() => fakeValidator.ValidateAsync(
                 A<CreateGuestDTO>._,
@@ -114,9 +116,10 @@ public class GuestControllerTest
     public async Task UpdateGuest_CheckUpdatedGuestInfo_ReturnUpdatedObject()
     {
         var fake = A.Fake<IGuestService>();
-        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorCreateGuest = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake < IValidator< UpdateGuestInfoDTO>>();
 
-        var controller = new GuestController(fake,validator);
+        var controller = new GuestController(fake,validatorCreateGuest,validatorUpdateGuest);
 
        
 
@@ -154,11 +157,12 @@ public class GuestControllerTest
 
         var fake = A.Fake<IGuestService>();
         var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
         A.CallTo(() => fake.DeleteGuestAsync(1))
             .Returns(ServiceResult.Ok());
 
-        var controller = new GuestController(fake,validator);
+        var controller = new GuestController(fake,validator,validatorUpdateGuest);
 
         
         IActionResult result = await controller.DeleteGuest(1);
