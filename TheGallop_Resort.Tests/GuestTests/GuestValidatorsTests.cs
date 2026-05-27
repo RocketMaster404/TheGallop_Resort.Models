@@ -11,6 +11,7 @@ public class GuestValidatorsTests
     public void Validate_InvalidEmail_ReturnError()
     {
         var validator = new CreateGuestDTOValidator();
+       
 
         var dto = new CreateGuestDTO()
         {
