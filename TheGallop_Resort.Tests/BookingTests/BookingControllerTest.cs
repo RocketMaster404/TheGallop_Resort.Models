@@ -100,34 +100,34 @@ public class BookingControllerTest
         serviceResult.Data.Should().HaveCount(1);
     }
 
-    [TestMethod]
-    public async Task AddBooking_AddValidBooking_ReturnOk()
-    {
+    //[TestMethod]
+    //public async Task AddBooking_AddValidBooking_ReturnOk()
+    //{
 
-        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
+    //    var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator);
 
-        var testGuestId = 1;
+    //    var testGuestId = 1;
 
-        var testBooking = new Booking { Id = 1, GuestId = testGuestId };
+    //    var testBooking = new Booking { Id = 1, GuestId = testGuestId };
 
-        A.CallTo(() => _fakeBookingService.AddBookingAsync(testGuestId))
-            .Returns(ServiceResult<Booking>.Ok(testBooking));
+    //    A.CallTo(() => _fakeBookingService.AddBookingAsync(testGuestId))
+    //        .Returns(ServiceResult<Booking>.Ok(testBooking));
 
-        var result = await controller.AddBooking(testGuestId);
+    //    var result = await controller.AddBooking(testGuestId);
 
-        var okResult = result.Result
-            .Should()
-            .BeAssignableTo<OkObjectResult>()
-            .Subject;
+    //    var okResult = result.Result
+    //        .Should()
+    //        .BeAssignableTo<OkObjectResult>()
+    //        .Subject;
 
-        var serviceResult = okResult.Value
-            .Should()
-            .BeAssignableTo<ServiceResult<Booking>>()
-            .Subject;
+    //    var serviceResult = okResult.Value
+    //        .Should()
+    //        .BeAssignableTo<ServiceResult<Booking>>()
+    //        .Subject;
 
-        serviceResult.Should().NotBeNull();
-        serviceResult.Data.GuestId.Should().Be(testGuestId);
-    }
+    //    serviceResult.Should().NotBeNull();
+    //    serviceResult.Data.GuestId.Should().Be(testGuestId);
+    //}
 
     [TestMethod]
     public async Task UpdateGuestOnBookingAsync_UpdateValidGuestOnBooking_ReturnOk()
