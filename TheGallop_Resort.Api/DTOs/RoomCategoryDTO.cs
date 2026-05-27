@@ -13,4 +13,6 @@ namespace TheGallop_Resort.Api.DTOs
 
         public int RoomDetailId { get; init; }
     }
+
+    public record AddCategoryToBookingDTO (RoomType Type);
 }
