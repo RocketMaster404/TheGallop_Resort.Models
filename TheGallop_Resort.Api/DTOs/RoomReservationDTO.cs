@@ -7,7 +7,7 @@ namespace TheGallop_Resort.Api.DTOs
 
     public record CreateRoomReservationDTO (int bookingId, DateTime CheckIn, DateTime CheckOut, int Adults, int Children, RoomType Type );
 
-    public record GetFullRoomReservationResponse(int Id, RoomType Type, DateOnly CheckIn, DateOnly CheckOut, int Adults,int Children, decimal PricePerNight);
+    public record GetFullRoomReservationResponse(int Id, RoomType Type, DateOnly CheckIn, DateOnly CheckOut, int RoomNr, int Adults,int Children, decimal PricePerNight);
     
 }
 

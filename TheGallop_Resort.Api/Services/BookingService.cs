@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TheGallop_Resort.Api.Services
 {
@@ -26,7 +27,7 @@ namespace TheGallop_Resort.Api.Services
                     CreatedAt = b.CreatedAt,
                     TotalPrice = b.TotalPrice,
                     Status = b.Status,
-                    Guest = new GuestInfoDTO (
+                    Guest = new GuestInfoDTO(
                         b.Guest.FirstName,
                         b.Guest.LastName,
                         b.Guest.Email,
@@ -86,10 +87,20 @@ namespace TheGallop_Resort.Api.Services
         //DTOist
         public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
-            var room = await _ctx.Rooms.FirstOrDefaultAsync(r => r.RoomCategory.Type == dto.Type);
-
             var checkIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue);
             var checkOut = dto.CheckOut.ToDateTime(TimeOnly.MinValue);
+
+            var room = await _ctx.Rooms
+                .Where(r => r.RoomCategory.Type == dto.Type)
+                .Where(r => !r.RoomReservations.Any(rr =>
+                    checkIn < rr.CheckOut &&
+                    checkOut > rr.CheckIn))
+                .FirstOrDefaultAsync();
+
+            if (room == null)
+            {
+                return ServiceResult<GetFullBookingResponsDTO>.NotFound($"There are no available rooms of type {dto.Type} on chosen date.");
+            }
 
             var bookingDTO = new CreateBookingDTO
             {
@@ -130,7 +141,7 @@ namespace TheGallop_Resort.Api.Services
                 Adults = roomReservationDTO.Adults,
                 Children = roomReservationDTO.Children,
                 RoomId = room.Id,
-              
+
             };
 
             await _ctx.RoomReservations.AddAsync(roomReservation);
@@ -162,6 +173,7 @@ namespace TheGallop_Resort.Api.Services
                     dto.Type,
                     DateOnly.FromDateTime(r.CheckIn),
                     DateOnly.FromDateTime(r.CheckOut),
+                    r.Room.RoomNr,
                     r.Adults,
                     r.Children,
                     calculatedTotalPrice
@@ -220,7 +232,7 @@ namespace TheGallop_Resort.Api.Services
             var today = DateTime.Now;
 
             var startOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(1);
-            
+
             var endOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(2);
 
 
