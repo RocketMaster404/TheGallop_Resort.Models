@@ -291,5 +291,25 @@ namespace TheGallop_Resort.Api.Services
 
             return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
         }
+
+        public async Task<ServiceResult> DeleteBookingByIdAsync(int bookingId)
+        {
+            var booking = await _ctx.Bookings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+
+            if (booking is null)
+            {
+                return ServiceResult.NotFound("No bookings were found.");
+            }
+
+            _ctx.Bookings.Remove(booking);
+
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+        }
+
     }
 }
