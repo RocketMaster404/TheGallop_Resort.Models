@@ -145,6 +145,11 @@ public class GuestValidatorsTests
     }
 
     [DataTestMethod]
+    [DataRow("")]
+    [DataRow("  ")]
+    [DataRow(null)]
+    [DataRow("T")]
+    [DataRow("ThisMightBeALongerNameThenTheOneErikUsedInTheFirstNameTest?")]
     public void Validate_InvalidLastName_ReturnError(string invalidLastName)
     {
         var validator = new CreateGuestDTOValidator();
@@ -152,7 +157,7 @@ public class GuestValidatorsTests
         var dto = new CreateGuestDTO()
         {
             FirstName = "Test",
-            LastName = "T",
+            LastName = invalidLastName,
             Email = "Test@testsson.se",
             Phone = "0727435550"
         };
@@ -161,4 +166,6 @@ public class GuestValidatorsTests
 
         result.ShouldHaveValidationErrorFor(g => g.LastName);
     }
+
+
 }
