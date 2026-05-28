@@ -118,6 +118,23 @@ public class GuestServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateGuestAsync_UpdateNonExistingGuest_ReturnNotFound()
+    {
+        var guestInfo = new UpdateGuestInfoDTO()
+        {
+            FirstName = "test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "098376211"
+        };
+
+        var result = await _service.UpdateGuestInfoAsync(10, guestInfo);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
+    }
+
+    [TestMethod]
     public async Task DeleteGuestAsync_DeleteGuest_ReturnZero()
     {
         var guestDto = new CreateGuestDTO()
