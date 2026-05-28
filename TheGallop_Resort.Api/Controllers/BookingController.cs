@@ -68,7 +68,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-            return Ok(result);
+            return Ok(result.Data);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
