@@ -7,8 +7,13 @@ namespace TheGallop_Resort.Tests;
 [TestClass]
 public class GuestValidatorsTests
 {
-    [TestMethod]
-    public void Validate_InvalidEmail_ReturnError()
+    [DataTestMethod]
+    [DataRow("test")]
+    [DataRow("testtestsson.se")]
+    [DataRow("@test.se")]
+    [DataRow("")]
+    [DataRow(null)]
+    public void Validate_InvalidEmail_ReturnError(string invalidEmail)
     {
         var validator = new CreateGuestDTOValidator();
        
@@ -17,13 +22,37 @@ public class GuestValidatorsTests
         {
             FirstName = "Test",
             LastName = "Testsson",
-            Email = "Testtestsson.se",
+            Email = invalidEmail,
             Phone = "0727435550"
         };
 
         var result = validator.TestValidate(dto);
 
         result.ShouldHaveValidationErrorFor(g => g.Email);
+    }
+
+    [DataTestMethod]
+    [DataRow("erik.nyy@gmail.com")]
+    [DataRow("erik@gmail.com")]
+    [DataRow("erik.nyy@gmail.se")]
+    [DataRow("erik.123@hotmail.com")]
+    [DataRow("erik.123@hotmail.com")]
+
+    public void Validate_ValidEmail_ReturnOk(string validEmail)
+    {
+        var validator = new CreateGuestDTOValidator();
+
+        var dto = new CreateGuestDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = validEmail,
+            Phone = "07262534261"
+        };
+
+        var result = validator.TestValidate(dto);
+
+        result.ShouldNotHaveAnyValidationErrors();
     }
 
     [TestMethod]
