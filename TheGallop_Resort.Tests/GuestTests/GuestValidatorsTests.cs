@@ -99,14 +99,20 @@ public class GuestValidatorsTests
     }
     
 
-    [TestMethod]
-    public void Validate_InvalidFirstName_ReturnError()
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow("     ")]
+    [DataRow(" ")]
+    [DataRow("E")]
+    [DataRow("ThisIsAVeryLongNameSoLoongThatItShouldNotBeAcceptedByEriksTest")]
+    [DataRow(null)]
+    public void Validate_InvalidFirstName_ReturnError(string invalidFirstName)
     {
         var validator = new CreateGuestDTOValidator();
 
         var dto = new CreateGuestDTO()
         {
-            FirstName = "E",
+            FirstName = invalidFirstName,
             LastName = "Testsson",
             Email = "Test@testsson.se",
             Phone = "0727435550"
