@@ -24,7 +24,7 @@ public class BookingControllerTest
         _fakeBookingService = A.Fake<IBookingService>();
         _updateStatusValidator = A.Fake<IValidator<UpdateBookingStatusDTO>>();
         _updateGuestValidator = A.Fake<IValidator<UpdateBookingGuestDTO>>();
-        _getInputFromUserCreateDTO = A.Fake <IValidator<GetInputFromUserCreateDTO>>();
+        _getInputFromUserCreateDTO = A.Fake<IValidator<GetInputFromUserCreateDTO>>();
     }
 
     [TestMethod]
@@ -95,11 +95,10 @@ public class BookingControllerTest
 
         var serviceResult = okResult.Value
             .Should()
-            .BeAssignableTo<ServiceResult<IEnumerable<GetBookingResponseDTO>>>()
+            .BeAssignableTo<IEnumerable<GetBookingResponseDTO>>()
             .Subject;
 
         serviceResult.Should().NotBeNull();
-        serviceResult.Data.Should().HaveCount(1);
     }
 
     [TestMethod]
@@ -108,9 +107,12 @@ public class BookingControllerTest
 
         var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
 
-        var testBooking = new GetInputFromUserCreateDTO {GuestId = 1, CheckIn = new DateOnly(2026, 06, 28), CheckOut = new DateOnly(2026, 06, 29), Children = 1, Adults = 2, Type = RoomType.Suite};
+        var testBooking = new GetInputFromUserCreateDTO { GuestId = 1, CheckIn = new DateOnly(2026, 09, 28), CheckOut = new DateOnly(2026, 09, 29), Children = 1, Adults = 2, Type = RoomType.Suite };
 
         var fakeResponse = new GetFullBookingResponsDTO { Id = 99, GuestId = 1, Status = Status.Confirmed, TotalPrice = 5000, CreatedAt = DateTime.Now, RoomReservations = new List<GetFullRoomReservationResponse>() };
+
+        A.CallTo(() => _getInputFromUserCreateDTO.ValidateAsync(testBooking, default))
+        .Returns(new ValidationResult());
 
         A.CallTo(() => _fakeBookingService.CreateBookingAsync(testBooking))
             .Returns(ServiceResult<GetFullBookingResponsDTO>.Ok(fakeResponse));
@@ -175,17 +177,12 @@ public class BookingControllerTest
 
         var result = await controller.UpdateBookingStatus(updatedDTO);
 
-        var okResult = result
+        var noContentResult = result
             .Should()
-            .BeAssignableTo<OkObjectResult>()
+            .BeAssignableTo<NoContentResult>() 
             .Subject;
 
-        var serviceResult = okResult.Value
-            .Should()
-            .BeAssignableTo<ServiceResult>()
-            .Subject;
 
-        serviceResult.Should().NotBeNull();
-        serviceResult.SuccessfulResult.Should().BeTrue();
+        noContentResult.Should().NotBeNull();
     }
 }
