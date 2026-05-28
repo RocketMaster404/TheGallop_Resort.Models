@@ -25,7 +25,7 @@ public class BookingValidatorsTests
     {
         var validator = new UpdateBookingGuestDTOValidator();
 
-        var booking = new UpdateBookingGuestDTO(-1,  3);
+        var booking = new UpdateBookingGuestDTO(-1, 3);
 
         var result = validator.TestValidate(booking);
 
@@ -36,7 +36,7 @@ public class BookingValidatorsTests
     public void UpdateBookingStatus_AnotherStatusThanEnum_ReturnError()
     {
         var validator = new UpdateBookingStatusDTOValidator();
-        var booking = new UpdateBookingStatusDTO(BookingId : 1, Status: (Status)99);
+        var booking = new UpdateBookingStatusDTO(BookingId: 1, Status: (Status)99);
 
         var result = validator.TestValidate(booking);
 
@@ -52,6 +52,24 @@ public class BookingValidatorsTests
         var result = validator.TestValidate(booking);
 
         result.ShouldHaveValidationErrorFor(x => x.BookingId);
+    }
+
+    [TestMethod]
+    public void CreateBooking_CheckinCanNotBeBeforeCheckOut_ReturnError()
+    {
+        var validator = new CreateBookingDTOValidator();
+        var booking = new GetInputFromUserCreateDTO
+        {
+            GuestId = 1,
+            CheckIn = new DateOnly(2026, 07, 10),
+            CheckOut = new DateOnly(2026, 07, 05),
+            Adults = 2,
+            Children = 0,
+            Type = RoomType.Suite
+        };
+
+        var result = validator.TestValidate(booking);
+        result.ShouldHaveValidationErrorFor(x => x.CheckOut);
     }
 
 }

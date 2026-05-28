@@ -18,7 +18,6 @@ namespace TheGallop_Resort.Tests.BookingTests
     {
         private GaloppDbContext _ctx;
         private BookingService _bookingService;
-        private IGuestService _iGuestService;
 
         [TestInitialize]
         public void Setup()
@@ -28,11 +27,10 @@ namespace TheGallop_Resort.Tests.BookingTests
                 .Options;
 
             _ctx = new GaloppDbContext(options);
-            _iGuestService = A.Fake<IGuestService>();
 
             
 
-            _bookingService = new BookingService(_ctx, _iGuestService);
+            _bookingService = new BookingService(_ctx);
 
         }
 
