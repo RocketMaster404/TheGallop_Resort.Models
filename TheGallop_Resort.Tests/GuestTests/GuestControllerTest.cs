@@ -237,9 +237,23 @@ public class GuestControllerTest
         
         result.Should().BeAssignableTo<NoContentResult>();
 
+    }
 
-        
+    [TestMethod]
+    public async Task DeleteGuest_InvalidGuest_ReturnNotFound()
+    {
+        var fakeService = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var updateValidator = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
+        A.CallTo(() => fakeService.DeleteGuestAsync(1))
+            .Returns(ServiceResult.NotFound("Guest not found"));
+
+        var controller = new GuestController(fakeService, validator, updateValidator);
+
+        IActionResult result = await controller.DeleteGuest(1);
+
+        var notFound = result.Should().BeAssignableTo<NotFoundObjectResult>().Subject;
     }
 
 
