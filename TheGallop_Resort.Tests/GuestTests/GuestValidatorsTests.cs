@@ -37,7 +37,6 @@ public class GuestValidatorsTests
     [DataRow("erik.nyy@gmail.se")]
     [DataRow("erik.123@hotmail.com")]
     [DataRow("erik.123@hotmail.com")]
-
     public void Validate_ValidEmail_ReturnOk(string validEmail)
     {
         var validator = new CreateGuestDTOValidator();
@@ -55,8 +54,13 @@ public class GuestValidatorsTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    [TestMethod]
-    public void Validate_InvalidPhone_ReturnError()
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow(null)]
+    [DataRow("FelNummer")]
+    [DataRow("1")]
+    [DataRow("0928sujdhen")]
+    public void Validate_InvalidPhone_ReturnError(string invalidPhonenumber)
     {
         var validator = new CreateGuestDTOValidator();
 
@@ -65,13 +69,15 @@ public class GuestValidatorsTests
             FirstName = "Test",
             LastName = "Testsson",
             Email = "Test@testsson.se",
-            Phone = "FElaktigt nummer"
+            Phone = invalidPhonenumber
         };
 
         var result = validator.TestValidate(dto);
 
         result.ShouldHaveValidationErrorFor(g => g.Phone);
     }
+
+    
 
     [TestMethod]
     public void Validate_InvalidFirstName_ReturnError()
