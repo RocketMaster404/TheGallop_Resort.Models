@@ -42,12 +42,43 @@ public class GuestServiceTests
 
         var guestCheck = await _ctx.Guests.FirstAsync();
 
+
+
         guestCheck.FirstName.Should().Be(guestDto.FirstName);
         guestCheck.LastName.Should().Be(guestDto.LastName);
         guestCheck.Email.Should().Be(guestDto.Email);
         guestCheck.PhoneNumber.Should().Be(guestDto.Phone);
 
     }
+
+    [TestMethod]
+    public async Task AddGuest_AddDuplicatedEmail_ReturnValidationError()
+    {
+        var guest = new CreateGuestDTO
+        {
+            FirstName = "Erik",
+            LastName = "Bosse",
+            Email = "valid@email.com",
+            Phone = "09872652"
+        };
+
+        var guestDuplicate = new CreateGuestDTO
+        {
+            FirstName = "Erik",
+            LastName = "Bosse",
+            Email = "valid@email.com",
+            Phone = "09872652"
+        };
+
+        await _service.AddGuestAsync(guest);
+        var result = await _service.AddGuestAsync(guestDuplicate);
+
+        var counter = await _ctx.Guests.CountAsync();
+        counter.Should().Be(1);
+        result.SuccessfulResult.Should().BeFalse();
+    }
+
+    
 
     [TestMethod]
     public async Task UpdateGuestInfoAsync_UpdateGuest_ReturnNewObject()
@@ -76,6 +107,9 @@ public class GuestServiceTests
         await _service.UpdateGuestInfoAsync(1, guestDtoUpdate);
 
         var guestCheck = await _ctx.Guests.FirstAsync();
+
+
+
         guestCheck.FirstName.Should().Be(guestDtoUpdate.FirstName);
         guestCheck.LastName.Should().Be(guestDtoUpdate.LastName);
         guestCheck.Email.Should().Be(guestDtoUpdate.Email);
