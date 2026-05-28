@@ -112,5 +112,20 @@ namespace TheGallop_Resort.Api.Controllers
             return NoContent();
         }
 
+        [HttpGet("getBookingsForNextMonth", Name = "getBookingsForNextMonth")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForNextMonth()
+        {
+            var bookings = await _bookingService.GetBookingsForNextMonthAsync();
+
+            return Ok(bookings.Data);
+        }
+
+        [HttpGet("GetBookingsForSpecifikDate", Name = "GetBookingsForSpecifikDate")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForSpecifikDate(DateOnly inputDate)
+        {
+            var bookings = await _bookingService.GetBookingsForSpecifikDateAsync(inputDate);
+
+            return Ok(bookings.Data);
+        }
     }
 }
