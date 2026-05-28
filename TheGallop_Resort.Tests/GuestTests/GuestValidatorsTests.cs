@@ -37,7 +37,7 @@ public class GuestValidatorsTests
     [DataRow("erik.nyy@gmail.se")]
     [DataRow("erik.123@hotmail.com")]
     [DataRow("erik.123@hotmail.com")]
-    public void Validate_ValidEmail_ReturnOk(string validEmail)
+    public void Validate_ValidEmail_ReturnNoError(string validEmail)
     {
         var validator = new CreateGuestDTOValidator();
 
@@ -77,6 +77,26 @@ public class GuestValidatorsTests
         result.ShouldHaveValidationErrorFor(g => g.Phone);
     }
 
+    [DataTestMethod]
+    [DataRow("+467283929")]
+    [DataRow("+467-2839-29")]
+    [DataRow("0340-16500")]
+    [DataRow("078726537")]
+    public void Validate_ValidPhoneNumber_ReturnNoError(string validPhonenumber)
+    {
+        var validator = new CreateGuestDTOValidator();
+
+        var dto = new CreateGuestDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = validPhonenumber
+        };
+
+        var result = validator.TestValidate(dto);
+        result.ShouldNotHaveAnyValidationErrors();
+    }
     
 
     [TestMethod]
