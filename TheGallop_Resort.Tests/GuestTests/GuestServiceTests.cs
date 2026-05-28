@@ -42,12 +42,45 @@ public class GuestServiceTests
 
         var guestCheck = await _ctx.Guests.FirstAsync();
 
+
+
         guestCheck.FirstName.Should().Be(guestDto.FirstName);
         guestCheck.LastName.Should().Be(guestDto.LastName);
         guestCheck.Email.Should().Be(guestDto.Email);
         guestCheck.PhoneNumber.Should().Be(guestDto.Phone);
 
     }
+
+    [TestMethod]
+    public async Task AddGuest_AddDuplicatedEmail_ReturnValidationError()
+    {
+        var guest = new CreateGuestDTO
+        {
+            FirstName = "Erik",
+            LastName = "Bosse",
+            Email = "valid@email.com",
+            Phone = "09872652"
+        };
+
+        var guestDuplicate = new CreateGuestDTO
+        {
+            FirstName = "Erik",
+            LastName = "Bosse",
+            Email = "valid@email.com",
+            Phone = "09872652"
+        };
+
+        await _service.AddGuestAsync(guest);
+        var result = await _service.AddGuestAsync(guestDuplicate);
+
+        var counter = await _ctx.Guests.CountAsync();
+        counter.Should().Be(1);
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.ValidationError);
+
+    }
+
+    
 
     [TestMethod]
     public async Task UpdateGuestInfoAsync_UpdateGuest_ReturnNewObject()
@@ -76,11 +109,31 @@ public class GuestServiceTests
         await _service.UpdateGuestInfoAsync(1, guestDtoUpdate);
 
         var guestCheck = await _ctx.Guests.FirstAsync();
+
+
+
         guestCheck.FirstName.Should().Be(guestDtoUpdate.FirstName);
         guestCheck.LastName.Should().Be(guestDtoUpdate.LastName);
         guestCheck.Email.Should().Be(guestDtoUpdate.Email);
         guestCheck.PhoneNumber.Should().Be(guestDtoUpdate.Phone);
 
+    }
+
+    [TestMethod]
+    public async Task UpdateGuestAsync_UpdateNonExistingGuest_ReturnNotFound()
+    {
+        var guestInfo = new UpdateGuestInfoDTO()
+        {
+            FirstName = "test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "098376211"
+        };
+
+        var result = await _service.UpdateGuestInfoAsync(10, guestInfo);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
     }
 
     [TestMethod]
@@ -99,6 +152,17 @@ public class GuestServiceTests
         await _service.DeleteGuestAsync(1);
 
         _ctx.Guests.Should().BeEmpty();         
+    }
+
+    [TestMethod]
+    public async Task DeleteGuestAsync_DeleteNonExisitingGuest_ReturnNotFound()
+    {
+        var invalidId = 10;
+
+        var result = await _service.DeleteGuestAsync(invalidId);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
     }
 
     [TestMethod]
@@ -123,6 +187,17 @@ public class GuestServiceTests
         guest.Data.Email.Should().Be(guestDto.Email);
         guest.Data.Phone.Should().Be(guestDto.Phone);
 
+    }
+
+    [TestMethod]
+    public async Task GetGuestInfoByIdAsync_GetGuestinfoFromInvalidGuest_ReturnNotFound()
+    {
+        var invalidId = 11;
+
+        var result = await _service.GetGuestInfoByIdAsync(invalidId);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
     }
 
 
