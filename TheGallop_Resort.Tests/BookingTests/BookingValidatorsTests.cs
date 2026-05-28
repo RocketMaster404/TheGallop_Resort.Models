@@ -80,7 +80,7 @@ public class BookingValidatorsTests
         {
             GuestId = 1,
             CheckIn = new DateOnly(2026, 04, 10),
-            CheckOut = new DateOnly(2026, 06, 05),
+            CheckOut = new DateOnly(2026, 07, 05),
             Adults = 2,
             Children = 0,
             Type = RoomType.Suite
@@ -88,5 +88,23 @@ public class BookingValidatorsTests
 
         var result = validator.TestValidate(booking);
         result.ShouldHaveValidationErrorFor(x => x.CheckIn);
+    }
+
+    [TestMethod]
+    public void CreateBooking_MinimalOneAdult_RetornError()
+    {
+        var validator = new CreateBookingDTOValidator();
+        var booking = new GetInputFromUserCreateDTO
+        {
+            GuestId = 1,
+            CheckIn = new DateOnly(2026, 08, 01),
+            CheckOut = new DateOnly(2026, 08, 05),
+            Adults = 0,
+            Children = 1,
+            Type = RoomType.SingleBed
+        };
+
+        var result = validator.TestValidate(booking);
+        result.ShouldHaveValidationErrorFor(x => x.Adults);
     }
 }
