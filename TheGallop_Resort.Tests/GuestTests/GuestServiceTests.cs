@@ -153,6 +153,15 @@ public class GuestServiceTests
     }
 
     [TestMethod]
+    public async Task DeleteGuestAsync_DeleteNonExisitingGuest_ReturnNotFound()
+    {
+        var result = await _service.DeleteGuestAsync(10);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
+    }
+
+    [TestMethod]
     public async Task GetGuestInfoByIdAsync_GetUserInfo_ReturnGuestInfo()
     {
         var guestDto = new CreateGuestDTO()
