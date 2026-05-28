@@ -18,13 +18,15 @@ namespace TheGallop_Resort.Api.Controllers
         private IValidator<UpdateBookingStatusDTO> _updateBookingStatusDTO;
 
         private IValidator<UpdateBookingGuestDTO> _updateBookingGuestDTO;
+        private IValidator<GetInputFromUserCreateDTO> _getInputFromUserCreateDTO;
 
 
-        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO)
+        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO)
         {
             _bookingService = bookingService;
             _updateBookingStatusDTO = updateBookingStatusDTO;
             _updateBookingGuestDTO = updateBookingGuestDTO;
+            _getInputFromUserCreateDTO = getInputFromUserCreateDTO;
         }
 
         [HttpGet("getAllBookings", Name = "GetAllBooking")]
@@ -32,7 +34,7 @@ namespace TheGallop_Resort.Api.Controllers
         {
             var bookings = await _bookingService.GetAllBookingsAsync();
 
-            return Ok(bookings);
+            return Ok(bookings.Data);
         }
 
         [HttpGet("getBookingsById/{bookingId}", Name = "getBookingsById")]
@@ -45,13 +47,20 @@ namespace TheGallop_Resort.Api.Controllers
                 return NotFound(booking.ErrorMessage);
             }
 
-            return Ok(booking);
+            return Ok(booking.Data);
         }
 
         [HttpPost("CreateBooking", Name = "CreateBooking")]
         //DTO
         public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
         {
+            var validation = await _getInputFromUserCreateDTO.ValidateAsync(dto);
+
+            if (!validation.IsValid)
+            {
+                return BadRequest();
+            }
+
             var result = await _bookingService.CreateBookingAsync(dto);
 
             if (!result.SuccessfulResult)
@@ -59,7 +68,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
@@ -100,7 +109,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return ToErrorResponse(booking);
             }
 
-            return Ok(booking);
+            return NoContent();
         }
 
     }
