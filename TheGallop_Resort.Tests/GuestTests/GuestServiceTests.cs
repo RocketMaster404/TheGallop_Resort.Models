@@ -76,6 +76,8 @@ public class GuestServiceTests
         var counter = await _ctx.Guests.CountAsync();
         counter.Should().Be(1);
         result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.ValidationError);
+
     }
 
     
@@ -155,7 +157,9 @@ public class GuestServiceTests
     [TestMethod]
     public async Task DeleteGuestAsync_DeleteNonExisitingGuest_ReturnNotFound()
     {
-        var result = await _service.DeleteGuestAsync(10);
+        var invalidId = 10;
+
+        var result = await _service.DeleteGuestAsync(invalidId);
 
         result.SuccessfulResult.Should().BeFalse();
         result.Status.Should().Be(ServiceResultStatus.NotFound);
@@ -183,6 +187,17 @@ public class GuestServiceTests
         guest.Data.Email.Should().Be(guestDto.Email);
         guest.Data.Phone.Should().Be(guestDto.Phone);
 
+    }
+
+    [TestMethod]
+    public async Task GetGuestInfoByIdAsync_GetGuestinfoFromInvalidGuest_ReturnNotFound()
+    {
+        var invalidId = 11;
+
+        var result = await _service.GetGuestInfoByIdAsync(invalidId);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
     }
 
 
