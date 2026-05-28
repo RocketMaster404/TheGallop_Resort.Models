@@ -107,4 +107,22 @@ public class BookingValidatorsTests
         var result = validator.TestValidate(booking);
         result.ShouldHaveValidationErrorFor(x => x.Adults);
     }
+
+    [TestMethod]
+    public void CreateBooking_NegativeNumberOfChildren_ReturnError()
+    {
+        var validator = new CreateBookingDTOValidator();
+        var booking = new GetInputFromUserCreateDTO
+        {
+            GuestId = 1,
+            CheckIn = new DateOnly(2026, 08, 01),
+            CheckOut = new DateOnly(2026, 08, 05),
+            Adults = 1,
+            Children = -3,
+            Type = RoomType.SingleBed
+        };
+
+        var result = validator.TestValidate(booking);
+        result.ShouldHaveValidationErrorFor(x => x.Children);
+    }
 }

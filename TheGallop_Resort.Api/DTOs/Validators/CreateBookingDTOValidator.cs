@@ -17,6 +17,10 @@ namespace TheGallop_Resort.Api.DTOs.Validators
             RuleFor(x => x.Adults)
                 .GreaterThan(0)
                 .WithMessage("There must be at least one adult in the booking.");
+
+            RuleFor(x => x.Children)
+                .GreaterThan(0)
+                .WithMessage("Children count cannot be negative.");
         }
     }
 }
