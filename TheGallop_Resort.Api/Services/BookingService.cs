@@ -89,7 +89,10 @@ namespace TheGallop_Resort.Api.Services
         public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
             var room = await _ctx.Rooms.FirstOrDefaultAsync(r => r.RoomCategory.Type == dto.Type);
-           
+
+            var checkIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue);
+            var checkOut = dto.CheckOut.ToDateTime(TimeOnly.MinValue);
+
             var bookingDTO = new CreateBookingDTO
             {
                 GuestId = dto.GuestId,
@@ -100,7 +103,6 @@ namespace TheGallop_Resort.Api.Services
                 CreatedAt = DateTime.Now,
                 GuestId = bookingDTO.GuestId,
                 Status = Status.Confirmed,
-                TotalPrice = 0,
                 RoomReservations = new List<RoomReservation>()
 
             };
@@ -129,7 +131,6 @@ namespace TheGallop_Resort.Api.Services
                 RoomStatus = RoomStatus.Confirmed,
                 Adults = roomReservationDTO.Adults,
                 Children = roomReservationDTO.Children,
-                PricePerNight = 1000,
                 RoomId = room.Id,
               
             };
@@ -137,12 +138,24 @@ namespace TheGallop_Resort.Api.Services
             await _ctx.RoomReservations.AddAsync(roomReservation);
             await _ctx.SaveChangesAsync();
 
+            var roomCatoegory = await _ctx.RoomCategories.FirstOrDefaultAsync(c => c.Id == room.RoomCategoryId);
+
+            int nights = (int)(checkOut - checkIn).TotalDays;
+
+            var categoryPrice = roomCatoegory.CategoryPrice;
+            var pricePerNight = roomReservation.PricePerNight;
+
+            var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
+
+            booking.TotalPrice = calculatedTotalPrice;
+            await _ctx.SaveChangesAsync();
+
             var response = new GetFullBookingResponsDTO
             {
                 Id = booking.Id,
                 CreatedAt = booking.CreatedAt,
                 Status = booking.Status,
-                TotalPrice = booking.TotalPrice,
+                TotalPrice = calculatedTotalPrice,
                 GuestId = booking.GuestId,
 
                 RoomReservations = booking.RoomReservations.Select(r => new GetFullRoomReservationResponse
@@ -153,7 +166,7 @@ namespace TheGallop_Resort.Api.Services
                     DateOnly.FromDateTime(r.CheckOut),
                     r.Adults,
                     r.Children,
-                    r.PricePerNight
+                    calculatedTotalPrice
                 ))
             };
 
