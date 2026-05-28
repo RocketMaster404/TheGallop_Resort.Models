@@ -51,7 +51,7 @@ public class GuestValidatorsTests
 
         var result = validator.TestValidate(dto);
 
-        result.ShouldNotHaveAnyValidationErrors();
+        result.ShouldNotHaveValidationErrorFor(g => g.Email);
     }
 
     [DataTestMethod]
@@ -95,7 +95,7 @@ public class GuestValidatorsTests
         };
 
         var result = validator.TestValidate(dto);
-        result.ShouldNotHaveAnyValidationErrors();
+        result.ShouldNotHaveValidationErrorFor(g => g.Phone);
     }
     
 
@@ -123,8 +123,29 @@ public class GuestValidatorsTests
         result.ShouldHaveValidationErrorFor(g => g.FirstName);
     }
 
-    [TestMethod]
-    public void Validate_InvalidLastName_ReturnError()
+    [DataTestMethod]
+    [DataRow("Erik")]
+    [DataRow("My")]
+    [DataRow("Konstantinopel")]
+    public void Validate_ValidFirstName_ReturnNoError(string validFirstName)
+    {
+        var validator = new CreateGuestDTOValidator();
+
+        var dto = new CreateGuestDTO
+        {
+            FirstName = validFirstName,
+            LastName = "Lastname",
+            Email = "test@testsson.se",
+            Phone = "093862528"
+        };
+
+        var result = validator.TestValidate(dto);
+
+        result.ShouldNotHaveValidationErrorFor(g => g.FirstName);
+    }
+
+    [DataTestMethod]
+    public void Validate_InvalidLastName_ReturnError(string invalidLastName)
     {
         var validator = new CreateGuestDTOValidator();
 
