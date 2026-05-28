@@ -2,8 +2,6 @@ using FakeItEasy;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.DTOs;
@@ -48,13 +46,7 @@ public class GuestControllerTest
          .BeAssignableTo<GuestInfoWithBookingDTO>()
          .Subject;
 
-        returnedGuest.FirstName.Should().Be(guest.FirstName);
-        returnedGuest.LastName.Should().Be(guest.LastName);
-        returnedGuest.Email.Should().Be(guest.Email);
-        returnedGuest.Phone.Should().Be(guest.Phone);
-
-       
-
+        returnedGuest.Should().BeEquivalentTo(guest);
 
     }
 
@@ -104,10 +96,9 @@ public class GuestControllerTest
             .BeAssignableTo<Guest>()
             .Subject;
 
-        returnedGuest.FirstName.Should().Be(guestDto.FirstName);
-        returnedGuest.LastName.Should().Be(guestDto.LastName);
-        returnedGuest.Email.Should().Be(guestDto.Email);
-        returnedGuest.PhoneNumber.Should().Be(guestDto.Phone);
+        
+
+        returnedGuest.Should().BeEquivalentTo(guest);
 
         
     }
