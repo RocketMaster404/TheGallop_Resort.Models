@@ -32,7 +32,7 @@ namespace TheGallop_Resort.Api.Controllers
         {
             var bookings = await _bookingService.GetAllBookingsAsync();
 
-            return Ok(bookings);
+            return Ok(bookings.Data);
         }
 
         [HttpGet("getBookingsById/{bookingId}", Name = "getBookingsById")]
@@ -45,7 +45,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return NotFound(booking.ErrorMessage);
             }
 
-            return Ok(booking);
+            return Ok(booking.Data);
         }
 
         [HttpPost("CreateBooking", Name = "CreateBooking")]
@@ -59,7 +59,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
