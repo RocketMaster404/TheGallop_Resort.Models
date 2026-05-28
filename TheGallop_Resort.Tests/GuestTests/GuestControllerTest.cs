@@ -121,6 +121,58 @@ public class GuestControllerTest
         
     }
 
+    [TestMethod]
+    public async Task AddGuest_AddInvalidGuest_ReturnBadRequest()
+    {
+        
+        var fakeService = A.Fake<IGuestService>();
+        var fakeValidator = A.Fake<IValidator<CreateGuestDTO>>();
+        var fakeUpdateValidator = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+
+        var controller = new GuestController(
+            fakeService,
+            fakeValidator,
+            fakeUpdateValidator);
+
+        var guestDto = new CreateGuestDTO
+        {
+            FirstName = "",
+            LastName = "Testsson",
+            Email = "invalidEmail",
+            Phone = "**"
+        };
+
+        var validationFailures = new List<ValidationFailure>
+    {
+        new ValidationFailure("FirstName", "Invalid number of character"),
+        new ValidationFailure("Email", "Invalid format"),
+        new ValidationFailure("Phone", "Invalid format")
+    };
+
+        var validationResult = new ValidationResult(validationFailures);
+
+        A.CallTo(() => fakeValidator.ValidateAsync(
+                A<CreateGuestDTO>._,
+                default))
+            .Returns(validationResult);
+
+        
+        IActionResult result = await controller.AddGuest(guestDto);
+
+        
+        var badRequestResult = result.Should()
+            .BeAssignableTo<BadRequestObjectResult>()
+            .Subject;
+
+        badRequestResult.Value.Should()
+            .BeEquivalentTo(validationFailures);
+
+        A.CallTo(() => fakeService.AddGuestAsync(A<CreateGuestDTO>._))
+            .MustNotHaveHappened();
+    }
+
+
+
 
 
     [TestMethod]
