@@ -127,5 +127,12 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(bookings.Data);
         }
+
+        [HttpDelete("DeleteBookingById", Name = "DeleteBookingById")]
+        public async Task<IActionResult> DeleteBookingById(int bookingId)
+        {
+            var booking = await _bookingService.DeleteBookingByIdAsync(bookingId);
+            return NoContent();
+        }
     }
 }
