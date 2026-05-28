@@ -50,6 +50,24 @@ public class GuestControllerTest
 
     }
 
+    [TestMethod]
+    public async Task GetGuestInfoById_CheckGuestInfo_ReturnNotFound()
+    {
+        var fake = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdate = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+
+        var controller = new GuestController(fake, validator, validatorUpdate);
+
+        A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
+            .Returns(ServiceResult<GuestInfoWithBookingDTO>.NotFound("Guest not found"));
+
+        ActionResult<GuestInfoWithBookingDTO> result = await controller.GetGuestInfoById(1);
+
+        result.Result.Should().BeOfType<NotFoundObjectResult>();
+
+    }
+
 
     [TestMethod]
     public async Task AddGuest_AddValidGuest_Return200()
@@ -102,6 +120,8 @@ public class GuestControllerTest
 
         
     }
+
+
 
     [TestMethod]
     public async Task UpdateGuest_CheckUpdatedGuestInfo_ReturnUpdatedObject()
