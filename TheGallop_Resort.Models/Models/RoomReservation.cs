@@ -21,8 +21,8 @@ namespace TheGallop_Resort.Models.Models
         public int Adults { get; set; }
         [Range(0, 100)]
         public int Children { get; set; }
-        
-        public decimal PricePerNight { get; set; }
+
+        public decimal PricePerNight { get; set; } = 1000;
         
         public int RoomId { get; set; }
         public Room Room { get; set; } = null!;
