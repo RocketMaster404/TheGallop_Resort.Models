@@ -109,31 +109,42 @@ namespace TheGallop_Resort.Tests.BookingTests
             result.Data.Id.Should().Be(3);
         }
 
-        //[TestMethod]
-        //public async Task AddBookingAsync_AddBookingToExistingGuest_ReturnOK()
-        //{
-        //    var fakeGuestId = 1;
+        [TestMethod]
+        public async Task CreateBookingAsync_AddBookingToExistingGuest_ReturnOK()
+        {
 
-        //    var fakeGuestDto = new GuestInfoWithBookingDTO(
-        //         "Test",
-        //         "Testsson",
-        //         "test@test.com",
-        //         "0700000000",
-        //         new List<BookingDetailsDTO>()
-        //        );
+            var fakeRoomCategory = new RoomCategory
+            {
+                Id = 1,
+                Type = RoomType.Suite,
+                CategoryPrice = 1500
+            };
 
-        //    A.CallTo(() => _iGuestService.GetGuestInfoByIdAsync(fakeGuestId))
-        //    .Returns(ServiceResult<GuestInfoWithBookingDTO>.Ok(fakeGuestDto));
+            var fakeRoom = new Room
+            {
+                Id = 10,
+                RoomCategoryId = 1,
+                RoomCategory = fakeRoomCategory
+            };
 
-        //    var result = await _bookingService.AddBookingAsync(fakeGuestId);
+            await _ctx.Rooms.AddAsync(fakeRoom);
+            await _ctx.RoomCategories.AddAsync(fakeRoomCategory);
+            await _ctx.SaveChangesAsync();
 
-        //    result.SuccessfulResult.Should().BeTrue();
+            var inputDTO = new GetInputFromUserCreateDTO { GuestId = 1, CheckIn = new DateOnly(2026, 06, 28), CheckOut = new DateOnly(2026, 06, 29), Children = 1, Adults = 2, Type = RoomType.Suite };
 
-        //    result.Data.GuestId.Should().Be(fakeGuestId);
+            var result = await _bookingService.CreateBookingAsync(inputDTO);
 
-        //    var count = await _ctx.Bookings.CountAsync();
-        //    count.Should().Be(1);
-        //}
+
+            result.SuccessfulResult.Should().BeTrue();
+
+            result.Data.TotalPrice.Should().Be(2500);
+
+            result.Data.GuestId.Should().Be(inputDTO.GuestId);
+
+            var count = await _ctx.Bookings.CountAsync();
+            count.Should().Be(1);
+        }
 
         [TestMethod]
         public async Task UpdateGuestOnBookingAsync_UpdatingGuestOnExistingBooking_NewGuestOnBooking()
