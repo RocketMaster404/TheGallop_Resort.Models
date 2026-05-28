@@ -214,5 +214,47 @@ namespace TheGallop_Resort.Api.Services
 
             return ServiceResult.Ok();
         }
+
+        //sök bokningar inom nästa månad
+        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsNextMonth()
+        {
+            var today = DateTime.Now;
+
+            var startOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(1);
+            
+            var endOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(2);
+
+
+            var bookings = await _ctx.Bookings
+                .AsNoTracking()
+                .Where(b => b.RoomReservations.Any(r => r.CheckIn >= startOfNextMonth && r.CheckOut <= endOfNextMonth))
+                .Select(b => new GetBookingResponseDTO
+                {
+                    Id = b.Id,
+                    CreatedAt = b.CreatedAt,
+                    TotalPrice = b.TotalPrice,
+                    Status = b.Status,
+                    Guest = new GuestInfoDTO(
+                        b.Guest.FirstName,
+                        b.Guest.LastName,
+                        b.Guest.Email,
+                        b.Guest.PhoneNumber
+                    ),
+                    RoomReservation = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
+                  (
+                      r.Id,
+                      r.RoomId,
+                      r.CheckIn,
+                      r.CheckOut
+                  ))
+                }).ToListAsync();
+
+            if (bookings.Count == 0)
+            {
+                return ServiceResult<IEnumerable<GetBookingResponseDTO>>.NotFound("No bookings were found.");
+            }
+
+            return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
+        }
     }
 }
