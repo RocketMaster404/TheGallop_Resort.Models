@@ -216,7 +216,7 @@ namespace TheGallop_Resort.Api.Services
         }
 
         //sök bokningar inom nästa månad
-        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsNextMonth()
+        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForNextMonth()
         {
             var today = DateTime.Now;
 
