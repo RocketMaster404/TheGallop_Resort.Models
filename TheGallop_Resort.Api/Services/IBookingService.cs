@@ -16,5 +16,7 @@ namespace TheGallop_Resort.Api.Services
         Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto);
 
         Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForNextMonthAsync();
+
+        Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForSpecifikDateAsync(DateOnly inputDate);
     }
 }

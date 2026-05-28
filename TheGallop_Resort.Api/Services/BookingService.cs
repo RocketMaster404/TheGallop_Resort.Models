@@ -262,7 +262,7 @@ namespace TheGallop_Resort.Api.Services
 
             var bookings = await _ctx.Bookings
                 .AsNoTracking()
-                .Where(b => b.RoomReservations.Any(r => r.CheckIn >= date && r.CheckOut <= date))
+                .Where(b => b.RoomReservations.Any(r => date >= r.CheckIn && date <= r.CheckOut))
                 .Select(b => new GetBookingResponseDTO
                 {
                     Id = b.Id,
