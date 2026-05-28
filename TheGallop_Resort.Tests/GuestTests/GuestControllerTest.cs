@@ -40,13 +40,13 @@ public class GuestControllerTest
 
         ActionResult<GuestInfoWithBookingDTO> result = await controller.GetGuestInfoById(1);
 
-        var resultOk = result.Should()
-            .BeAssignableTo<OkObjectResult>()
+        var okResult = result.Result.Should()
+            .BeOfType<OkObjectResult>()
             .Subject;
 
-        var returnedGuest = resultOk.Value.Should()
-        .BeAssignableTo<GuestInfoWithBookingDTO>()
-        .Subject;
+          var returnedGuest = okResult.Value.Should()
+         .BeAssignableTo<GuestInfoWithBookingDTO>()
+         .Subject;
 
         returnedGuest.FirstName.Should().Be(guest.FirstName);
         returnedGuest.LastName.Should().Be(guest.LastName);
@@ -118,6 +118,11 @@ public class GuestControllerTest
         var fake = A.Fake<IGuestService>();
         var validatorCreateGuest = A.Fake<IValidator<CreateGuestDTO>>();
         var validatorUpdateGuest = A.Fake < IValidator< UpdateGuestInfoDTO>>();
+
+        A.CallTo(() => validatorUpdateGuest.ValidateAsync(
+        A<UpdateGuestInfoDTO>._,
+        default))
+         .Returns(new FluentValidation.Results.ValidationResult());
 
         var controller = new GuestController(fake,validatorCreateGuest,validatorUpdateGuest);
 
