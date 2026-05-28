@@ -18,13 +18,15 @@ namespace TheGallop_Resort.Api.Controllers
         private IValidator<UpdateBookingStatusDTO> _updateBookingStatusDTO;
 
         private IValidator<UpdateBookingGuestDTO> _updateBookingGuestDTO;
+        private IValidator<GetInputFromUserCreateDTO> _getInputFromUserCreateDTO;
 
 
-        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO)
+        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO)
         {
             _bookingService = bookingService;
             _updateBookingStatusDTO = updateBookingStatusDTO;
             _updateBookingGuestDTO = updateBookingGuestDTO;
+            _getInputFromUserCreateDTO = getInputFromUserCreateDTO;
         }
 
         [HttpGet("getAllBookings", Name = "GetAllBooking")]
@@ -52,6 +54,13 @@ namespace TheGallop_Resort.Api.Controllers
         //DTO
         public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
         {
+            var validation = await _getInputFromUserCreateDTO.ValidateAsync(dto);
+
+            if (!validation.IsValid)
+            {
+                return BadRequest();
+            }
+
             var result = await _bookingService.CreateBookingAsync(dto);
 
             if (!result.SuccessfulResult)
