@@ -9,13 +9,11 @@ namespace TheGallop_Resort.Api.Services
     public class BookingService : IBookingService
     {
         private readonly GaloppDbContext _ctx;
-        private readonly IGuestService _iGuestService;
 
 
-        public BookingService(GaloppDbContext ctx, IGuestService iGuestService)
+        public BookingService(GaloppDbContext ctx)
         {
             _ctx = ctx;
-            _iGuestService = iGuestService;
         }
 
         public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetAllBookingsAsync()
