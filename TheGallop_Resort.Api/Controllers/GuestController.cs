@@ -29,7 +29,7 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpGet("{guestId}/GuestBookingHistory")]
-        public async Task<ActionResult<GetBookingResponseDTO>> GetUsersBookingHistory(int guestId)
+        public async Task<ActionResult<List<GetBookingResponseDTO>>> GetUsersBookingHistory(int guestId)
         {
             var guest = await _guestService.GetGuestBookingHistoryAsync(guestId);
 

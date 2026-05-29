@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
+using TheGallop_Resort.Models.Models;
 
 namespace TheGallop_Resort.Tests;
 
@@ -137,6 +138,74 @@ public class GuestServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateGuest_UpdateDuplicateEmail_ReturnValidationError()
+    {
+        var guestOne = new CreateGuestDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+        var guestTwo = new CreateGuestDTO
+        {
+            FirstName = "Ove",
+            LastName = "Sundberg",
+            Email = "Ove@Sundberg.se",
+            Phone = "0928372929"
+        };
+
+        await _service.AddGuestAsync(guestOne);
+        await _service.AddGuestAsync(guestTwo);
+
+        var update = new UpdateGuestInfoDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+
+        var result = await _service.UpdateGuestInfoAsync(2, update);
+
+        result.SuccessfulResult.Should().BeFalse();
+
+    }
+
+    [TestMethod]
+    public async Task UpdateGuest_UpdateGuestinfoSameEmail_ReturnNoError()
+    {
+        var guestOne = new CreateGuestDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+        
+
+        await _service.AddGuestAsync(guestOne);
+        
+
+        var update = new UpdateGuestInfoDTO
+        {
+            FirstName = "Testare",
+            LastName = "Uttcecklarsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+
+        var result = await _service.UpdateGuestInfoAsync(1, update);
+
+        result.SuccessfulResult.Should().BeTrue();
+
+    }
+
+    [TestMethod]
     public async Task DeleteGuestAsync_DeleteGuest_ReturnZero()
     {
         var guestDto = new CreateGuestDTO()
@@ -198,6 +267,68 @@ public class GuestServiceTests
 
         result.SuccessfulResult.Should().BeFalse();
         result.Status.Should().Be(ServiceResultStatus.NotFound);
+    }
+
+    [TestMethod]
+    public async Task GetGuestBookingHistoryAsync_ExistingGuest_ReturnsBookingHistory()
+    {
+        var guest = new Guest
+        {
+            Id = 1,
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            PhoneNumber = "09383728"
+        };
+
+        var booking = new Booking
+        {
+            Id = 1,
+            GuestId = guest.Id,
+            Guest = guest,
+            CreatedAt = DateTime.Now.AddDays(-5),
+            Status = Status.Confirmed,
+            TotalPrice = 2000m
+        };
+
+        var room = new Room
+        {
+            Id = 1
+        };
+
+        var roomReservation = new RoomReservation
+        {
+            Id = 1,
+
+            BookingId = booking.Id,
+            Booking = booking,
+
+            RoomId = room.Id,
+            Room = room,
+
+            CheckIn = DateTime.Now.AddDays(-5),
+            CheckOut = DateTime.Now.AddDays(-2),
+
+            Adults = 1,
+            Children = 1,
+
+            RoomStatus = RoomStatus.Confirmed,
+            PricePerNight = 1000
+        };
+
+        booking.RoomReservations.Add(roomReservation);
+        guest.Bookings.Add(booking);
+
+        await _ctx.Rooms.AddAsync(room);
+        await _ctx.Guests.AddAsync(guest);
+
+        await _ctx.SaveChangesAsync();
+
+        var result = await _service.GetGuestBookingHistoryAsync(guest.Id);
+
+        result.Should().NotBeNull();
+        result.SuccessfulResult.Should().BeTrue();
+        result.Data.Should().HaveCount(1);
     }
 
 
