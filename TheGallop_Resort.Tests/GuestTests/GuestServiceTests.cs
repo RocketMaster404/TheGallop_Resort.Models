@@ -175,6 +175,37 @@ public class GuestServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateGuest_UpdateGuestinfoSameEmail_ReturnNoError()
+    {
+        var guestOne = new CreateGuestDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+        
+
+        await _service.AddGuestAsync(guestOne);
+        
+
+        var update = new UpdateGuestInfoDTO
+        {
+            FirstName = "Testare",
+            LastName = "Uttcecklarsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+
+        var result = await _service.UpdateGuestInfoAsync(1, update);
+
+        result.SuccessfulResult.Should().BeTrue();
+
+    }
+
+    [TestMethod]
     public async Task DeleteGuestAsync_DeleteGuest_ReturnZero()
     {
         var guestDto = new CreateGuestDTO()
