@@ -138,6 +138,43 @@ public class GuestServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateGuest_UpdateDuplicateEmail_ReturnValidationError()
+    {
+        var guestOne = new CreateGuestDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+        var guestTwo = new CreateGuestDTO
+        {
+            FirstName = "Ove",
+            LastName = "Sundberg",
+            Email = "Ove@Sundberg.se",
+            Phone = "0928372929"
+        };
+
+        await _service.AddGuestAsync(guestOne);
+        await _service.AddGuestAsync(guestTwo);
+
+        var update = new UpdateGuestInfoDTO
+        {
+            FirstName = "Test",
+            LastName = "Testsson",
+            Email = "test@testsson.com",
+            Phone = "029379211"
+        };
+
+
+        var result = await _service.UpdateGuestInfoAsync(2, update);
+
+        result.SuccessfulResult.Should().BeFalse();
+
+    }
+
+    [TestMethod]
     public async Task DeleteGuestAsync_DeleteGuest_ReturnZero()
     {
         var guestDto = new CreateGuestDTO()
