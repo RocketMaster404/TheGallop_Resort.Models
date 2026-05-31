@@ -17,6 +17,7 @@ public class BookingControllerTest
     private IValidator<UpdateBookingStatusDTO> _updateStatusValidator;
     private IValidator<UpdateBookingGuestDTO> _updateGuestValidator;
     private IValidator<GetInputFromUserCreateDTO> _getInputFromUserCreateDTO;
+    private IValidator<SearchBookingBetweenDateDTO> _searchBookingBetweenDateDTO;
 
     [TestInitialize]
     public void Setup()
@@ -25,13 +26,14 @@ public class BookingControllerTest
         _updateStatusValidator = A.Fake<IValidator<UpdateBookingStatusDTO>>();
         _updateGuestValidator = A.Fake<IValidator<UpdateBookingGuestDTO>>();
         _getInputFromUserCreateDTO = A.Fake<IValidator<GetInputFromUserCreateDTO>>();
+        _searchBookingBetweenDateDTO = A.Fake<IValidator<SearchBookingBetweenDateDTO>>();
     }
 
     [TestMethod]
     public async Task GetBookingById_CheckIfIdExist_ReturnSpecificBooking()
     {
 
-        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
 
         var testId = 1;
 
@@ -67,7 +69,7 @@ public class BookingControllerTest
     [TestMethod]
     public async Task GetAllBookings_GetAllBookings_ReturnListOfBookings()
     {
-        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
 
         var bookings = new List<GetBookingResponseDTO>();
 
@@ -105,7 +107,7 @@ public class BookingControllerTest
     public async Task CreateBookingAsync_AddValidBooking_ReturnOk()
     {
 
-        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
 
         var testBooking = new GetInputFromUserCreateDTO { GuestId = 1, CheckIn = new DateOnly(2026, 09, 28), CheckOut = new DateOnly(2026, 09, 29), Children = 1, Adults = 2, Type = RoomType.Suite };
 
@@ -136,7 +138,7 @@ public class BookingControllerTest
     [TestMethod]
     public async Task UpdateGuestOnBookingAsync_UpdateValidGuestOnBooking_ReturnOk()
     {
-        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
 
         var updatedDTO = new UpdateBookingGuestDTO(bookingId: 1, guestId: 2);
 
@@ -160,7 +162,7 @@ public class BookingControllerTest
     [TestMethod]
     public async Task UpdateBookingStatus_UpdateValidBookingStatus_ReturnOk()
     {
-        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
 
         var updatedDTO = new UpdateBookingStatusDTO(BookingId: 1, Status: Status.Cancelled);
 
@@ -174,7 +176,151 @@ public class BookingControllerTest
 
         var noContentResult = result
             .Should()
-            .BeAssignableTo<NoContentResult>() 
+            .BeAssignableTo<NoContentResult>()
+            .Subject;
+
+        noContentResult.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public async Task GetBookingsForNextMonth_GetCorrectBookings_ReturnBookings()
+    {
+
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
+
+        var bookings = new List<GetBookingResponseDTO>();
+
+        var booking = new GetBookingResponseDTO
+        {
+            Id = 1,
+            TotalPrice = 2000,
+            Status = Status.Confirmed,
+            Guest = new GuestInfoDTO("Test", "Testsson", "test@mail.com", "0700000000"),
+            RoomReservation = new List<GetRoomReservationResponseDTO>()
+        };
+
+        bookings.Add(booking);
+
+
+        A.CallTo(() => _fakeBookingService.GetBookingsForNextMonthAsync())
+            .Returns(ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings));
+
+        var result = await controller.GetBookingsForNextMonth();
+
+        var okResult = result.Result
+            .Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<IEnumerable<GetBookingResponseDTO>>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.Should().HaveCount(1);
+    }
+
+    [TestMethod]
+    public async Task GetBookingsForSpecifikDate_GetCorrectBookings_ReturnBookings()
+    {
+
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
+
+        var bookings = new List<GetBookingResponseDTO>();
+
+        var booking = new GetBookingResponseDTO
+        {
+            Id = 1,
+            TotalPrice = 2000,
+            Status = Status.Confirmed,
+            Guest = new GuestInfoDTO("Test", "Testsson", "test@mail.com", "0700000000"),
+            RoomReservation = new List<GetRoomReservationResponseDTO>()
+        };
+
+        bookings.Add(booking);
+
+        DateOnly date = new DateOnly(2026, 09, 20);
+
+        A.CallTo(() => _fakeBookingService.GetBookingsForSpecifikDateAsync(date))
+            .Returns(ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings));
+
+        var result = await controller.GetBookingsForSpecifikDate(date);
+
+        var okResult = result.Result
+            .Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<IEnumerable<GetBookingResponseDTO>>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.Should().HaveCount(1);
+    }
+
+    [TestMethod]
+    public async Task GetBookingsBetweenDates_ValidDate_ReturnOk()
+    {
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
+
+        var startDate = new DateOnly(2026, 09, 20);
+        var endDate = new DateOnly(2026, 09, 29);
+
+        var updatedDTO = new SearchBookingBetweenDateDTO(startDate,endDate);
+
+        var bookings = new List<GetBookingResponseDTO>();
+
+        var booking = new GetBookingResponseDTO
+        {
+            Id = 1,
+            TotalPrice = 2000,
+            Status = Status.Confirmed,
+            Guest = new GuestInfoDTO("Test", "Testsson", "test@mail.com", "0700000000"),
+            RoomReservation = new List<GetRoomReservationResponseDTO>()
+        };
+
+        bookings.Add(booking);
+
+        A.CallTo(() => _searchBookingBetweenDateDTO.ValidateAsync(updatedDTO, default))
+            .Returns(new ValidationResult());
+
+        A.CallTo(() => _fakeBookingService.GetBookingsBetweenDatesAsync(updatedDTO))
+            .Returns(ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings));
+
+        var result = await controller.GetBookingsBetweenDates(updatedDTO);
+
+        var okResult = result.Result
+             .Should()
+             .BeAssignableTo<OkObjectResult>()
+             .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<IEnumerable<GetBookingResponseDTO>>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.Should().HaveCount(1);
+    }
+
+    [TestMethod]
+    public async Task DeleteBookingById_ValidId_ReturnNoContent()
+    {
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
+
+        var bookingId = 1;
+
+        A.CallTo(() => _fakeBookingService.DeleteBookingByIdAsync(bookingId))
+            .Returns(ServiceResult.Ok());
+
+        var result = await controller.DeleteBookingById(bookingId);
+
+        var noContentResult = result
+            .Should()
+            .BeAssignableTo<NoContentResult>()
             .Subject;
 
         noContentResult.Should().NotBeNull();

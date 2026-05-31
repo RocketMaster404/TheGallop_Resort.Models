@@ -19,14 +19,16 @@ namespace TheGallop_Resort.Api.Controllers
 
         private IValidator<UpdateBookingGuestDTO> _updateBookingGuestDTO;
         private IValidator<GetInputFromUserCreateDTO> _getInputFromUserCreateDTO;
+        private IValidator<SearchBookingBetweenDateDTO> _searchBookingBetweenDateDTO;
 
 
-        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO)
+        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO, IValidator<SearchBookingBetweenDateDTO> searchBookingBetweenDateDTO)
         {
             _bookingService = bookingService;
             _updateBookingStatusDTO = updateBookingStatusDTO;
             _updateBookingGuestDTO = updateBookingGuestDTO;
             _getInputFromUserCreateDTO = getInputFromUserCreateDTO;
+            _searchBookingBetweenDateDTO = searchBookingBetweenDateDTO;
         }
 
         [HttpGet("getAllBookings", Name = "GetAllBooking")]
@@ -131,6 +133,13 @@ namespace TheGallop_Resort.Api.Controllers
         [HttpPut("GetBookingsBetweenDates", Name = "GetBookingsBetweenDates")]
         public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDates(SearchBookingBetweenDateDTO dto)
         {
+            var validation = await _searchBookingBetweenDateDTO.ValidateAsync(dto);
+
+            if (!validation.IsValid)
+            {
+                return BadRequest(validation.Errors);
+            }
+
             var bookings = await _bookingService.GetBookingsBetweenDatesAsync(dto);
 
             return Ok(bookings.Data);
@@ -140,6 +149,12 @@ namespace TheGallop_Resort.Api.Controllers
         public async Task<IActionResult> DeleteBookingById(int bookingId)
         {
             var booking = await _bookingService.DeleteBookingByIdAsync(bookingId);
+            
+            if (!booking.SuccessfulResult)
+            {
+                return ToErrorResponse(booking);
+            }
+
             return NoContent();
         }
 

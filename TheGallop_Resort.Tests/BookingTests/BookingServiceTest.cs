@@ -28,7 +28,7 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             _ctx = new GaloppDbContext(options);
 
-            
+
 
             _bookingService = new BookingService(_ctx);
 
@@ -223,6 +223,181 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             var checkStatus = await _ctx.Bookings.FirstOrDefaultAsync();
             checkStatus.Status.Should().Be(Status.Cancelled);
+        }
+
+        [TestMethod]
+        public async Task GetBookingsForNextMonthAsync_FilterCorrectDates_ReturnOnlyNextMonth()
+        {
+            var today = DateTime.Now;
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var correctBooking = new Booking
+            {
+                Id = 3,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = today,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(5),
+                        CheckOut = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(10),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            var wrongBooking = new Booking
+            {
+                Id = 11,
+                Guest = guest,
+                TotalPrice = 1300,
+                Status = Status.Confirmed,
+                CreatedAt = today,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 12,
+                        CheckIn = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(5),
+                        CheckOut = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(10),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddRangeAsync(correctBooking, wrongBooking);
+            await _ctx.SaveChangesAsync();
+
+            var result = await _bookingService.GetBookingsForNextMonthAsync();
+
+            result.SuccessfulResult.Should().BeTrue();
+            result.Data.Should().HaveCount(1);
+            result.Data.First().Id.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task GetBookingsForSpecifikDateAsync_DateIsWitinReservation_ReturnBooking()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var booking = new Booking
+            {
+                Id = 3,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(2026, 08, 10),
+                        CheckOut = new DateTime(2026, 08, 15),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var searchDate = new DateOnly(2026, 08, 12);
+
+            var result = await _bookingService.GetBookingsForSpecifikDateAsync(searchDate);
+
+            result.SuccessfulResult.Should().BeTrue();
+            result.Data.Should().HaveCount(1);
+            result.Data.First().Id.Should().Be(3);
+        }
+
+
+        [TestMethod]
+        public async Task GetBookingsBetweenDates_DateIsWitinReservation_ReturnBooking()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var booking = new Booking
+            {
+                Id = 1,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(2026, 08, 10),
+                        CheckOut = new DateTime(2026, 08, 15),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var updatedDto = new SearchBookingBetweenDateDTO(new DateOnly(2026, 08, 05), new DateOnly(2026, 08, 20));
+
+            var result = await _bookingService.GetBookingsBetweenDatesAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeTrue();
+        }
+        [TestMethod]
+        public async Task DeleteBookingById_EnterValidId_ReturnNoContent()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var booking = new Booking
+            {
+                Id = 6,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+
+            var result = await _bookingService.DeleteBookingByIdAsync(booking.Id);
+
+            result.SuccessfulResult.Should().BeTrue();
         }
     }
 }
