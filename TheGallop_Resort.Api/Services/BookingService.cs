@@ -345,7 +345,6 @@ namespace TheGallop_Resort.Api.Services
         public async Task<ServiceResult> DeleteBookingByIdAsync(int bookingId)
         {
             var booking = await _ctx.Bookings
-                .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.Id == bookingId);
 
 

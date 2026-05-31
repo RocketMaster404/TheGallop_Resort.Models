@@ -369,6 +369,35 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
         }
+        [TestMethod]
+        public async Task DeleteBookingById_EnterValidId_ReturnNoContent()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
 
+            var booking = new Booking
+            {
+                Id = 6,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+
+            var result = await _bookingService.DeleteBookingByIdAsync(booking.Id);
+
+            result.SuccessfulResult.Should().BeTrue();
+        }
     }
 }
