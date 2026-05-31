@@ -52,4 +52,42 @@ public async Task AddRoomCategory_AddValidRoomCategory_Return200()
     A.CallTo(() => fake.AddRoomCategoryAsync(A<RoomCategoryDTO>._))
         .MustHaveHappenedOnceExactly();
 }
+
+    [TestMethod]
+    public async Task GetRoomCategoryById_CheckIfIdExists_ReturnOk()
+    {
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        var roomCategory = new RoomCategory
+        {
+            Id = 1,
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1800,
+            RoomDetailId = 1
+        };
+
+        A.CallTo(() => fake.GetRoomCategoryByIdAsync(1))
+            .Returns(ServiceResult<RoomCategory>.Ok(roomCategory));
+
+        IActionResult result = await controller.GetRoomCategoryById(1);
+
+        var okResult = result.Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var returnedRoomCategory = okResult.Value.Should()
+            .BeAssignableTo<RoomCategory>()
+            .Subject;
+
+        returnedRoomCategory.Id.Should().Be(roomCategory.Id);
+        returnedRoomCategory.Type.Should().Be(roomCategory.Type);
+        returnedRoomCategory.CategoryPrice.Should().Be(roomCategory.CategoryPrice);
+        returnedRoomCategory.RoomDetailId.Should().Be(roomCategory.RoomDetailId);
+
+        A.CallTo(() => fake.GetRoomCategoryByIdAsync(1))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    
 }
