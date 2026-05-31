@@ -284,5 +284,48 @@ namespace TheGallop_Resort.Tests.BookingTests
             result.Data.Should().HaveCount(1);
             result.Data.First().Id.Should().Be(3);
         }
+
+        [TestMethod]
+        public async Task GetBookingsForSpecifikDateAsync_DateIsWitinReservation_ReturnBooking()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var booking = new Booking
+            {
+                Id = 3,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(2026, 08, 10),
+                        CheckOut = new DateTime(2026, 08, 15),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var searchDate = new DateOnly(2026, 08, 12);
+
+            var result = await _bookingService.GetBookingsForSpecifikDateAsync(searchDate);
+
+            result.SuccessfulResult.Should().BeTrue();
+            result.Data.Should().HaveCount(1);
+            result.Data.First().Id.Should().Be(3);
+        }
     }
 }
