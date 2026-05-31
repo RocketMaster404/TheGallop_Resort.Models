@@ -134,5 +134,7 @@ namespace TheGallop_Resort.Api.Controllers
             var booking = await _bookingService.DeleteBookingByIdAsync(bookingId);
             return NoContent();
         }
+
+        //lägg toll mellan datum
     }
 }
