@@ -128,6 +128,14 @@ namespace TheGallop_Resort.Api.Controllers
             return Ok(bookings.Data);
         }
 
+        [HttpPut("GetBookingsBetweenDates", Name = "GetBookingsBetweenDates")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDates(SearchBookingBetweenDateDTO dto)
+        {
+            var bookings = await _bookingService.GetBookingsBetweenDatesAsync(dto);
+
+            return Ok(bookings.Data);
+        }
+
         [HttpDelete("DeleteBookingById", Name = "DeleteBookingById")]
         public async Task<IActionResult> DeleteBookingById(int bookingId)
         {
@@ -135,6 +143,5 @@ namespace TheGallop_Resort.Api.Controllers
             return NoContent();
         }
 
-        //lägg toll mellan datum
     }
 }
