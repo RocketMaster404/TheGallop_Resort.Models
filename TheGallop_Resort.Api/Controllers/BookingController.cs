@@ -133,6 +133,13 @@ namespace TheGallop_Resort.Api.Controllers
         [HttpPut("GetBookingsBetweenDates", Name = "GetBookingsBetweenDates")]
         public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDates(SearchBookingBetweenDateDTO dto)
         {
+            var validation = await _searchBookingBetweenDateDTO.ValidateAsync(dto);
+
+            if (!validation.IsValid)
+            {
+                return BadRequest(validation.Errors);
+            }
+
             var bookings = await _bookingService.GetBookingsBetweenDatesAsync(dto);
 
             return Ok(bookings.Data);
