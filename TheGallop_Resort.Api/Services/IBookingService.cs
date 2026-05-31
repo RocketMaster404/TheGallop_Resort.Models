@@ -19,6 +19,8 @@ namespace TheGallop_Resort.Api.Services
 
         Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForSpecifikDateAsync(DateOnly inputDate);
 
+        Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDatesAsync(SearchBookingBetweenDateDTO dto);
+
         Task<ServiceResult> DeleteBookingByIdAsync(int bookingId);
     }
 }
