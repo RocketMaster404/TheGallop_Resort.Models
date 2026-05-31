@@ -159,6 +159,13 @@ namespace TheGallop_Resort.Api.Services
                 return ServiceResult.NotFound("Guest not found");
             }
 
+            var emailCheck = await _ctx.Guests.AnyAsync(g => g.Email == dto.Email && g.Id != guestUpdate.Id);
+            if (emailCheck)
+            {
+                return ServiceResult.ValidationError("Duplicated Email");
+            }
+
+
             guestUpdate.FirstName = dto.FirstName;
             guestUpdate.LastName = dto.LastName;
             guestUpdate.Email = dto.Email;
