@@ -179,4 +179,43 @@ public class BookingControllerTest
 
         noContentResult.Should().NotBeNull();
     }
+
+    [TestMethod]
+    public async Task GetBookingsForNextMonth_GetCorrectBookings_ReturnBookings()
+    {
+
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
+
+        var bookings = new List<GetBookingResponseDTO>();
+
+        var booking = new GetBookingResponseDTO
+        {
+            Id = 1,
+            TotalPrice = 2000,
+            Status = Status.Confirmed,
+            Guest = new GuestInfoDTO("Test", "Testsson", "test@mail.com", "0700000000"),
+            RoomReservation = new List<GetRoomReservationResponseDTO>()
+        };
+
+        bookings.Add(booking);
+
+
+        A.CallTo(() => _fakeBookingService.GetBookingsForNextMonthAsync())
+            .Returns(ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings));
+
+        var result = await controller.GetBookingsForNextMonth();
+
+        var okResult = result.Result
+            .Should()
+            .BeAssignableTo<OkObjectResult>()
+            .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<IEnumerable<GetBookingResponseDTO>>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.Should().HaveCount(1);
+    }
 }
