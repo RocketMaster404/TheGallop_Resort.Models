@@ -89,5 +89,27 @@ public async Task AddRoomCategory_AddValidRoomCategory_Return200()
             .MustHaveHappenedOnceExactly();
     }
 
-    
+    [TestMethod]
+    public async Task UpdateRoomCategoryAsync_UpdateValidRoomCategory_ReturnNoContent()
+    {
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        var roomCategoryDto = new RoomCategoryDTO
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1800,
+            RoomDetailId = 1
+        };
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(1, roomCategoryDto))
+            .Returns(ServiceResult.Ok());
+
+        IActionResult result = await controller.UpdateRoomCategory(1, roomCategoryDto);
+
+        result.Should().BeAssignableTo<NoContentResult>();
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(1, roomCategoryDto))
+            .MustHaveHappenedOnceExactly();
+    }
 }
