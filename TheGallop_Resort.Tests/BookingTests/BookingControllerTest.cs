@@ -126,11 +126,11 @@ public class BookingControllerTest
 
         var serviceResult = okResult.Value
             .Should()
-            .BeAssignableTo<ServiceResult<GetFullBookingResponsDTO>>()
+            .BeAssignableTo<GetFullBookingResponsDTO>()
             .Subject;
 
         serviceResult.Should().NotBeNull();
-        serviceResult.Data.GuestId.Should().Be(testBooking.GuestId);
+        serviceResult.GuestId.Should().Be(testBooking.GuestId);
     }
 
     [TestMethod]
@@ -150,16 +150,11 @@ public class BookingControllerTest
 
         var okResult = result
             .Should()
-            .BeAssignableTo<OkObjectResult>()
+            .BeAssignableTo<NoContentResult>()
             .Subject;
 
-        var serviceResult = okResult.Value
-            .Should()
-            .BeAssignableTo<ServiceResult>()
-            .Subject;
 
-        serviceResult.Should().NotBeNull();
-        serviceResult.SuccessfulResult.Should().BeTrue();
+        okResult.Should().NotBeNull();
     }
 
     [TestMethod]
@@ -181,7 +176,6 @@ public class BookingControllerTest
             .Should()
             .BeAssignableTo<NoContentResult>() 
             .Subject;
-
 
         noContentResult.Should().NotBeNull();
     }

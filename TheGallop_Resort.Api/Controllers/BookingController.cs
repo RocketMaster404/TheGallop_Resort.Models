@@ -89,7 +89,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return ToErrorResponse(booking);
             }
 
-            return Ok(booking);
+            return NoContent();
         }
 
         [HttpPut("updateStatusOnBooking", Name = "UpdateStausOnBooking")]
