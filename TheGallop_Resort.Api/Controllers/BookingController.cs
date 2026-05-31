@@ -19,14 +19,16 @@ namespace TheGallop_Resort.Api.Controllers
 
         private IValidator<UpdateBookingGuestDTO> _updateBookingGuestDTO;
         private IValidator<GetInputFromUserCreateDTO> _getInputFromUserCreateDTO;
+        private IValidator<SearchBookingBetweenDateDTO> _searchBookingBetweenDateDTO;
 
 
-        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO)
+        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO, IValidator<SearchBookingBetweenDateDTO> searchBookingBetweenDateDTO)
         {
             _bookingService = bookingService;
             _updateBookingStatusDTO = updateBookingStatusDTO;
             _updateBookingGuestDTO = updateBookingGuestDTO;
             _getInputFromUserCreateDTO = getInputFromUserCreateDTO;
+            _searchBookingBetweenDateDTO = searchBookingBetweenDateDTO;
         }
 
         [HttpGet("getAllBookings", Name = "GetAllBooking")]
