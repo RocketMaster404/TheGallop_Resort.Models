@@ -29,7 +29,7 @@ namespace TheGallop_Resort.Api.DTOs
 
     public record GetInputFromUserCreateDTO
     {
-        public int GuestId { get; init; } 
+        public int GuestId { get; init; }
         public DateOnly CheckIn { get; init; }
         public DateOnly CheckOut { get; init; }
         public int Children { get; init; }
@@ -52,4 +52,6 @@ namespace TheGallop_Resort.Api.DTOs
         public int GuestId { get; init; }
         public IEnumerable<GetFullRoomReservationResponse> RoomReservations { get; init; } = new List<GetFullRoomReservationResponse>();
     }
+
+    public record SearchBookingBetweenDateDTO(DateOnly StartDate, DateOnly EndDate);
 }

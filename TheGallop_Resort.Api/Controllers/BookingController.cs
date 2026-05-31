@@ -68,7 +68,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-            return Ok(result);
+            return Ok(result.Data);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
@@ -89,7 +89,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return ToErrorResponse(booking);
             }
 
-            return Ok(booking);
+            return NoContent();
         }
 
         [HttpPut("updateStatusOnBooking", Name = "UpdateStausOnBooking")]
@@ -127,5 +127,21 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(bookings.Data);
         }
+
+        [HttpPut("GetBookingsBetweenDates", Name = "GetBookingsBetweenDates")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDates(SearchBookingBetweenDateDTO dto)
+        {
+            var bookings = await _bookingService.GetBookingsBetweenDatesAsync(dto);
+
+            return Ok(bookings.Data);
+        }
+
+        [HttpDelete("DeleteBookingById", Name = "DeleteBookingById")]
+        public async Task<IActionResult> DeleteBookingById(int bookingId)
+        {
+            var booking = await _bookingService.DeleteBookingByIdAsync(bookingId);
+            return NoContent();
+        }
+
     }
 }

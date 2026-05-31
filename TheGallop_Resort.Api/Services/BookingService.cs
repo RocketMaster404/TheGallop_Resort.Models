@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TheGallop_Resort.Api.Services
 {
@@ -26,7 +27,7 @@ namespace TheGallop_Resort.Api.Services
                     CreatedAt = b.CreatedAt,
                     TotalPrice = b.TotalPrice,
                     Status = b.Status,
-                    Guest = new GuestInfoDTO (
+                    Guest = new GuestInfoDTO(
                         b.Guest.FirstName,
                         b.Guest.LastName,
                         b.Guest.Email,
@@ -86,10 +87,20 @@ namespace TheGallop_Resort.Api.Services
         //DTOist
         public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
-            var room = await _ctx.Rooms.FirstOrDefaultAsync(r => r.RoomCategory.Type == dto.Type);
-
             var checkIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue);
             var checkOut = dto.CheckOut.ToDateTime(TimeOnly.MinValue);
+
+            var room = await _ctx.Rooms
+                .Where(r => r.RoomCategory.Type == dto.Type)
+                .Where(r => !r.RoomReservations.Any(rr =>
+                    checkIn < rr.CheckOut &&
+                    checkOut > rr.CheckIn))
+                .FirstOrDefaultAsync();
+
+            if (room == null)
+            {
+                return ServiceResult<GetFullBookingResponsDTO>.NotFound($"There are no available rooms of type {dto.Type} on chosen date.");
+            }
 
             var bookingDTO = new CreateBookingDTO
             {
@@ -130,7 +141,7 @@ namespace TheGallop_Resort.Api.Services
                 Adults = roomReservationDTO.Adults,
                 Children = roomReservationDTO.Children,
                 RoomId = room.Id,
-              
+
             };
 
             await _ctx.RoomReservations.AddAsync(roomReservation);
@@ -162,6 +173,7 @@ namespace TheGallop_Resort.Api.Services
                     dto.Type,
                     DateOnly.FromDateTime(r.CheckIn),
                     DateOnly.FromDateTime(r.CheckOut),
+                    r.Room.RoomNr,
                     r.Adults,
                     r.Children,
                     calculatedTotalPrice
@@ -220,7 +232,7 @@ namespace TheGallop_Resort.Api.Services
             var today = DateTime.Now;
 
             var startOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(1);
-            
+
             var endOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(2);
 
 
@@ -291,5 +303,63 @@ namespace TheGallop_Resort.Api.Services
 
             return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
         }
+
+        public async Task<ServiceResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDatesAsync(SearchBookingBetweenDateDTO dto)
+        {
+            var startDate = dto.StartDate.ToDateTime(TimeOnly.MinValue);
+            var endDate = dto.EndDate.ToDateTime(TimeOnly.MinValue);
+
+            var bookings = await _ctx.Bookings
+                .AsNoTracking()
+                .Where(b => b.RoomReservations.Any(r => r.CheckIn <= endDate && r.CheckOut >= startDate))
+                .Select(b => new GetBookingResponseDTO
+                {
+                    Id = b.Id,
+                    CreatedAt = b.CreatedAt,
+                    TotalPrice = b.TotalPrice,
+                    Status = b.Status,
+                    Guest = new GuestInfoDTO(
+                        b.Guest.FirstName,
+                        b.Guest.LastName,
+                        b.Guest.Email,
+                        b.Guest.PhoneNumber
+                    ),
+                    RoomReservation = b.RoomReservations.Select(r => new GetRoomReservationResponseDTO
+                  (
+                      r.Id,
+                      r.RoomId,
+                      r.CheckIn,
+                      r.CheckOut
+                  ))
+                }).ToListAsync();
+
+            if (bookings.Count == 0)
+            {
+                return ServiceResult<IEnumerable<GetBookingResponseDTO>>.NotFound("No bookings were found.");
+            }
+
+            return ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings);
+        }
+
+
+        public async Task<ServiceResult> DeleteBookingByIdAsync(int bookingId)
+        {
+            var booking = await _ctx.Bookings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+
+            if (booking is null)
+            {
+                return ServiceResult.NotFound("No bookings were found.");
+            }
+
+            _ctx.Bookings.Remove(booking);
+
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+        }
+
     }
 }
