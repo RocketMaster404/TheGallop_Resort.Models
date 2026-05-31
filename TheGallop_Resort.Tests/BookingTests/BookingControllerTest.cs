@@ -174,7 +174,7 @@ public class BookingControllerTest
 
         var noContentResult = result
             .Should()
-            .BeAssignableTo<NoContentResult>() 
+            .BeAssignableTo<NoContentResult>()
             .Subject;
 
         noContentResult.Should().NotBeNull();
@@ -259,5 +259,23 @@ public class BookingControllerTest
         serviceResult.Should().HaveCount(1);
     }
 
+    [TestMethod]
+    public async Task DeleteBookingById_ValidId_ReturnNoContent()
+    {
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO);
 
+        var bookingId = 1;
+
+        A.CallTo(() => _fakeBookingService.DeleteBookingByIdAsync(bookingId))
+            .Returns(ServiceResult.Ok());
+
+        var result = await controller.DeleteBookingById(bookingId);
+
+        var noContentResult = result
+            .Should()
+            .BeAssignableTo<NoContentResult>()
+            .Subject;
+
+        noContentResult.Should().NotBeNull();
+    }
 }
