@@ -233,12 +233,12 @@ namespace TheGallop_Resort.Api.Services
 
             var startOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(1);
 
-            var endOfNextMonth = new DateTime(today.Year, today.Month, 1).AddMonths(2);
+            var endOfNextMonth = startOfNextMonth.AddMonths(1);
 
 
             var bookings = await _ctx.Bookings
                 .AsNoTracking()
-                .Where(b => b.RoomReservations.Any(r => r.CheckIn >= startOfNextMonth && r.CheckOut <= endOfNextMonth))
+                .Where(b => b.RoomReservations.Any(r => r.CheckIn < endOfNextMonth && r.CheckOut > startOfNextMonth))
                 .Select(b => new GetBookingResponseDTO
                 {
                     Id = b.Id,

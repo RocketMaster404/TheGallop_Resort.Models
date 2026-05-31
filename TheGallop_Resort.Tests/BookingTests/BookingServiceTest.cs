@@ -28,7 +28,7 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             _ctx = new GaloppDbContext(options);
 
-            
+
 
             _bookingService = new BookingService(_ctx);
 
@@ -223,6 +223,66 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             var checkStatus = await _ctx.Bookings.FirstOrDefaultAsync();
             checkStatus.Status.Should().Be(Status.Cancelled);
+        }
+
+        [TestMethod]
+        public async Task GetBookingsForNextMonthAsync_FilterCorrectDates_ReturnOnlyNextMonth()
+        {
+            var today = DateTime.Now;
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var correctBooking = new Booking
+            {
+                Id = 3,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = today,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(5),
+                        CheckOut = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(10),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            var wrongBooking = new Booking
+            {
+                Id = 11,
+                Guest = guest,
+                TotalPrice = 1300,
+                Status = Status.Confirmed,
+                CreatedAt = today,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 12,
+                        CheckIn = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(5),
+                        CheckOut = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(10),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddRangeAsync(correctBooking, wrongBooking);
+            await _ctx.SaveChangesAsync();
+
+            var result = await _bookingService.GetBookingsForNextMonthAsync();
+
+            result.SuccessfulResult.Should().BeTrue();
+            result.Data.Should().HaveCount(1);
+            result.Data.First().Id.Should().Be(3);
         }
     }
 }
