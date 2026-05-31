@@ -264,7 +264,46 @@ public class BookingControllerTest
     [TestMethod]
     public async Task GetBookingsBetweenDates_ValidDate_ReturnOk()
     {
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
 
+        var startDate = new DateOnly(2026, 09, 20);
+        var endDate = new DateOnly(2026, 09, 29);
+
+        var updatedDTO = new SearchBookingBetweenDateDTO(startDate,endDate);
+
+        var bookings = new List<GetBookingResponseDTO>();
+
+        var booking = new GetBookingResponseDTO
+        {
+            Id = 1,
+            TotalPrice = 2000,
+            Status = Status.Confirmed,
+            Guest = new GuestInfoDTO("Test", "Testsson", "test@mail.com", "0700000000"),
+            RoomReservation = new List<GetRoomReservationResponseDTO>()
+        };
+
+        bookings.Add(booking);
+
+        A.CallTo(() => _searchBookingBetweenDateDTO.ValidateAsync(updatedDTO, default))
+            .Returns(new ValidationResult());
+
+        A.CallTo(() => _fakeBookingService.GetBookingsBetweenDatesAsync(updatedDTO))
+            .Returns(ServiceResult<IEnumerable<GetBookingResponseDTO>>.Ok(bookings));
+
+        var result = await controller.GetBookingsBetweenDates(updatedDTO);
+
+        var okResult = result.Result
+             .Should()
+             .BeAssignableTo<OkObjectResult>()
+             .Subject;
+
+        var serviceResult = okResult.Value
+            .Should()
+            .BeAssignableTo<IEnumerable<GetBookingResponseDTO>>()
+            .Subject;
+
+        serviceResult.Should().NotBeNull();
+        serviceResult.Should().HaveCount(1);
     }
 
     [TestMethod]
