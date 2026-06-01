@@ -18,17 +18,13 @@ namespace TheGallop_Resort.Api.Controllers
         private IValidator<UpdateBookingStatusDTO> _updateBookingStatusDTO;
 
         private IValidator<UpdateBookingGuestDTO> _updateBookingGuestDTO;
-        private IValidator<GetInputFromUserCreateDTO> _getInputFromUserCreateDTO;
-        private IValidator<SearchBookingBetweenDateDTO> _searchBookingBetweenDateDTO;
 
 
-        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO, IValidator<GetInputFromUserCreateDTO> getInputFromUserCreateDTO, IValidator<SearchBookingBetweenDateDTO> searchBookingBetweenDateDTO)
+        public BookingController(IBookingService bookingService, IValidator<UpdateBookingStatusDTO> updateBookingStatusDTO, IValidator<UpdateBookingGuestDTO> updateBookingGuestDTO)
         {
             _bookingService = bookingService;
             _updateBookingStatusDTO = updateBookingStatusDTO;
             _updateBookingGuestDTO = updateBookingGuestDTO;
-            _getInputFromUserCreateDTO = getInputFromUserCreateDTO;
-            _searchBookingBetweenDateDTO = searchBookingBetweenDateDTO;
         }
 
         [HttpGet("getAllBookings", Name = "GetAllBooking")]
@@ -36,7 +32,7 @@ namespace TheGallop_Resort.Api.Controllers
         {
             var bookings = await _bookingService.GetAllBookingsAsync();
 
-            return Ok(bookings.Data);
+            return Ok(bookings);
         }
 
         [HttpGet("getBookingsById/{bookingId}", Name = "getBookingsById")]
@@ -49,28 +45,20 @@ namespace TheGallop_Resort.Api.Controllers
                 return NotFound(booking.ErrorMessage);
             }
 
-            return Ok(booking.Data);
+            return Ok(booking);
         }
 
-        [HttpPost("CreateBooking", Name = "CreateBooking")]
-        //DTO
-        public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
+        [HttpPost("AddBooking/{guestId}", Name = "AddBooking")]
+        public async Task<ActionResult<Booking>> AddBooking(int guestId)
         {
-            var validation = await _getInputFromUserCreateDTO.ValidateAsync(dto);
+            var booking = await _bookingService.AddBookingAsync(guestId);
 
-            if (!validation.IsValid)
+            if (!booking.SuccessfulResult)
             {
-                return BadRequest();
+                return NotFound(booking.ErrorMessage);
             }
 
-            var result = await _bookingService.CreateBookingAsync(dto);
-
-            if (!result.SuccessfulResult)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
-
-            return Ok(result.Data);
+            return Ok(booking);
         }
 
         [HttpPut("updateGuestOnBooking", Name = "UpdateGuestOnBooking")]
@@ -91,7 +79,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return ToErrorResponse(booking);
             }
 
-            return NoContent();
+            return Ok(booking);
         }
 
         [HttpPut("updateStatusOnBooking", Name = "UpdateStausOnBooking")]
@@ -111,51 +99,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return ToErrorResponse(booking);
             }
 
-            return NoContent();
-        }
-
-        [HttpGet("getBookingsForNextMonth", Name = "getBookingsForNextMonth")]
-        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForNextMonth()
-        {
-            var bookings = await _bookingService.GetBookingsForNextMonthAsync();
-
-            return Ok(bookings.Data);
-        }
-
-        [HttpGet("GetBookingsForSpecifikDate", Name = "GetBookingsForSpecifikDate")]
-        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsForSpecifikDate(DateOnly inputDate)
-        {
-            var bookings = await _bookingService.GetBookingsForSpecifikDateAsync(inputDate);
-
-            return Ok(bookings.Data);
-        }
-
-        [HttpPut("GetBookingsBetweenDates", Name = "GetBookingsBetweenDates")]
-        public async Task<ActionResult<IEnumerable<GetBookingResponseDTO>>> GetBookingsBetweenDates(SearchBookingBetweenDateDTO dto)
-        {
-            var validation = await _searchBookingBetweenDateDTO.ValidateAsync(dto);
-
-            if (!validation.IsValid)
-            {
-                return BadRequest(validation.Errors);
-            }
-
-            var bookings = await _bookingService.GetBookingsBetweenDatesAsync(dto);
-
-            return Ok(bookings.Data);
-        }
-
-        [HttpDelete("DeleteBookingById", Name = "DeleteBookingById")]
-        public async Task<IActionResult> DeleteBookingById(int bookingId)
-        {
-            var booking = await _bookingService.DeleteBookingByIdAsync(bookingId);
-            
-            if (!booking.SuccessfulResult)
-            {
-                return ToErrorResponse(booking);
-            }
-
-            return NoContent();
+            return Ok(booking);
         }
 
     }
