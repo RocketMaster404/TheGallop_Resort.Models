@@ -12,4 +12,6 @@ namespace TheGallop_Resort.Api.DTOs
     }
 
     public record RoomInfoDTO(int Id, int RoomNr, int RoomCategoryId);
+
+    public record CreateRoomForBookingDTO (int RoomNr);
 }

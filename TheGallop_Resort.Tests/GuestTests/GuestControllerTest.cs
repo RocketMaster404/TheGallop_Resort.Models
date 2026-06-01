@@ -2,8 +2,6 @@ using FakeItEasy;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.DTOs;
@@ -21,7 +19,8 @@ public class GuestControllerTest
     {
         var fake = A.Fake<IGuestService>();
         var validator = A.Fake<IValidator<CreateGuestDTO>>();
-        var controller = new GuestController(fake,validator);
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+        var controller = new GuestController(fake, validator, validatorUpdateGuest);
 
         var guest = new GuestInfoWithBookingDTO(
             "Test",
@@ -30,31 +29,42 @@ public class GuestControllerTest
             "076238723",
             new List<BookingDetailsDTO>()
             );
-        
+
 
 
 
         A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
             .Returns(ServiceResult<GuestInfoWithBookingDTO>.Ok(guest));
 
-        IActionResult result = await controller.GetGuestInfoById(1);
+        ActionResult<GuestInfoWithBookingDTO> result = await controller.GetGuestInfoById(1);
 
-        var resultOk = result.Should()
-            .BeAssignableTo<OkObjectResult>()
+        var okResult = result.Result.Should()
+            .BeOfType<OkObjectResult>()
             .Subject;
 
-        var returnedGuest = resultOk.Value.Should()
-        .BeAssignableTo<GuestInfoWithBookingDTO>()
-        .Subject;
+        var returnedGuest = okResult.Value.Should()
+       .BeAssignableTo<GuestInfoWithBookingDTO>()
+       .Subject;
 
-        returnedGuest.FirstName.Should().Be(guest.FirstName);
-        returnedGuest.LastName.Should().Be(guest.LastName);
-        returnedGuest.Email.Should().Be(guest.Email);
-        returnedGuest.Phone.Should().Be(guest.Phone);
+        returnedGuest.Should().BeEquivalentTo(guest);
+
+    }
+
+    [TestMethod]
+    public async Task GetGuestInfoById_CheckGuestInfo_ReturnNotFound()
+    {
+        var fake = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdate = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+
+        var controller = new GuestController(fake, validator, validatorUpdate);
 
         A.CallTo(() => fake.GetGuestInfoByIdAsync(1))
-            .MustHaveHappenedOnceExactly();
+            .Returns(ServiceResult<GuestInfoWithBookingDTO>.NotFound("Guest not found"));
 
+        ActionResult<GuestInfoWithBookingDTO> result = await controller.GetGuestInfoById(1);
+
+        result.Result.Should().BeOfType<NotFoundObjectResult>();
 
     }
 
@@ -64,10 +74,11 @@ public class GuestControllerTest
     {
         var fake = A.Fake<IGuestService>();
         var fakeValidator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
         var controller = new GuestController(
             fake,
-            fakeValidator);
+            fakeValidator, validatorUpdateGuest);
 
         A.CallTo(() => fakeValidator.ValidateAsync(
                 A<CreateGuestDTO>._,
@@ -103,35 +114,97 @@ public class GuestControllerTest
             .BeAssignableTo<Guest>()
             .Subject;
 
-        returnedGuest.FirstName.Should().Be(guestDto.FirstName);
-        returnedGuest.LastName.Should().Be(guestDto.LastName);
-        returnedGuest.Email.Should().Be(guestDto.Email);
-        returnedGuest.PhoneNumber.Should().Be(guestDto.Phone);
 
-        A.CallTo(() => fake.AddGuestAsync(A<CreateGuestDTO>._))
-            .MustHaveHappenedOnceExactly();
+
+        returnedGuest.Should().BeEquivalentTo(guest);
+
+
     }
+
+    [TestMethod]
+    public async Task AddGuest_AddInvalidGuest_ReturnBadRequest()
+    {
+
+        var fakeService = A.Fake<IGuestService>();
+        var fakeValidator = A.Fake<IValidator<CreateGuestDTO>>();
+        var fakeUpdateValidator = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+
+        var controller = new GuestController(
+            fakeService,
+            fakeValidator,
+            fakeUpdateValidator);
+
+        var guestDto = new CreateGuestDTO
+        {
+            FirstName = "",
+            LastName = "Testsson",
+            Email = "invalidEmail",
+            Phone = "**"
+        };
+
+        var validationFailures = new List<ValidationFailure>
+    {
+        new ValidationFailure("FirstName", "Invalid number of character"),
+        new ValidationFailure("Email", "Invalid format"),
+        new ValidationFailure("Phone", "Invalid format")
+    };
+
+        var validationResult = new ValidationResult(validationFailures);
+
+        A.CallTo(() => fakeValidator.ValidateAsync(
+                A<CreateGuestDTO>._,
+                default))
+            .Returns(validationResult);
+
+
+        IActionResult result = await controller.AddGuest(guestDto);
+
+
+        var badRequestResult = result.Should()
+            .BeAssignableTo<BadRequestObjectResult>()
+            .Subject;
+
+        badRequestResult.Value.Should()
+            .BeEquivalentTo(validationFailures);
+
+        A.CallTo(() => fakeService.AddGuestAsync(A<CreateGuestDTO>._))
+            .MustNotHaveHappened();
+    }
+
+
+
+
 
     [TestMethod]
     public async Task UpdateGuest_CheckUpdatedGuestInfo_ReturnUpdatedObject()
     {
         var fake = A.Fake<IGuestService>();
-        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorCreateGuest = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
-        var controller = new GuestController(fake,validator);
+        A.CallTo(() => validatorUpdateGuest.ValidateAsync(
+        A<UpdateGuestInfoDTO>._,
+        default))
+         .Returns(new FluentValidation.Results.ValidationResult());
 
-        var updatedGuestInfo = new GuestInfoDTO(
-            "Ove",
-            "Sundberg",
-            "Ove@Sundberg.com",
-            "078981232");
-        GuestInfoDTO? capturedDto = null;
+        var controller = new GuestController(fake, validatorCreateGuest, validatorUpdateGuest);
 
-            A.CallTo(() => fake.UpdateGuestInfoAsync(1, A<GuestInfoDTO>._))
-            .Invokes((int id, GuestInfoDTO dto) =>
-            {
-                capturedDto = dto;
-            }).Returns(ServiceResult.Ok());
+
+
+        var updatedGuestInfo = new UpdateGuestInfoDTO
+        {
+            FirstName = "Ove",
+            LastName = "Sundberg",
+            Email = "Ove@Sundberg.com",
+            Phone = "078981232"
+        };
+        UpdateGuestInfoDTO? capturedDto = null;
+
+        A.CallTo(() => fake.UpdateGuestInfoAsync(1, A<UpdateGuestInfoDTO>._))
+        .Invokes((int id, UpdateGuestInfoDTO dto) =>
+        {
+            capturedDto = dto;
+        }).Returns(ServiceResult.Ok());
 
 
         IActionResult result = await controller.UpdateGuestInfo(1, updatedGuestInfo);
@@ -146,28 +219,95 @@ public class GuestControllerTest
 
     }
 
+
     [TestMethod]
     public async Task DeleteGuest_Return_NoContent()
     {
 
         var fake = A.Fake<IGuestService>();
         var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
         A.CallTo(() => fake.DeleteGuestAsync(1))
             .Returns(ServiceResult.Ok());
 
-        var controller = new GuestController(fake,validator);
+        var controller = new GuestController(fake, validator, validatorUpdateGuest);
 
-        
+
         IActionResult result = await controller.DeleteGuest(1);
-        
+
         result.Should().BeAssignableTo<NoContentResult>();
 
-        A.CallTo(() => fake.DeleteGuestAsync(1))
-            .MustHaveHappenedOnceExactly();
+    }
 
-        
+    [TestMethod]
+    public async Task DeleteGuest_InvalidGuest_ReturnNotFound()
+    {
+        var fakeService = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var updateValidator = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
+        A.CallTo(() => fakeService.DeleteGuestAsync(1))
+            .Returns(ServiceResult.NotFound("Guest not found"));
+
+        var controller = new GuestController(fakeService, validator, updateValidator);
+
+        IActionResult result = await controller.DeleteGuest(1);
+
+        var notFound = result.Should().BeAssignableTo<NotFoundObjectResult>().Subject;
+    }
+
+    [TestMethod]
+    public async Task GetGuestBookingHistory_ExistingGuest_ReturnOk()
+    {
+      
+        var fake = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+
+        var controller = new GuestController(
+            fake,
+            validator,
+            validatorUpdateGuest);
+
+        var response = new List<GetBookingResponseDTO>
+    {
+        new GetBookingResponseDTO
+        {
+            Id = 1,
+            CreatedAt = DateTime.Now.AddDays(-5),
+            TotalPrice = 2000m,
+            Status = Status.Confirmed,
+
+            Guest = new GuestInfoDTO(
+                "Test",
+                "Testsson",
+                "test@test.com",
+                "070123456"
+            ),
+
+            RoomReservation = new List<GetRoomReservationResponseDTO>()
+        }
+    };
+
+        A.CallTo(() => fake.GetGuestBookingHistoryAsync(1))
+            .Returns(ServiceResult<List<GetBookingResponseDTO>>
+            .Ok(response));
+
+        ActionResult<List<GetBookingResponseDTO>> result =
+            await controller.GetUsersBookingHistory(1);
+
+    
+        var okResult = result.Result.Should()
+            .BeOfType<OkObjectResult>()
+            .Subject;
+
+        var returnedResult = okResult.Value.Should()
+            .BeAssignableTo<ServiceResult<List<GetBookingResponseDTO>>>()
+            .Subject;
+
+        returnedResult.Data.Should()
+            .BeEquivalentTo(response);
     }
 
 
