@@ -139,5 +139,21 @@ namespace TheGallop_Resort.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("CreateReservationAndGuest")]
+        public async Task<IActionResult> CreateGuestBooking(
+          CreateGuestBookingDTO dto)
+        {
+            var result = await _guestService.CreateGuestBookingAsync(dto);
+
+            if (!result.SuccessfulResult)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok(result.Data);
+        }
+
+
     }
 }

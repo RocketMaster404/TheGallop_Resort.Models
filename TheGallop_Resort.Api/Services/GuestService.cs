@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -6,6 +7,7 @@ using System.Linq;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
+using Xunit.Sdk;
 
 namespace TheGallop_Resort.Api.Services
 {
@@ -251,6 +253,68 @@ namespace TheGallop_Resort.Api.Services
             await _ctx.SaveChangesAsync();
 
             return ServiceResult.Ok();
+
+
+        }
+
+        
+        public async Task<ServiceResult<BookingConfirmationDTO>> CreateGuestBookingAsync(CreateGuestBookingDTO dto)
+        {
+            var guest = new Guest
+            {
+                FirstName = dto.GuestInfo.FirstName,
+                LastName = dto.GuestInfo.LastName,
+                Email = dto.GuestInfo.Email,
+                PhoneNumber = dto.GuestInfo.Phone
+            };
+
+            var booking = new Booking
+            {
+                Guest = guest,
+                CreatedAt = DateTime.UtcNow,
+                Status = Status.Confirmed   
+            };
+
+                var room = await _ctx.Rooms
+                .Include(r => r.RoomCategory)
+                .Include(r => r.RoomReservations)
+                .FirstOrDefaultAsync(r =>
+                r.RoomCategory.Type == dto.Reservation.Type
+                &&
+                !r.RoomReservations.Any(rr =>
+                dto.Reservation.CheckIn < rr.CheckOut &&
+                dto.Reservation.CheckOut > rr.CheckIn
+                )
+                );
+
+            if (room == null)
+            {
+                return ServiceResult<BookingConfirmationDTO>.ValidationError("No avalible Room in category");
+            }
+
+            var reservation = new RoomReservation
+            {
+                Booking = booking,
+                Adults = dto.Reservation.Adults,
+                Children = dto.Reservation.Children,
+                CheckIn = dto.Reservation.CheckIn,
+                CheckOut = dto.Reservation.CheckOut,
+                RoomId = room.Id,
+                
+            };
+
+            booking.RoomReservations.Add(reservation);
+            _ctx.Bookings.Add(booking);
+
+            await _ctx.SaveChangesAsync();
+
+            var confirmation = new BookingConfirmationDTO
+            (
+                 booking.Id,
+                 guest.Email
+            );
+
+            return ServiceResult<BookingConfirmationDTO>.Ok(confirmation);
 
 
         }

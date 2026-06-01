@@ -30,4 +30,14 @@ namespace TheGallop_Resort.Api.DTOs
     public record GuestInfoDTO(string FirstName, string LastName, string Email, string Phone);
     public record GuestBookingInfoDTO(int BookingId,DateTime CreatedAt,decimal TotalPrice, IEnumerable<GuestRoomReservationInfoDTO> RoomReservations);
     public record GuestRoomReservationInfoDTO(int RoomReservationId, DateTime CheckIn, DateTime CheckOut, RoomStatus? RoomStatus,int Adults, int Children, decimal PricePerNight);
+
+
+    public record CreateGuestBookingDTO(CreateGuestDTO GuestInfo, CreateGuestRoomReservationDTO Reservation);
+
+    public record CreateGuestRoomReservationDTO( DateTime CheckIn, DateTime CheckOut, int Adults, int Children, RoomType Type);
+
+    public record BookingConfirmationDTO(int BookingId, string GuestMail);
+
+
+
 }
