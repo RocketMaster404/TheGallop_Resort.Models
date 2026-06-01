@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
@@ -70,52 +71,62 @@ namespace TheGallop_Resort.Api.Services
                 .Ok(guest);
         }
 
-        public async Task<ServiceResult<List<GuestBookingInfoDTO>>> GetGuestFutureBookingsAsync(int guestId)
+
+        public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestFutureBookingsAsync(int guestId)
         {
-            var guestExists = await _ctx.Guests
-                .AnyAsync(g => g.Id == guestId);
+            var guest = await _ctx.Guests
+                .Where(g => g.Id == guestId)
 
-            if (!guestExists)
-            {
-                return ServiceResult<List<GuestBookingInfoDTO>>
-                    .ValidationError("Guest not found");
-            }
+                .Select(g => new GuestInfoWithBookingDTO(
+                    g.FirstName,
+                    g.LastName,
+                    g.Email,
+                    g.PhoneNumber,
 
-            var bookings = await _ctx.Bookings
-                .Where(b =>
-                    b.GuestId == guestId &&
-                    b.RoomReservations.Any(rr => rr.CheckIn > DateTime.Now))
+                    g.Bookings
+                        .Where(b => b.RoomReservations
+                            .Any(rr => rr.CheckIn > DateTime.Now))
 
-                .Select(b => new GuestBookingInfoDTO(
-                    b.Id,
-                    b.CreatedAt,
-                    b.TotalPrice,
+                        .Select(b => new GuestBookingInfoDTO(
+                            b.Id,
+                            b.CreatedAt,
+                            b.TotalPrice,
 
-                    b.RoomReservations
-                        .Where(rr => rr.CheckIn > DateTime.Now)
+                            b.RoomReservations
+                                .Where(rr => rr.CheckIn > DateTime.Now)
 
-                        .Select(rr => new GuestRoomReservationInfoDTO(
-                            rr.Id,
-                            rr.CheckIn,
-                            rr.CheckOut,
-                            rr.RoomStatus,
-                            rr.Adults,
-                            rr.Children,
-                            rr.PricePerNight
+                                .Select(rr => new GuestRoomReservationInfoDTO(
+                                    rr.Id,
+                                    rr.CheckIn,
+                                    rr.CheckOut,
+                                    rr.RoomStatus,
+                                    rr.Adults,
+                                    rr.Children,
+                                    rr.PricePerNight
+                                ))
+                                .ToList()
                         ))
                         .ToList()
                 ))
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
-            if (!bookings.Any())
+            if (guest is null)
             {
-                return ServiceResult<List<GuestBookingInfoDTO>>
+                return ServiceResult<GuestInfoWithBookingDTO>
+                    .ValidationError("Guest not found");
+            }
+
+            if (!guest.Bookings.Any())
+            {
+                return ServiceResult<GuestInfoWithBookingDTO>
                     .ValidationError("No future reservations");
             }
 
-            return ServiceResult<List<GuestBookingInfoDTO>>
-                .Ok(bookings);
+            return ServiceResult<GuestInfoWithBookingDTO>
+                .Ok(guest);
         }
+
+
 
 
 
@@ -201,7 +212,7 @@ namespace TheGallop_Resort.Api.Services
         {
 
             var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
-            
+
 
             if (guestToDelete == null)
             {
