@@ -41,6 +41,18 @@ namespace TheGallop_Resort.Api.Controllers
             return Ok(guest);
         }
 
+        [HttpGet("{guestId}/GuestFuretureReservation")]
+        public async Task<ActionResult<List<GetBookingResponseDTO>>> GetGuestFutureBookings(int guestId)
+        {
+            var guest = await _guestService.GetGuestFutureBookingsAsync(guestId);
+            if (!guest.SuccessfulResult)
+            {
+                return NotFound("Guest not found");
+            }
+
+            return Ok(guest);
+        }
+
         [HttpGet]
         public async Task<ActionResult<Guest>> GetAllGuestsInfo()
         {
