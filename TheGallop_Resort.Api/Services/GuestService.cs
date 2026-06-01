@@ -188,12 +188,32 @@ namespace TheGallop_Resort.Api.Services
 
         public async Task<ServiceResult> DeleteGuestAsync(int guestId)
         {
-            var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+            
+            var guestToDelete = await _ctx.Guests
+                                .Include(g => g.Bookings)
+                                .ThenInclude(b => b.RoomReservations)
+                                .FirstOrDefaultAsync(g => g.Id == guestId);
+
 
             if (guestToDelete == null)
             {
                 return ServiceResult.NotFound("Guest not found");
             }
+
+            foreach(var b in guestToDelete.Bookings)
+            {
+                b.Status = Status.Cancelled;
+                b.TotalPrice = 0;     
+                
+                foreach(var r in b.RoomReservations)
+                {
+                    r.RoomStatus = (RoomStatus)Status.Cancelled;
+                    r.PricePerNight = 0;
+                }
+
+            }
+
+
 
             _ctx.Guests.Remove(guestToDelete);
             await _ctx.SaveChangesAsync();

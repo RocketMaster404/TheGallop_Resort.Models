@@ -136,7 +136,7 @@ namespace TheGallop_Resort.Api.Data
                     GuestId = 2,
                     CreatedAt = new DateTime(2026, 5, 21),
                     Status = Status.Preliminary,
-                    TotalPrice = 3499
+                    TotalPrice = 3699
                 }
             );
 
@@ -150,7 +150,7 @@ namespace TheGallop_Resort.Api.Data
                     CheckOut = new DateTime(2026, 6, 3),
                     Adults = 2,
                     Children = 1,
-                    PricePerNight = 1799,
+                    PricePerNight = 1789,
                     RoomStatus = RoomStatus.Confirmed
                 },
                 new RoomReservation
@@ -158,7 +158,7 @@ namespace TheGallop_Resort.Api.Data
                     Id = 2,
                     BookingId = 2,
                     RoomId = 5,
-                    CheckIn = new DateTime(2026, 7, 10),
+                    CheckIn = new DateTime(2026, 7, 9),
                     CheckOut = new DateTime(2026, 7, 11),
                     Adults = 2,
                     Children = 0,
