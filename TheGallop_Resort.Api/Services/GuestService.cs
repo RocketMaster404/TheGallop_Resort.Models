@@ -98,7 +98,7 @@ namespace TheGallop_Resort.Api.Services
                     ),
 
                     RoomReservation = b.RoomReservations
-                        .Where(rr => rr.CheckOut < DateTime.Now)
+                        .Where(rr => rr.CheckIn > DateTime.Now)
                         .Select(rr => new GetRoomReservationResponseDTO
                         (
                             rr.Id,
