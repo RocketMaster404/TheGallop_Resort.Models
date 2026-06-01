@@ -68,7 +68,59 @@ namespace TheGallop_Resort.Api.Services
 
         }
 
-      
+        public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetGuestFutureBookingsAsync(int guestId)
+        {
+            var guestCheck = await _ctx.Guests.AnyAsync(g => g.Id == guestId);
+
+            if (!guestCheck)
+            {
+                return ServiceResult<List<GetBookingResponseDTO>>
+                .ValidationError("Guest not found");
+            }
+
+            var bookings = await _ctx.Bookings
+                .Where(b => b.GuestId == guestId &&
+                            b.RoomReservations.Any(rr => rr.CheckIn > DateTime.Now))
+                .Select(b => new GetBookingResponseDTO
+                {
+                    Id = b.Id,
+                    CreatedAt = b.CreatedAt,
+                    TotalPrice = b.TotalPrice,
+                    Status = b.Status,
+
+                    Guest = new GuestInfoDTO
+                    (
+
+                        b.Guest.FirstName,
+                        b.Guest.LastName,
+                        b.Guest.Email,
+                        b.Guest.PhoneNumber
+                    ),
+
+                    RoomReservation = b.RoomReservations
+                        .Where(rr => rr.CheckIn > DateTime.Now)
+                        .Select(rr => new GetRoomReservationResponseDTO
+                        (
+                            rr.Id,
+                            rr.RoomId,
+                            rr.CheckIn,
+                            rr.CheckOut
+                        ))
+                })
+                .ToListAsync();
+
+            if (!bookings.Any())
+            {
+                return ServiceResult<List<GetBookingResponseDTO>>
+                .ValidationError("No reservations");
+            }
+
+
+            return ServiceResult<List<GetBookingResponseDTO>>.Ok(bookings);
+
+        }
+
+
 
 
         public async Task<ServiceResult<Guest>> AddGuestAsync(CreateGuestDTO dto)
@@ -136,12 +188,15 @@ namespace TheGallop_Resort.Api.Services
 
         public async Task<ServiceResult> DeleteGuestAsync(int guestId)
         {
+
             var guestToDelete = await _ctx.Guests.FirstOrDefaultAsync(g => g.Id == guestId);
+            
 
             if (guestToDelete == null)
             {
                 return ServiceResult.NotFound("Guest not found");
             }
+
 
             _ctx.Guests.Remove(guestToDelete);
             await _ctx.SaveChangesAsync();
