@@ -10,17 +10,17 @@ namespace TheGallop_Resort.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     // Change to BaseController when implemented
-    public class RoomDetailController : BaseController
+    public class RoomsController : Controller
     {
         private readonly GaloppDbContext _galoppDbContext;
-        public RoomDetailController(GaloppDbContext galoppDbContext)
+        public RoomsController(GaloppDbContext galoppDbContext)
         {
             _galoppDbContext = galoppDbContext;
         }
 
         [HttpPost]
         // No logic in the controller, only validation and calling the service, change to IActionResult when implemented
-        public async Task<ActionResult<RoomDetail>> CreateRoomDetail(CreateRoomDetailDTO dto)
+        public async Task<ActionResult<Room>> CreateRoom(CreateRoomDTO dto)
         {
 
             //Checking that RoomCategory exists

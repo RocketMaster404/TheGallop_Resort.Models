@@ -15,22 +15,23 @@ namespace TheGallop_Resort.Api.Controllers
 
         private readonly IGuestService _guestService;
         private IValidator<CreateGuestDTO> _createGuestValidator;
+        private IValidator<UpdateGuestInfoDTO> _updateGuestInfoValidator;
 
-        //public GuestController(IGuestService guestService)
-        //{
-        //    _guestService = guestService;
-        //}
+        
 
-        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator)
+        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator, IValidator<UpdateGuestInfoDTO> updateGuestInfoDTO)
         {
             _guestService = guestService;
             _createGuestValidator = createGuestValidator;
+            _updateGuestInfoValidator = updateGuestInfoDTO;
+            
+            
         }
 
         [HttpGet("{guestId}/GuestBookingHistory")]
-        public async Task<IActionResult> GetUsersBookingHistory(int guestId)
+        public async Task<ActionResult<List<GetBookingResponseDTO>>> GetUsersBookingHistory(int guestId)
         {
-            var guest = await _guestService.GetUserBookingHistoryAsync(guestId);
+            var guest = await _guestService.GetGuestBookingHistoryAsync(guestId);
 
             if(!guest.SuccessfulResult)
             {
@@ -39,21 +40,9 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(guest);
         }
-        [HttpGet("{guestId}/GuestFutureREservations")]
-        public async Task<ActionResult<List<GetBookingResponseDTO>>> GetGuestFutureBookings(int guestId)
-        {
-            var guest = await _guestService.GetGuestFutureBookingsAsync(guestId);
-
-            if (!guest.SuccessfulResult)
-            {
-                return BadRequest(guest.ErrorMessage);
-            }
-
-            return Ok(guest);
-        }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllGuestsInfo()
+        public async Task<ActionResult<Guest>> GetAllGuestsInfo()
         {
             var guests = await _guestService.GetAllGuestsInfoAsync();
 
@@ -73,7 +62,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
 
@@ -85,12 +74,13 @@ namespace TheGallop_Resort.Api.Controllers
             }
 
             return Ok(guest.Data);
+            
 
         }
 
      
         [HttpGet("{guestId}")]
-        public async Task<IActionResult> GetGuestInfoById(int guestId)
+        public async Task<ActionResult<GuestInfoWithBookingDTO>> GetGuestInfoById(int guestId)
         {
             var guest = await _guestService.GetGuestInfoByIdAsync(guestId);
 
@@ -117,13 +107,20 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPut("{guestId}")]
-        public async Task<IActionResult> UpdateGuestInfo(int guestId,GuestInfoDTO dto)
+        public async Task<IActionResult> UpdateGuestInfo(int guestId,UpdateGuestInfoDTO dto)
         {
+            var validator = await _updateGuestInfoValidator.ValidateAsync(dto);
+
+            if (!validator.IsValid)
+            {
+                return BadRequest(validator.Errors);
+            }
+
             var guest = await _guestService.UpdateGuestInfoAsync(guestId, dto);
 
             if (!guest.SuccessfulResult)
             {
-                return BadRequest(guest.ErrorMessage);
+                return ToErrorResponse(guest);
             }
 
             return NoContent();
