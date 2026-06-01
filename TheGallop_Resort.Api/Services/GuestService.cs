@@ -110,7 +110,7 @@ namespace TheGallop_Resort.Api.Services
                 ))
                 .FirstOrDefaultAsync();
 
-            if (guest is null)
+            if (guest == null)
             {
                 return ServiceResult<GuestInfoWithBookingDTO>
                     .ValidationError("Guest not found");
