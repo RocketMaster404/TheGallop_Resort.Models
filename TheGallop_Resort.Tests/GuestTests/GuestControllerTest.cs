@@ -27,7 +27,7 @@ public class GuestControllerTest
             "Testsson",
             "test@testsson.se",
             "076238723",
-            new List<BookingDetailsDTO>()
+            new List<GuestBookingInfoDTO>()
             );
 
 
@@ -260,7 +260,6 @@ public class GuestControllerTest
     [TestMethod]
     public async Task GetGuestBookingHistory_ExistingGuest_ReturnOk()
     {
-      
         var fake = A.Fake<IGuestService>();
         var validator = A.Fake<IValidator<CreateGuestDTO>>();
         var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
@@ -270,45 +269,43 @@ public class GuestControllerTest
             validator,
             validatorUpdateGuest);
 
-        var response = new List<GetBookingResponseDTO>
-    {
-        new GetBookingResponseDTO
-        {
-            Id = 1,
-            CreatedAt = DateTime.Now.AddDays(-5),
-            TotalPrice = 2000m,
-            Status = Status.Confirmed,
+        var response = new GuestInfoWithBookingDTO(
+     "Test",
+     "Testsson",
+     "Test@gmail.com",
+     "23213123",
+     new List<GuestBookingInfoDTO>
+             {
+             new GuestBookingInfoDTO(
+            1,
+            DateTime.Now.AddDays(-10),
+            100,
+            new List<GuestRoomReservationInfoDTO>()
+             )
+             }
+             );
 
-            Guest = new GuestInfoDTO(
-                "Test",
-                "Testsson",
-                "test@test.com",
-                "070123456"
-            ),
-
-            RoomReservation = new List<GetRoomReservationResponseDTO>()
-        }
-    };
+        var serviceResult =
+            ServiceResult<GuestInfoWithBookingDTO>.Ok(response);
 
         A.CallTo(() => fake.GetGuestBookingHistoryAsync(1))
-            .Returns(ServiceResult<List<GetBookingResponseDTO>>
-            .Ok(response));
+            .Returns(Task.FromResult(serviceResult));
 
-        ActionResult<List<GetBookingResponseDTO>> result =
-            await controller.GetUsersBookingHistory(1);
+        var result = await controller.GetUsersBookingHistory(1);
 
-    
         var okResult = result.Result.Should()
             .BeOfType<OkObjectResult>()
             .Subject;
 
         var returnedResult = okResult.Value.Should()
-            .BeAssignableTo<ServiceResult<List<GetBookingResponseDTO>>>()
+            .BeAssignableTo<ServiceResult<GuestInfoWithBookingDTO>>()
             .Subject;
 
         returnedResult.Data.Should()
             .BeEquivalentTo(response);
     }
+
+
 
 
 
