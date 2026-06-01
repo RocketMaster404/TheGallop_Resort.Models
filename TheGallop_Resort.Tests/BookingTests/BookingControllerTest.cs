@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.DTOs;
+using TheGallop_Resort.Api.DTOs.Validators;
 using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
 
@@ -269,7 +270,7 @@ public class BookingControllerTest
         var startDate = new DateOnly(2026, 09, 20);
         var endDate = new DateOnly(2026, 09, 29);
 
-        var updatedDTO = new SearchBookingBetweenDateDTO(startDate,endDate);
+        var updatedDTO = new SearchBookingBetweenDateDTO(startDate, endDate);
 
         var bookings = new List<GetBookingResponseDTO>();
 
@@ -324,5 +325,25 @@ public class BookingControllerTest
             .Subject;
 
         noContentResult.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public async Task GetBookingsBetweenDates_InvalidDate_ShouldReturnBadRequest()
+    {
+        var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
+        var invalidDTO = new SearchBookingBetweenDateDTO(new DateOnly(2026, 09, 29), new DateOnly(2026, 09, 20));
+
+        var validator = new SearchBookingBetweenDateDTOValidator();
+        var failedResult = validator.Validate(invalidDTO);
+
+        A.CallTo(() => _searchBookingBetweenDateDTO.ValidateAsync(invalidDTO, default))
+             .Returns(failedResult);
+
+        var result = await controller.GetBookingsBetweenDates(invalidDTO);
+
+        result.Result.Should().BeAssignableTo<BadRequestObjectResult>();
+
+        A.CallTo(() => _fakeBookingService.GetBookingsBetweenDatesAsync(invalidDTO))
+            .MustNotHaveHappened();
     }
 }
