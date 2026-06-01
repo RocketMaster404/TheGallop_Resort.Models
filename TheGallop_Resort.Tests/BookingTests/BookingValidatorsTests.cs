@@ -125,4 +125,18 @@ public class BookingValidatorsTests
         var result = validator.TestValidate(booking);
         result.ShouldHaveValidationErrorFor(x => x.Children);
     }
+
+    [TestMethod]
+    public void SearchBookingBetweenDate_InvalidDate_ReturnError()
+    {
+        var validator = new SearchBookingBetweenDateDTOValidator();
+        var booking = new SearchBookingBetweenDateDTO
+        (
+            new DateOnly(2026, 08, 09),
+            new DateOnly(2026, 08, 01)
+       );
+
+        var result = validator.TestValidate(booking);
+        result.ShouldHaveValidationErrorFor(x => x.EndDate);
+    }
 }

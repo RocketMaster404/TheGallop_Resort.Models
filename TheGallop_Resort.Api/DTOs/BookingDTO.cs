@@ -37,11 +37,7 @@ namespace TheGallop_Resort.Api.DTOs
         public RoomType Type { get; init; }
     }
 
-    public record CreateBookingDTO
-    {
-        public int GuestId { get; init; }
-
-    }
+    public record CreateBookingDTO (int GuestId);
 
     public record GetFullBookingResponsDTO
     {
