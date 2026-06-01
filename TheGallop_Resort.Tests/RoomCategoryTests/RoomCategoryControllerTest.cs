@@ -129,5 +129,6 @@ public class RoomCategoryControllerTest
 
         A.CallTo(() => fake.DeleteRoomCategoryAsync(1))
             .MustHaveHappenedOnceExactly();
+        // Praying to do not mess the main again
     }
 }
