@@ -84,7 +84,6 @@ namespace TheGallop_Resort.Api.Services
             return ServiceResult<GetBookingResponseDTO>.Ok(bookings);
         }
 
-        //DTOist
         public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateBookingAsync(GetInputFromUserCreateDTO dto)
         {
             var checkIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue);
@@ -103,9 +102,9 @@ namespace TheGallop_Resort.Api.Services
             }
 
             var bookingDTO = new CreateBookingDTO
-            {
-                GuestId = dto.GuestId,
-            };
+            (
+               dto.GuestId
+            );
 
             var booking = new Booking
             {
@@ -351,8 +350,8 @@ namespace TheGallop_Resort.Api.Services
             if (booking is null)
             {
                 return ServiceResult.NotFound("No bookings were found.");
-            }
-
+            };
+            
             _ctx.Bookings.Remove(booking);
 
             await _ctx.SaveChangesAsync();
