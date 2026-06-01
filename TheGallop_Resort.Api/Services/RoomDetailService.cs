@@ -5,11 +5,11 @@ using TheGallop_Resort.Models.Models;
 
 namespace TheGallop_Resort.Api.Services
 {
-    public class RoomService : IRoomService
+    public class RoomDetailService : IRoomDetailService
     {
         private readonly GaloppDbContext _context;
 
-        public RoomService(GaloppDbContext context) 
+        public RoomDetailService(GaloppDbContext context) 
         {
             _context = context;
         }
