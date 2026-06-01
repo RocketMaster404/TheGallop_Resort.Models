@@ -50,4 +50,16 @@ namespace TheGallop_Resort.Api.DTOs
     }
 
     public record SearchBookingBetweenDateDTO(DateOnly StartDate, DateOnly EndDate);
+
+    public record GetBookingWithRoomNumberResponseDTO
+    {
+        public int Id { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public decimal TotalPrice { get; init; }
+        public Status Status { get; init; }
+        public GuestInfoDTO Guest { get; init; }
+
+        public IEnumerable<RoomInfoDTO> Rooms { get; init; }
+        
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Models.Models;
@@ -16,108 +17,104 @@ namespace TheGallop_Resort.Api.Services
         {
             _ctx = ctx;
         }
-        public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetGuestBookingHistoryAsync(int guestId)
+        public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestBookingHistoryAsync(int guestId)
         {
-            var guestCheck = await _ctx.Guests.AnyAsync(g => g.Id == guestId);
+            var guest = await _ctx.Guests
+                .Where(g => g.Id == guestId)
+                .Select(g => new GuestInfoWithBookingDTO(
+                    g.FirstName,
+                    g.LastName,
+                    g.Email,
+                    g.PhoneNumber,
 
-            if (!guestCheck)
-            {
-                return ServiceResult<List<GetBookingResponseDTO>>
-                .ValidationError("Guest not found");
-            }
+                    g.Bookings
+                        .Where(b => b.RoomReservations
+                            .Any(rr => rr.CheckOut < DateTime.Now))
 
-            var bookings = await _ctx.Bookings
-                .Where(b => b.GuestId == guestId &&
-                            b.RoomReservations.Any(rr => rr.CheckOut < DateTime.Now))
-                .Select(b => new GetBookingResponseDTO
-                {
-                    Id = b.Id,
-                    CreatedAt = b.CreatedAt,
-                    TotalPrice = b.TotalPrice,
-                    Status = b.Status,
+                        .Select(b => new GuestBookingInfoDTO(
+                            b.Id,
+                            b.CreatedAt,
+                            b.TotalPrice,
 
-                    Guest = new GuestInfoDTO
-                    (
+                            b.RoomReservations
+                                .Where(rr => rr.CheckOut < DateTime.Now)
 
-                        b.Guest.FirstName,
-                        b.Guest.LastName,
-                        b.Guest.Email,
-                        b.Guest.PhoneNumber
-                    ),
-
-                    RoomReservation = b.RoomReservations
-                        .Where(rr => rr.CheckOut < DateTime.Now)
-                        .Select(rr => new GetRoomReservationResponseDTO
-                        (
-                            rr.Id,
-                            rr.RoomId,
-                            rr.CheckIn,
-                            rr.CheckOut
+                                .Select(rr => new GuestRoomReservationInfoDTO(
+                                    rr.Id,
+                                    rr.CheckIn,
+                                    rr.CheckOut,
+                                    rr.RoomStatus,
+                                    rr.Adults,
+                                    rr.Children,
+                                    rr.PricePerNight
+                                ))
+                                .ToList()
                         ))
-                })
-                .ToListAsync();
+                        .ToList()
+                ))
+                .FirstOrDefaultAsync();
 
-            if(!bookings.Any())
+            if (guest is null)
             {
-                return ServiceResult<List<GetBookingResponseDTO>>
-                .ValidationError("Not booking history");
+                return ServiceResult<GuestInfoWithBookingDTO>
+                    .ValidationError("Guest not found");
             }
-            
 
-            return ServiceResult<List<GetBookingResponseDTO>>.Ok(bookings);
+            if (!guest.Bookings.Any())
+            {
+                return ServiceResult<GuestInfoWithBookingDTO>
+                    .ValidationError("No booking history");
+            }
 
+            return ServiceResult<GuestInfoWithBookingDTO>
+                .Ok(guest);
         }
 
-        public async Task<ServiceResult<List<GetBookingResponseDTO>>> GetGuestFutureBookingsAsync(int guestId)
+        public async Task<ServiceResult<List<GuestBookingInfoDTO>>> GetGuestFutureBookingsAsync(int guestId)
         {
-            var guestCheck = await _ctx.Guests.AnyAsync(g => g.Id == guestId);
+            var guestExists = await _ctx.Guests
+                .AnyAsync(g => g.Id == guestId);
 
-            if (!guestCheck)
+            if (!guestExists)
             {
-                return ServiceResult<List<GetBookingResponseDTO>>
-                .ValidationError("Guest not found");
+                return ServiceResult<List<GuestBookingInfoDTO>>
+                    .ValidationError("Guest not found");
             }
 
             var bookings = await _ctx.Bookings
-                .Where(b => b.GuestId == guestId &&
-                            b.RoomReservations.Any(rr => rr.CheckIn > DateTime.Now))
-                .Select(b => new GetBookingResponseDTO
-                {
-                    Id = b.Id,
-                    CreatedAt = b.CreatedAt,
-                    TotalPrice = b.TotalPrice,
-                    Status = b.Status,
+                .Where(b =>
+                    b.GuestId == guestId &&
+                    b.RoomReservations.Any(rr => rr.CheckIn > DateTime.Now))
 
-                    Guest = new GuestInfoDTO
-                    (
+                .Select(b => new GuestBookingInfoDTO(
+                    b.Id,
+                    b.CreatedAt,
+                    b.TotalPrice,
 
-                        b.Guest.FirstName,
-                        b.Guest.LastName,
-                        b.Guest.Email,
-                        b.Guest.PhoneNumber
-                    ),
-
-                    RoomReservation = b.RoomReservations
+                    b.RoomReservations
                         .Where(rr => rr.CheckIn > DateTime.Now)
-                        .Select(rr => new GetRoomReservationResponseDTO
-                        (
+
+                        .Select(rr => new GuestRoomReservationInfoDTO(
                             rr.Id,
-                            rr.RoomId,
                             rr.CheckIn,
-                            rr.CheckOut
+                            rr.CheckOut,
+                            rr.RoomStatus,
+                            rr.Adults,
+                            rr.Children,
+                            rr.PricePerNight
                         ))
-                })
+                        .ToList()
+                ))
                 .ToListAsync();
 
             if (!bookings.Any())
             {
-                return ServiceResult<List<GetBookingResponseDTO>>
-                .ValidationError("No reservations");
+                return ServiceResult<List<GuestBookingInfoDTO>>
+                    .ValidationError("No future reservations");
             }
 
-
-            return ServiceResult<List<GetBookingResponseDTO>>.Ok(bookings);
-
+            return ServiceResult<List<GuestBookingInfoDTO>>
+                .Ok(bookings);
         }
 
 
@@ -160,30 +157,44 @@ namespace TheGallop_Resort.Api.Services
 
         public async Task<ServiceResult<GuestInfoWithBookingDTO>> GetGuestInfoByIdAsync(int guestId)
         {
+            var guest = await _ctx.Guests
+                .Where(g => g.Id == guestId)
+                .AsNoTracking()
 
-            var guest = await _ctx.Guests.Where(g => g.Id == guestId).AsNoTracking().Select(g => new GuestInfoWithBookingDTO(
-               g.FirstName,
-               g.LastName,
-               g.Email,
-               g.PhoneNumber,
-               g.Bookings.Select(b => new BookingDetailsDTO
-               {
-                   Id = b.Id,
-                   Totalprice = b.TotalPrice,
-                   Status = (Status)b.Status,
-                   CreatedAt = b.CreatedAt
+                .Select(g => new GuestInfoWithBookingDTO(
+                    g.FirstName,
+                    g.LastName,
+                    g.Email,
+                    g.PhoneNumber,
 
-               }).ToList()
-               )).FirstOrDefaultAsync();
+                    g.Bookings.Select(b => new GuestBookingInfoDTO(
+                        b.Id,
+                        b.CreatedAt,
+                        b.TotalPrice,
+
+                        b.RoomReservations.Select(rr => new GuestRoomReservationInfoDTO(
+                            rr.Id,
+                            rr.CheckIn,
+                            rr.CheckOut,
+                            rr.RoomStatus,
+                            rr.Adults,
+                            rr.Children,
+                            rr.PricePerNight
+                        ))
+                        .ToList()
+                    ))
+                    .ToList()
+                ))
+                .FirstOrDefaultAsync();
 
             if (guest == null)
             {
-                return ServiceResult<GuestInfoWithBookingDTO>.NotFound("Guest Not Found");
+                return ServiceResult<GuestInfoWithBookingDTO>
+                    .NotFound("Guest Not Found");
             }
 
-
-
-            return ServiceResult<GuestInfoWithBookingDTO>.Ok(guest);
+            return ServiceResult<GuestInfoWithBookingDTO>
+                .Ok(guest);
         }
 
         public async Task<ServiceResult> DeleteGuestAsync(int guestId)
