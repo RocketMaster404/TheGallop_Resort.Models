@@ -8,6 +8,7 @@ using TheGallop_Resort.Api.DTOs.Validators;
 using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
 
+
 namespace TheGallop_Resort.Api.Controllers
 {
     [Route("api/[controller]")]
