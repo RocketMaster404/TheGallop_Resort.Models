@@ -55,17 +55,17 @@ namespace TheGallop_Resort.Api.Services
                 ))
                 .FirstOrDefaultAsync();
 
-            if (guest is null)
+            if (guest == null)
             {
                 return ServiceResult<GuestInfoWithBookingDTO>
                     .ValidationError("Guest not found");
             }
 
-            if (!guest.Bookings.Any())
-            {
-                return ServiceResult<GuestInfoWithBookingDTO>
-                    .ValidationError("No booking history");
-            }
+            //if (!guest.Bookings.Any())
+            //{
+            //    return ServiceResult<GuestInfoWithBookingDTO>
+            //        .ValidationError("No booking history");
+            //}
 
             return ServiceResult<GuestInfoWithBookingDTO>
                 .Ok(guest);
@@ -116,11 +116,11 @@ namespace TheGallop_Resort.Api.Services
                     .ValidationError("Guest not found");
             }
 
-            if (!guest.Bookings.Any())
-            {
-                return ServiceResult<GuestInfoWithBookingDTO>
-                    .ValidationError("No future reservations");
-            }
+            //if (!guest.Bookings.Any())
+            //{
+            //    return ServiceResult<GuestInfoWithBookingDTO>
+            //        .ValidationError("No future reservations");
+            //}
 
             return ServiceResult<GuestInfoWithBookingDTO>
                 .Ok(guest);

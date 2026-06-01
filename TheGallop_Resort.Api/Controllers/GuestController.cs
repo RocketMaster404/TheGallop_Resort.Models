@@ -35,7 +35,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if(!guest.SuccessfulResult)
             {
-                return NotFound("Guest not found");
+                return BadRequest(guest.ErrorMessage);
             }
 
             return Ok(guest);
@@ -47,7 +47,7 @@ namespace TheGallop_Resort.Api.Controllers
             var guest = await _guestService.GetGuestFutureBookingsAsync(guestId);
             if (!guest.SuccessfulResult)
             {
-                return NotFound("Guest not found");
+                return BadRequest(guest.ErrorMessage);
             }
 
             return Ok(guest);
