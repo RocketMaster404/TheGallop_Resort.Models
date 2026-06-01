@@ -176,7 +176,7 @@ namespace TheGallop_Resort.Api.Services
                     r.Room.RoomNr,
                     r.Adults,
                     r.Children,
-                    calculatedTotalPrice
+                    r.PricePerNight
                 ))
             };
 
