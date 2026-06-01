@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TheGallop_Resort.Api.Data;
 
@@ -11,9 +12,11 @@ using TheGallop_Resort.Api.Data;
 namespace TheGallop_Resort.Api.Migrations
 {
     [DbContext(typeof(GaloppDbContext))]
-    partial class GaloppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260601075538_seedFix")]
+    partial class seedFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace TheGallop_Resort.Api.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             GuestId = 1,
                             Status = 0,
                             TotalPrice = 3598m
@@ -60,74 +63,10 @@ namespace TheGallop_Resort.Api.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 3, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             GuestId = 2,
-                            Status = 0,
-                            TotalPrice = 6998m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 3,
                             Status = 2,
-                            TotalPrice = 1799m
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2025, 7, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 4,
-                            Status = 1,
-                            TotalPrice = 3499m
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedAt = new DateTime(2025, 9, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 5,
-                            Status = 0,
-                            TotalPrice = 999m
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatedAt = new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 6,
-                            Status = 0,
-                            TotalPrice = 5397m
-                        },
-                        new
-                        {
-                            Id = 7,
-                            CreatedAt = new DateTime(2026, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 7,
-                            Status = 2,
-                            TotalPrice = 1799m
-                        },
-                        new
-                        {
-                            Id = 8,
-                            CreatedAt = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 8,
-                            Status = 0,
-                            TotalPrice = 3499m
-                        },
-                        new
-                        {
-                            Id = 9,
-                            CreatedAt = new DateTime(2026, 4, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 9,
-                            Status = 0,
-                            TotalPrice = 6998m
-                        },
-                        new
-                        {
-                            Id = 10,
-                            CreatedAt = new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 10,
-                            Status = 2,
-                            TotalPrice = 999m
+                            TotalPrice = 3699m
                         });
                 });
 
@@ -180,70 +119,6 @@ namespace TheGallop_Resort.Api.Migrations
                             FirstName = "Anna",
                             LastName = "Svensson",
                             PhoneNumber = "0709876543"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Email = "johan.karlsson@email.com",
-                            FirstName = "Johan",
-                            LastName = "Karlsson",
-                            PhoneNumber = "0701112233"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Email = "emma.nilsson@email.com",
-                            FirstName = "Emma",
-                            LastName = "Nilsson",
-                            PhoneNumber = "0702223344"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Email = "lucas.andersson@email.com",
-                            FirstName = "Lucas",
-                            LastName = "Andersson",
-                            PhoneNumber = "0703334455"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Email = "maja.lindberg@email.com",
-                            FirstName = "Maja",
-                            LastName = "Lindberg",
-                            PhoneNumber = "0704445566"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Email = "oscar.berg@email.com",
-                            FirstName = "Oscar",
-                            LastName = "Berg",
-                            PhoneNumber = "0705556677"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Email = "sofia.holm@email.com",
-                            FirstName = "Sofia",
-                            LastName = "Holm",
-                            PhoneNumber = "0706667788"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Email = "william.ekstrom@email.com",
-                            FirstName = "William",
-                            LastName = "Ekström",
-                            PhoneNumber = "0707778899"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Email = "ella.fors@email.com",
-                            FirstName = "Ella",
-                            LastName = "Fors",
-                            PhoneNumber = "0708889900"
                         });
                 });
 
@@ -300,36 +175,6 @@ namespace TheGallop_Resort.Api.Migrations
                             Id = 5,
                             RoomCategoryId = 3,
                             RoomNr = 1201
-                        },
-                        new
-                        {
-                            Id = 6,
-                            RoomCategoryId = 3,
-                            RoomNr = 1202
-                        },
-                        new
-                        {
-                            Id = 7,
-                            RoomCategoryId = 4,
-                            RoomNr = 1301
-                        },
-                        new
-                        {
-                            Id = 8,
-                            RoomCategoryId = 4,
-                            RoomNr = 1302
-                        },
-                        new
-                        {
-                            Id = 9,
-                            RoomCategoryId = 5,
-                            RoomNr = 1401
-                        },
-                        new
-                        {
-                            Id = 10,
-                            RoomCategoryId = 5,
-                            RoomNr = 1402
                         });
                 });
 
@@ -377,20 +222,6 @@ namespace TheGallop_Resort.Api.Migrations
                             CategoryPrice = 3499m,
                             RoomDetailId = 3,
                             Type = 2
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CategoryPrice = 1299m,
-                            RoomDetailId = 4,
-                            Type = 0
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CategoryPrice = 2199m,
-                            RoomDetailId = 5,
-                            Type = 1
                         });
                 });
 
@@ -435,20 +266,6 @@ namespace TheGallop_Resort.Api.Migrations
                             Id = 3,
                             Beds = 3,
                             MaxAdults = 4,
-                            MaxChildren = 2
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Beds = 1,
-                            MaxAdults = 2,
-                            MaxChildren = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Beds = 2,
-                            MaxAdults = 3,
                             MaxChildren = 2
                         });
                 });
@@ -499,10 +316,10 @@ namespace TheGallop_Resort.Api.Migrations
                             Id = 1,
                             Adults = 2,
                             BookingId = 1,
-                            CheckIn = new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 1, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckIn = new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckOut = new DateTime(2026, 6, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Children = 1,
-                            PricePerNight = 1799m,
+                            PricePerNight = 1789m,
                             RoomId = 3,
                             RoomStatus = 0
                         },
@@ -511,107 +328,11 @@ namespace TheGallop_Resort.Api.Migrations
                             Id = 2,
                             Adults = 2,
                             BookingId = 2,
-                            CheckIn = new DateTime(2025, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 3, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckIn = new DateTime(2026, 7, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckOut = new DateTime(2026, 7, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Children = 0,
                             PricePerNight = 3499m,
                             RoomId = 5,
-                            RoomStatus = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Adults = 1,
-                            BookingId = 3,
-                            CheckIn = new DateTime(2025, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 0,
-                            PricePerNight = 999m,
-                            RoomId = 1,
-                            RoomStatus = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Adults = 2,
-                            BookingId = 4,
-                            CheckIn = new DateTime(2025, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 8, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 2,
-                            PricePerNight = 3499m,
-                            RoomId = 5,
-                            RoomStatus = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Adults = 1,
-                            BookingId = 5,
-                            CheckIn = new DateTime(2025, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 10, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 0,
-                            PricePerNight = 999m,
-                            RoomId = 2,
-                            RoomStatus = 0
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Adults = 2,
-                            BookingId = 6,
-                            CheckIn = new DateTime(2025, 12, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 12, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 1,
-                            PricePerNight = 1799m,
-                            RoomId = 4,
-                            RoomStatus = 0
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Adults = 2,
-                            BookingId = 7,
-                            CheckIn = new DateTime(2026, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 0,
-                            PricePerNight = 1799m,
-                            RoomId = 3,
-                            RoomStatus = 2
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Adults = 2,
-                            BookingId = 8,
-                            CheckIn = new DateTime(2026, 7, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2026, 7, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 2,
-                            PricePerNight = 3499m,
-                            RoomId = 5,
-                            RoomStatus = 0
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Adults = 2,
-                            BookingId = 9,
-                            CheckIn = new DateTime(2026, 12, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2026, 12, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 1,
-                            PricePerNight = 3499m,
-                            RoomId = 5,
-                            RoomStatus = 0
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Adults = 1,
-                            BookingId = 10,
-                            CheckIn = new DateTime(2027, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2027, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Children = 0,
-                            PricePerNight = 999m,
-                            RoomId = 1,
                             RoomStatus = 2
                         });
                 });
