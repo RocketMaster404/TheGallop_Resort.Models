@@ -106,6 +106,8 @@ namespace TheGallop_Resort.Api.Controllers
 
         }
 
+
+
         [HttpPut("{guestId}")]
         public async Task<IActionResult> UpdateGuestInfo(int guestId,UpdateGuestInfoDTO dto)
         {
