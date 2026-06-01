@@ -41,7 +41,7 @@ namespace TheGallop_Resort.Api.Controllers
             return Ok(guest);
         }
 
-        [HttpGet("{guestId}/GuestFuretureReservation")]
+        [HttpGet("{guestId}/GuestFutureReservation")]
         public async Task<ActionResult<List<GetBookingResponseDTO>>> GetGuestFutureBookings(int guestId)
         {
             var guest = await _guestService.GetGuestFutureBookingsAsync(guestId);
