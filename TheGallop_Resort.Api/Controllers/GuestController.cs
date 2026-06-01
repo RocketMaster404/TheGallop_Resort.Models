@@ -35,7 +35,19 @@ namespace TheGallop_Resort.Api.Controllers
 
             if(!guest.SuccessfulResult)
             {
-                return NotFound("Guest not found");
+                return BadRequest(guest.ErrorMessage);
+            }
+
+            return Ok(guest);
+        }
+
+        [HttpGet("{guestId}/GuestFutureReservation")]
+        public async Task<ActionResult<List<GetBookingResponseDTO>>> GetGuestFutureBookings(int guestId)
+        {
+            var guest = await _guestService.GetGuestFutureBookingsAsync(guestId);
+            if (!guest.SuccessfulResult)
+            {
+                return BadRequest(guest.ErrorMessage);
             }
 
             return Ok(guest);
