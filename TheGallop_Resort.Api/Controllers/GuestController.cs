@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
+using TheGallop_Resort.Api.DTOs.Validators;
 using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
 
@@ -16,6 +17,7 @@ namespace TheGallop_Resort.Api.Controllers
         private readonly IGuestService _guestService;
         private IValidator<CreateGuestDTO> _createGuestValidator;
         private IValidator<UpdateGuestInfoDTO> _updateGuestInfoValidator;
+        private IValidator<CreateGuestBookingDTOValidator> _createGuestBookingValidator;
 
         
 
@@ -145,6 +147,7 @@ namespace TheGallop_Resort.Api.Controllers
           CreateGuestBookingDTO dto)
         {
             var result = await _guestService.CreateGuestBookingAsync(dto);
+
 
             if (!result.SuccessfulResult)
             {
