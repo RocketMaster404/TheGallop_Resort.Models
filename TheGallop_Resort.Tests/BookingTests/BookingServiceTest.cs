@@ -290,6 +290,18 @@ namespace TheGallop_Resort.Tests.BookingTests
         }
 
         [TestMethod]
+        public async Task UpdateBookingStatusAsync_BookingDoesNotExist_ReturnNotFound()
+        {
+            var nonExistingBookingId = 999;
+
+            var updatedDto = new UpdateBookingStatusDTO(nonExistingBookingId, Status.Cancelled);
+
+            var result = await _bookingService.UpdateBookingStatusAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeFalse();
+        }
+
+        [TestMethod]
         public async Task GetBookingsForNextMonthAsync_FilterCorrectDates_ReturnOnlyNextMonth()
         {
             var today = DateTime.Now;
@@ -347,6 +359,46 @@ namespace TheGallop_Resort.Tests.BookingTests
             result.SuccessfulResult.Should().BeTrue();
             result.Data.Should().HaveCount(1);
             result.Data.First().Id.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task GetBookingsForNextMonthAsync_NoBookingsNextMonth_ReturnNotFound()
+        {
+            var today = DateTime.Now;
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var farAwayBooking = new Booking
+            {
+                Id = 15,
+                Guest = guest,
+                TotalPrice = 1500,
+                Status = Status.Confirmed,
+                CreatedAt = today,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation{
+                            Id = 20,
+                            CheckIn = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(5),
+                            CheckOut = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(10),
+                            RoomStatus = RoomStatus.Confirmed
+                            }
+                    }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(farAwayBooking);
+            await _ctx.SaveChangesAsync();
+
+            var result = await _bookingService.GetBookingsForNextMonthAsync();
+
+            result.SuccessfulResult.Should().BeFalse();
+            result.Data.Should().BeNull();
         }
 
         [TestMethod]
