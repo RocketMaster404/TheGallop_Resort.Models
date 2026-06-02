@@ -108,6 +108,19 @@ namespace TheGallop_Resort.Tests.BookingTests
         }
 
         [TestMethod]
+        public async Task GetBookingById_IdDoesNotExist_ReturnNotFound()
+        {
+            var nonExistingBookingId = 999;
+
+            var result = await _bookingService.GetBookingByIdAsync(nonExistingBookingId);
+
+            result.SuccessfulResult.Should().BeFalse();
+
+            result.Data.Should().BeNull();
+        }
+
+
+        [TestMethod]
         public async Task CreateBookingAsync_AddBookingToExistingGuest_ReturnOK()
         {
 
