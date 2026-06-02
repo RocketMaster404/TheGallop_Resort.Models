@@ -124,8 +124,8 @@ namespace TheGallop_Resort.Api.Services
             var roomReservationDTO = new CreateRoomReservationDTO
                 (
                 booking.Id,
-                dto.CheckIn.ToDateTime(TimeOnly.MinValue),
-                dto.CheckOut.ToDateTime(TimeOnly.MinValue),
+                dto.CheckIn,
+                dto.CheckOut,
                 dto.Adults,
                 dto.Children,
                 roomCategoryDTO.Type
@@ -134,8 +134,8 @@ namespace TheGallop_Resort.Api.Services
             var roomReservation = new RoomReservation
             {
                 BookingId = booking.Id,
-                CheckIn = roomReservationDTO.CheckIn,
-                CheckOut = roomReservationDTO.CheckOut,
+                CheckIn = checkIn,
+                CheckOut = checkOut,
                 RoomStatus = RoomStatus.Confirmed,
                 Adults = roomReservationDTO.Adults,
                 Children = roomReservationDTO.Children,
