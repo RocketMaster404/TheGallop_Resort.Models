@@ -418,5 +418,15 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             result.SuccessfulResult.Should().BeTrue();
         }
+
+        [TestMethod]
+        public async Task DeleteBookingByIdAsync_BookingDoesNotExist_ReturnNotFound()
+        {
+            var nonExistingBookingId = 999;
+
+            var result = await _bookingService.DeleteBookingByIdAsync(nonExistingBookingId);
+
+            result.SuccessfulResult.Should().BeFalse();
+        }
     }
 }
