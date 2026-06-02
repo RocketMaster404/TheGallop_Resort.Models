@@ -54,7 +54,6 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateBooking", Name = "CreateBooking")]
-        //DTO
         public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
         {
             var validation = await _getInputFromUserCreateDTO.ValidateAsync(dto);
