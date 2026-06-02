@@ -296,7 +296,35 @@ public class GuestControllerTest
         returnedGuest.Should().BeEquivalentTo(guestBookingHistory);
     }
 
-   
+    [TestMethod]
+    public async Task GetGuestBookingHistory_InvalidGuest_ReturnBadRequest()
+    {
+        var fake = A.Fake<IGuestService>();
+        var validator = A.Fake<IValidator<CreateGuestDTO>>();
+        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+        var validateGuestBooking = A.Fake<IValidator<CreateGuestBookingDTO>>();
+
+        var controller = new GuestController(
+            fake,
+            validator,
+            validatorUpdateGuest,
+            validateGuestBooking);
+
+        A.CallTo(() => fake.GetGuestBookingHistoryAsync(1))
+            .Returns(ServiceResult<GuestInfoWithBookingDTO>
+            .ValidationError("Guest not found"));
+
+        var result = await controller.GetUsersBookingHistory(1);
+
+        var badRequestResult = result.Result.Should()
+            .BeOfType<BadRequestObjectResult>()
+            .Subject;
+
+        badRequestResult.Value.Should()
+            .Be("Guest not found");
+    }
+
+
 
 
 
