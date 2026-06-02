@@ -129,7 +129,7 @@ namespace TheGallop_Resort.Tests.BookingTests
             await _ctx.RoomCategories.AddAsync(fakeRoomCategory);
             await _ctx.SaveChangesAsync();
 
-            var inputDTO = new GetInputFromUserCreateDTO { GuestId = 1, CheckIn = new DateOnly(2026, 06, 28), CheckOut = new DateOnly(2026, 06, 29), Children = 1, Adults = 2, Type = RoomType.Suite };
+            var inputDTO = new GetInputFromUserCreateDTO {GuestId = 1, CheckIn = new DateOnly(2026, 06, 28), CheckOut = new DateOnly(2026, 06, 29), Children = 1, Adults = 2, Type = RoomType.Suite};
 
             var result = await _bookingService.CreateBookingAsync(inputDTO);
 
