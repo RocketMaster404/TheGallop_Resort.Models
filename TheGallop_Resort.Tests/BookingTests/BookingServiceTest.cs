@@ -145,6 +145,25 @@ namespace TheGallop_Resort.Tests.BookingTests
         }
 
         [TestMethod]
+        public async Task CreateBookingAsync_NoAvailableRooms_ReturnNotFound()
+        {
+            var inputDTO = new GetInputFromUserCreateDTO
+            {
+                GuestId = 1,
+                CheckIn = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(1).AddDays(5),
+                CheckOut = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(1).AddDays(10),
+                Children = 1,
+                Adults = 2,
+                Type = RoomType.Suite
+            };
+
+            var result = await _bookingService.CreateBookingAsync(inputDTO);
+
+            result.SuccessfulResult.Should().BeFalse();
+            result.Data.Should().BeNull();
+        }
+
+        [TestMethod]
         public async Task UpdateGuestOnBookingAsync_UpdatingGuestOnExistingBooking_NewGuestOnBooking()
         {
             var guest1 = new Guest
