@@ -260,6 +260,14 @@ namespace TheGallop_Resort.Api.Services
         
         public async Task<ServiceResult<BookingConfirmationDTO>> CreateGuestBookingAsync(CreateGuestBookingDTO dto)
         {
+
+            var emailCheck = await _ctx.Guests.AnyAsync(g => g.Email == dto.GuestInfo.Email);
+
+            if (emailCheck)
+            {
+                return ServiceResult<BookingConfirmationDTO>.ValidationError("Duplicated Email");
+            }
+
             var guest = new Guest
             {
                 FirstName = dto.GuestInfo.FirstName,

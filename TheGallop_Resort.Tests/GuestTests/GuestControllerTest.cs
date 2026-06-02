@@ -71,8 +71,9 @@ public class GuestControllerTest
 
 
     [TestMethod]
-    public async Task AddGuest_AddValidGuest_Return200()
+    public async Task AddGuest_AddValidGuest_Return201()
     {
+        // Arrange
         var fake = A.Fake<IGuestService>();
         var validator = A.Fake<IValidator<CreateGuestDTO>>();
         var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
@@ -94,6 +95,7 @@ public class GuestControllerTest
 
         var guest = new Guest
         {
+            Id = 1,
             FirstName = guestDto.FirstName,
             LastName = guestDto.LastName,
             Email = guestDto.Email,
@@ -103,21 +105,23 @@ public class GuestControllerTest
         A.CallTo(() => fake.AddGuestAsync(A<CreateGuestDTO>._))
             .Returns(ServiceResult<Guest>.Ok(guest));
 
-        IActionResult result = await controller.AddGuest(guestDto);
+        // Act
+        var result = await controller.AddGuest(guestDto);
 
-        var okResult = result.Should()
-            .BeAssignableTo<OkObjectResult>()
-            .Subject;
+        // Assert
+        var createdResult = result.Result.Should()
+     .BeAssignableTo<CreatedAtActionResult>()
+     .Subject;
 
-        var returnedGuest = okResult.Value.Should()
+        createdResult.ActionName.Should().Be(nameof(controller.GetGuestInfoById));
+
+        createdResult.RouteValues["guestId"].Should().Be(guest.Id);
+
+        var returnedGuest = createdResult.Value.Should()
             .BeAssignableTo<Guest>()
             .Subject;
 
-
-
         returnedGuest.Should().BeEquivalentTo(guest);
-
-
     }
 
     [TestMethod]
@@ -153,10 +157,9 @@ public class GuestControllerTest
             .Returns(validationResult);
 
 
-        IActionResult result = await controller.AddGuest(guestDto);
+        var result = await controller.AddGuest(guestDto);
 
-
-        var badRequestResult = result.Should()
+        var badRequestResult = result.Result.Should()
             .BeAssignableTo<BadRequestObjectResult>()
             .Subject;
 
@@ -312,17 +315,21 @@ public class GuestControllerTest
 
         A.CallTo(() => fake.GetGuestBookingHistoryAsync(1))
             .Returns(ServiceResult<GuestInfoWithBookingDTO>
-            .ValidationError("Guest not found"));
+            .NotFound("Guest not found"));
 
         var result = await controller.GetUsersBookingHistory(1);
 
-        var badRequestResult = result.Result.Should()
-            .BeOfType<BadRequestObjectResult>()
-            .Subject;
+        //var badRequestResult = result.Result.Should()
+        //    .BeOfType<BadRequestObjectResult>()
+        //    .Subject;
 
-        badRequestResult.Value.Should()
+        var notFoundResult = result.Result.Should().BeOfType<NotFoundObjectResult>().Subject;
+
+        notFoundResult.Value.Should()
             .Be("Guest not found");
     }
+
+
 
 
 
