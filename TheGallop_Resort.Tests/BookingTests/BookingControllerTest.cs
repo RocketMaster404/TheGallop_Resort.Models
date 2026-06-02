@@ -55,10 +55,8 @@ public class BookingControllerTest
         A.CallTo(() => _fakeBookingService.GetBookingByIdAsync(testId))
             .Returns(ServiceResult<GetBookingResponseDTO>.Ok(booking));
 
-        //Act
         var result = await controller.GetBookingById(testId);
 
-        //Assert
         var okResult = result.Result
             .Should()
             .BeAssignableTo<OkObjectResult>()

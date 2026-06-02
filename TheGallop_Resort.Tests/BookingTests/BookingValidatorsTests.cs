@@ -55,7 +55,7 @@ public class BookingValidatorsTests
     }
 
     [TestMethod]
-    public void CreateBooking_CheckinCanNotBeBeforeCheckOut_ReturnError()
+    public void CreateBooking_CheckOutCanNotBeBeforeCheckIn_ReturnError()
     {
         var validator = new CreateBookingDTOValidator();
         var booking = new GetInputFromUserCreateDTO

@@ -108,6 +108,19 @@ namespace TheGallop_Resort.Tests.BookingTests
         }
 
         [TestMethod]
+        public async Task GetBookingById_IdDoesNotExist_ReturnNotFound()
+        {
+            var nonExistingBookingId = 999;
+
+            var result = await _bookingService.GetBookingByIdAsync(nonExistingBookingId);
+
+            result.SuccessfulResult.Should().BeFalse();
+
+            result.Data.Should().BeNull();
+        }
+
+
+        [TestMethod]
         public async Task CreateBookingAsync_AddBookingToExistingGuest_ReturnOK()
         {
 
@@ -142,6 +155,25 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             var count = await _ctx.Bookings.CountAsync();
             count.Should().Be(1);
+        }
+
+        [TestMethod]
+        public async Task CreateBookingAsync_NoAvailableRooms_ReturnNotFound()
+        {
+            var inputDTO = new GetInputFromUserCreateDTO
+            {
+                GuestId = 1,
+                CheckIn = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(1).AddDays(5),
+                CheckOut = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(1).AddDays(10),
+                Children = 1,
+                Adults = 2,
+                Type = RoomType.Suite
+            };
+
+            var result = await _bookingService.CreateBookingAsync(inputDTO);
+
+            result.SuccessfulResult.Should().BeFalse();
+            result.Data.Should().BeNull();
         }
 
         [TestMethod]
@@ -190,6 +222,38 @@ namespace TheGallop_Resort.Tests.BookingTests
         }
 
         [TestMethod]
+        public async Task UpdateGuestOnBookingAsync_GuestDoesNotExist_ReturnNotFound()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "1111111111"
+            };
+
+            var booking = new Booking
+            {
+                Id = 1,
+                Guest = guest,
+                TotalPrice = 1000,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now
+            };
+
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var nonExistingGuestId = 999;
+            var updatedDto = new UpdateBookingGuestDTO(booking.Id, nonExistingGuestId);
+
+            var result = await _bookingService.UpdateGuestOnBookingAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeFalse();
+        }
+
+        [TestMethod]
         public async Task UpdateBookingStatusAsync_UpdateValidBooking_ReturnTrue()
         {
             var guest = new Guest
@@ -223,6 +287,18 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             var checkStatus = await _ctx.Bookings.FirstOrDefaultAsync();
             checkStatus.Status.Should().Be(Status.Cancelled);
+        }
+
+        [TestMethod]
+        public async Task UpdateBookingStatusAsync_BookingDoesNotExist_ReturnNotFound()
+        {
+            var nonExistingBookingId = 999;
+
+            var updatedDto = new UpdateBookingStatusDTO(nonExistingBookingId, Status.Cancelled);
+
+            var result = await _bookingService.UpdateBookingStatusAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeFalse();
         }
 
         [TestMethod]
@@ -286,6 +362,46 @@ namespace TheGallop_Resort.Tests.BookingTests
         }
 
         [TestMethod]
+        public async Task GetBookingsForNextMonthAsync_NoBookingsNextMonth_ReturnNotFound()
+        {
+            var today = DateTime.Now;
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "0765975412"
+            };
+
+            var farAwayBooking = new Booking
+            {
+                Id = 15,
+                Guest = guest,
+                TotalPrice = 1500,
+                Status = Status.Confirmed,
+                CreatedAt = today,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation{
+                            Id = 20,
+                            CheckIn = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(5),
+                            CheckOut = new DateTime(today.Year, today.Month, 1).AddMonths(3).AddDays(10),
+                            RoomStatus = RoomStatus.Confirmed
+                            }
+                    }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(farAwayBooking);
+            await _ctx.SaveChangesAsync();
+
+            var result = await _bookingService.GetBookingsForNextMonthAsync();
+
+            result.SuccessfulResult.Should().BeFalse();
+            result.Data.Should().BeNull();
+        }
+
+        [TestMethod]
         public async Task GetBookingsForSpecifikDateAsync_DateIsWitinReservation_ReturnBooking()
         {
             var guest = new Guest
@@ -308,8 +424,8 @@ namespace TheGallop_Resort.Tests.BookingTests
                     new RoomReservation
                     {
                         Id = 10,
-                        CheckIn = new DateTime(2026, 08, 10),
-                        CheckOut = new DateTime(2026, 08, 15),
+                        CheckIn = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(8),
+                        CheckOut = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(13),
                         RoomStatus = RoomStatus.Confirmed
                     }
                 }
@@ -328,6 +444,39 @@ namespace TheGallop_Resort.Tests.BookingTests
             result.Data.First().Id.Should().Be(3);
         }
 
+        [TestMethod]
+        public async Task GetBookingsForSpecifikDateAsync_NoBookingsOnDate_ReturnNotFound()
+        {
+            var guest = new Guest { Id = 1, FirstName = "Test", LastName = "Testsson", Email = "test@test.com", PhoneNumber = "0765975412" };
+            var booking = new Booking
+            {
+                Id = 3,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(8),
+                        CheckOut = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(13),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var searchDate = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(18);
+
+            var result = await _bookingService.GetBookingsForSpecifikDateAsync(searchDate);
+
+            result.SuccessfulResult.Should().BeFalse();
+            result.Data.Should().BeNull();
+        }
 
         [TestMethod]
         public async Task GetBookingsBetweenDates_DateIsWitinReservation_ReturnBooking()
@@ -352,8 +501,8 @@ namespace TheGallop_Resort.Tests.BookingTests
                     new RoomReservation
                     {
                         Id = 10,
-                        CheckIn = new DateTime(2026, 08, 10),
-                        CheckOut = new DateTime(2026, 08, 15),
+                        CheckIn = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(8),
+                        CheckOut = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(13),
                         RoomStatus = RoomStatus.Confirmed
                     }
                 }
@@ -363,12 +512,47 @@ namespace TheGallop_Resort.Tests.BookingTests
             await _ctx.Bookings.AddAsync(booking);
             await _ctx.SaveChangesAsync();
 
-            var updatedDto = new SearchBookingBetweenDateDTO(new DateOnly(2026, 08, 05), new DateOnly(2026, 08, 20));
+            var updatedDto = new SearchBookingBetweenDateDTO(new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(3), new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(12));
 
             var result = await _bookingService.GetBookingsBetweenDatesAsync(updatedDto);
 
             result.SuccessfulResult.Should().BeTrue();
         }
+
+        [TestMethod]
+        public async Task GetBookingsBetweenDates_NoBookingsWithinInterval_ReturnNotFound()
+        {
+            var guest = new Guest { Id = 1, FirstName = "Test", LastName = "Testsson", Email = "test@test.com", PhoneNumber = "0765975412" };
+            var booking = new Booking
+            {
+                Id = 1,
+                Guest = guest,
+                TotalPrice = 1200,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now,
+                RoomReservations = new List<RoomReservation> {
+                    new RoomReservation
+                    {
+                        Id = 10,
+                        CheckIn = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(8),
+                        CheckOut = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(13),
+                        RoomStatus = RoomStatus.Confirmed
+                    }
+                }
+            };
+
+            await _ctx.Guests.AddAsync(guest);
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var searchDto = new SearchBookingBetweenDateDTO(new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(18), new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(23));
+
+            var result = await _bookingService.GetBookingsBetweenDatesAsync(searchDto);
+
+            result.SuccessfulResult.Should().BeFalse();
+            result.Data.Should().BeNull();
+        }
+
         [TestMethod]
         public async Task DeleteBookingById_EnterValidId_ReturnNoContent()
         {
@@ -398,6 +582,16 @@ namespace TheGallop_Resort.Tests.BookingTests
             var result = await _bookingService.DeleteBookingByIdAsync(booking.Id);
 
             result.SuccessfulResult.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public async Task DeleteBookingByIdAsync_BookingDoesNotExist_ReturnNotFound()
+        {
+            var nonExistingBookingId = 999;
+
+            var result = await _bookingService.DeleteBookingByIdAsync(nonExistingBookingId);
+
+            result.SuccessfulResult.Should().BeFalse();
         }
     }
 }
