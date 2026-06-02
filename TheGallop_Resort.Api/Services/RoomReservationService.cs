@@ -42,7 +42,7 @@ namespace TheGallop_Resort.Api.Services
             var roomCatoegory = await _ctx.RoomCategories.FirstOrDefaultAsync(c => c.Id == room.RoomCategoryId);
             var roomReservationDb = await _ctx.RoomReservations.FirstOrDefaultAsync(rr => rr.RoomId == room.Id);
 
-            int nights = (int)(checkIn - checkOut).TotalDays;
+            int nights = (int)(checkOut - checkIn).TotalDays;
 
             var roomReservationDTO = new CreateRoomReservationDTO
            (
@@ -70,11 +70,10 @@ namespace TheGallop_Resort.Api.Services
 
             var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
 
-            booking.TotalPrice = calculatedTotalPrice;
-            await _ctx.SaveChangesAsync();
-
-
             booking.TotalPrice += calculatedTotalPrice;
+
+            _ctx.RoomReservations.Add(roomReservation);
+
             _ctx.Bookings.Update(booking);
 
             await _ctx.SaveChangesAsync();
