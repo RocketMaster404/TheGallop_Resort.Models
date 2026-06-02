@@ -4,8 +4,12 @@ namespace TheGallop_Resort.Api.DTOs.Validators
 {
     public class CreateGuestBookingDTOValidator : AbstractValidator<CreateGuestBookingDTO>
     {
-        public CreateGuestBookingDTOValidator()
+        public CreateGuestBookingDTOValidator(IValidator<CreateGuestDTO> guestValidator)
         {
+
+            
+
+            RuleFor(x => x.GuestInfo).NotNull().SetValidator(guestValidator);
 
             RuleFor(x => x.Reservation.CheckOut)
                 .GreaterThan(x => x.Reservation.CheckIn)
