@@ -4,6 +4,6 @@ namespace TheGallop_Resort.Api.Services
 {
     public interface IRoomReservationService
     {
-        Task<ServiceResult<CreateRoomReservationDTO>> CreateRoomReservationAsync(CreateRoomReservationDTO dto);
+        Task<ServiceResult<GetFullBookingResponsDTO>> CreateRoomReservationAsync(CreateRoomReservationDTO dto);
     }
 }

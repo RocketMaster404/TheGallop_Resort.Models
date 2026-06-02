@@ -14,41 +14,37 @@ namespace TheGallop_Resort.Api.Services
             _ctx = ctx;
         }
 
-        public async Task<ServiceResult<CreateRoomReservationDTO>> CreateRoomReservationAsync(CreateRoomReservationDTO dto)
+        public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateRoomReservationAsync(CreateRoomReservationDTO dto)
         {
             var booking = await _ctx.Bookings
                .FirstOrDefaultAsync(b => b.Id == dto.bookingId);
 
             if (booking == null)
             {
-                return ServiceResult<CreateRoomReservationDTO>.NotFound($"Booking with id {dto.bookingId} was not found.");
+                return ServiceResult<GetFullBookingResponsDTO>.NotFound($"Booking with id {dto.bookingId} was not found.");
             }
+
+            var checkIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue);
+            var checkOut = dto.CheckOut.ToDateTime(TimeOnly.MinValue);
+
             var room = await _ctx.Rooms
                 .Where(r => r.RoomCategory.Type == dto.Type)
                 .Where(r => !r.RoomReservations.Any(rr =>
-                    dto.CheckIn < rr.CheckOut &&
-                    dto.CheckOut > rr.CheckIn))
+                    checkIn < rr.CheckOut &&
+                    checkOut > rr.CheckIn))
                 .FirstOrDefaultAsync();
 
             if (room == null)
             {
-                return ServiceResult<CreateRoomReservationDTO>.NotFound($"There are no available rooms of type {dto.Type} on chosen date.");
+                return ServiceResult<GetFullBookingResponsDTO>.NotFound($"There are no available rooms of type {dto.Type} on chosen date.");
             }
 
             var roomCatoegory = await _ctx.RoomCategories.FirstOrDefaultAsync(c => c.Id == room.RoomCategoryId);
             var roomReservationDb = await _ctx.RoomReservations.FirstOrDefaultAsync(rr => rr.RoomId == room.Id);
 
-            int nights = (int)(dto.CheckOut - dto.CheckIn).TotalDays;
+            int nights = (int)(checkIn - checkOut).TotalDays;
 
-            var categoryPrice = roomCatoegory.CategoryPrice;
-            var pricePerNight = roomReservationDb.PricePerNight;
-
-            var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
-
-            booking.TotalPrice = calculatedTotalPrice;
-            await _ctx.SaveChangesAsync();
-
-            var roomReservation = new CreateRoomReservationDTO
+            var roomReservationDTO = new CreateRoomReservationDTO
            (
                dto.bookingId,
                dto.CheckIn,
@@ -58,12 +54,53 @@ namespace TheGallop_Resort.Api.Services
                dto.Type
            );
 
+            var roomReservation = new RoomReservation
+            {
+                BookingId = roomReservationDTO.bookingId,
+                RoomId = room.Id,
+                CheckIn = checkIn,
+                CheckOut = checkOut,
+                RoomStatus = RoomStatus.Confirmed,
+                Adults = roomReservationDTO.Adults,
+                Children = roomReservationDTO.Children
+            };
+
+            var categoryPrice = roomCatoegory.CategoryPrice;
+            var pricePerNight = roomReservation.PricePerNight;
+
+            var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
+
+            booking.TotalPrice = calculatedTotalPrice;
+            await _ctx.SaveChangesAsync();
+
+
             booking.TotalPrice += calculatedTotalPrice;
             _ctx.Bookings.Update(booking);
 
             await _ctx.SaveChangesAsync();
 
-            return ServiceResult<CreateRoomReservationDTO>.Ok(roomReservation);
+            var response = new GetFullBookingResponsDTO
+            {
+                Id = booking.Id,
+                CreatedAt = booking.CreatedAt,
+                Status = booking.Status,
+                TotalPrice = calculatedTotalPrice,
+                GuestId = booking.GuestId,
+
+                RoomReservations = booking.RoomReservations.Select(r => new GetFullRoomReservationResponse
+                (
+                    r.Id,
+                    dto.Type,
+                    DateOnly.FromDateTime(r.CheckIn),
+                    DateOnly.FromDateTime(r.CheckOut),
+                    r.Room.RoomNr,
+                    r.Adults,
+                    r.Children,
+                    r.PricePerNight
+                ))
+            };
+
+            return ServiceResult<GetFullBookingResponsDTO>.Ok(response);
         }
     }
 }

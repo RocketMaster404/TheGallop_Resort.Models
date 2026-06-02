@@ -16,7 +16,7 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateRoomReservation", Name = "CreateRoomReservation")]
-        public async Task<ServiceResult<CreateRoomReservationDTO>> CreateRoomReservation(CreateRoomReservationDTO dto)
+        public async Task<ActionResult<GetFullBookingResponsDTO>> CreateRoomReservation(CreateRoomReservationDTO dto)
         {
             //var validation = await _.ValidateAsync(dto);
 
@@ -25,14 +25,14 @@ namespace TheGallop_Resort.Api.Controllers
             //    return BadRequest();
             //}
 
-            var result = await _roomReservationService.CreateRoomReservationAsync(dto);
+            var roomReservation = await _roomReservationService.CreateRoomReservationAsync(dto);
 
-            if (!result.SuccessfulResult)
+            if (!roomReservation.SuccessfulResult)
             {
-                return BadRequest(result.ErrorMessage);
+                return BadRequest(roomReservation);
             }
 
-            return Ok(result.Data);
+            return Ok(roomReservation.Data);
         }
     }
 }
