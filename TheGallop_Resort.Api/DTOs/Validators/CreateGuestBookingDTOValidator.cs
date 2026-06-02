@@ -20,8 +20,10 @@ namespace TheGallop_Resort.Api.DTOs.Validators
                     .WithMessage("Check-in date can not be in the past.");
 
             RuleFor(x => x.Reservation.Adults)
-                .GreaterThan(0)
-                .WithMessage("There must be at least one adult in the booking.");
+                     .GreaterThan(0)
+                     .WithMessage("There must be at least one adult in the booking.")
+                     .LessThanOrEqualTo(4)
+                     .WithMessage("Maximum number of adults is 4.");
 
             RuleFor(x => x.Reservation.Children)
                 .GreaterThanOrEqualTo(0)
