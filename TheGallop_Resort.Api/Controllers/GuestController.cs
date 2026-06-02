@@ -38,7 +38,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(guest.ErrorMessage);
             }
 
-            return Ok(guest);
+            return Ok(guest.Data);
         }
 
         [HttpGet("{guestId}/GuestFutureReservation")]
@@ -50,7 +50,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(guest.ErrorMessage);
             }
 
-            return Ok(guest);
+            return Ok(guest.Data);
         }
 
         [HttpGet]

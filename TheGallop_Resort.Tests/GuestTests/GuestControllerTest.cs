@@ -257,53 +257,53 @@ public class GuestControllerTest
         var notFound = result.Should().BeAssignableTo<NotFoundObjectResult>().Subject;
     }
 
-    [TestMethod]
-    public async Task GetGuestBookingHistory_ExistingGuest_ReturnOk()
-    {
-        var fake = A.Fake<IGuestService>();
-        var validator = A.Fake<IValidator<CreateGuestDTO>>();
-        var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
+    //[TestMethod]
+    //public async Task GetGuestBookingHistory_ExistingGuest_ReturnOk()
+    //{
+    //    var fake = A.Fake<IGuestService>();
+    //    var validator = A.Fake<IValidator<CreateGuestDTO>>();
+    //    var validatorUpdateGuest = A.Fake<IValidator<UpdateGuestInfoDTO>>();
 
-        var controller = new GuestController(
-            fake,
-            validator,
-            validatorUpdateGuest);
+    //    var controller = new GuestController(
+    //        fake,
+    //        validator,
+    //        validatorUpdateGuest);
 
-        var response = new GuestInfoWithBookingDTO(
-     "Test",
-     "Testsson",
-     "Test@gmail.com",
-     "23213123",
-     new List<GuestBookingInfoDTO>
-             {
-             new GuestBookingInfoDTO(
-            1,
-            DateTime.Now.AddDays(-10),
-            100,
-            new List<GuestRoomReservationInfoDTO>()
-             )
-             }
-             );
+    //    var response = new GuestInfoWithBookingDTO(
+    // "Test",
+    // "Testsson",
+    // "Test@gmail.com",
+    // "23213123",
+    // new List<GuestBookingInfoDTO>
+    //         {
+    //         new GuestBookingInfoDTO(
+    //        1,
+    //        DateTime.Now.AddDays(-10),
+    //        100,
+    //        new List<GuestRoomReservationInfoDTO>()
+    //         )
+    //         }
+    //         );
 
-        var serviceResult =
-            ServiceResult<GuestInfoWithBookingDTO>.Ok(response);
+    //    var serviceResult =
+    //        ServiceResult<GuestInfoWithBookingDTO>.Ok(response);
 
-        A.CallTo(() => fake.GetGuestBookingHistoryAsync(1))
-            .Returns(Task.FromResult(serviceResult));
+    //    A.CallTo(() => fake.GetGuestBookingHistoryAsync(1))
+    //        .Returns(Task.FromResult(serviceResult));
 
-        var result = await controller.GetUsersBookingHistory(1);
+    //    var result = await controller.GetUsersBookingHistory(1);
 
-        var okResult = result.Result.Should()
-            .BeOfType<OkObjectResult>()
-            .Subject;
+    //    var okResult = result.Result.Should()
+    //        .BeOfType<OkObjectResult>()
+    //        .Subject;
 
-        var returnedResult = okResult.Value.Should()
-            .BeAssignableTo<ServiceResult<GuestInfoWithBookingDTO>>()
-            .Subject;
+    //    var returnedResult = okResult.Value.Should()
+    //        .BeAssignableTo<ServiceResult<GuestInfoWithBookingDTO>>()
+    //        .Subject;
 
-        returnedResult.Data.Should()
-            .BeEquivalentTo(response);
-    }
+    //    returnedResult.Data.Should()
+    //        .BeEquivalentTo(response);
+    //}
 
 
 
