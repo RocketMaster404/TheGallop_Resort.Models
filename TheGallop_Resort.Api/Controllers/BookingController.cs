@@ -60,7 +60,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var result = await _bookingService.CreateBookingAsync(dto);
@@ -81,7 +81,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var booking = await _bookingService.UpdateGuestOnBookingAsync(update);
@@ -101,7 +101,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var booking = await _bookingService.UpdateBookingStatusAsync(update);
