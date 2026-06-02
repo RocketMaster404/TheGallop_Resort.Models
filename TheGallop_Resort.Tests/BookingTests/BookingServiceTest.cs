@@ -522,7 +522,6 @@ namespace TheGallop_Resort.Tests.BookingTests
         [TestMethod]
         public async Task GetBookingsBetweenDates_NoBookingsWithinInterval_ReturnNotFound()
         {
-            // 1. ARRANGE
             var guest = new Guest { Id = 1, FirstName = "Test", LastName = "Testsson", Email = "test@test.com", PhoneNumber = "0765975412" };
             var booking = new Booking
             {
