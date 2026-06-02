@@ -1,7 +1,9 @@
-﻿namespace TheGallop_Resort.Api.Services
+﻿using TheGallop_Resort.Api.DTOs;
+
+namespace TheGallop_Resort.Api.Services
 {
     public interface IRoomReservationService
     {
-
+        Task<ServiceResult<CreateRoomReservationDTO>> CreateRoomReservationAsync(CreateRoomReservationDTO dto);
     }
 }
