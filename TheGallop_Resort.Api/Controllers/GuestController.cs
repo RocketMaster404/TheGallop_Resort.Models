@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
+using TheGallop_Resort.Api.DTOs.Validators;
 using TheGallop_Resort.Api.Services;
 using TheGallop_Resort.Models.Models;
 
@@ -16,14 +17,16 @@ namespace TheGallop_Resort.Api.Controllers
         private readonly IGuestService _guestService;
         private IValidator<CreateGuestDTO> _createGuestValidator;
         private IValidator<UpdateGuestInfoDTO> _updateGuestInfoValidator;
+        private IValidator<CreateGuestBookingDTO> _createGuestBookingValidator;
 
         
 
-        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator, IValidator<UpdateGuestInfoDTO> updateGuestInfoDTO)
+        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator, IValidator<UpdateGuestInfoDTO> updateGuestInfoDTO, IValidator<CreateGuestBookingDTO> createGuestBooking)
         {
             _guestService = guestService;
             _createGuestValidator = createGuestValidator;
             _updateGuestInfoValidator = updateGuestInfoDTO;
+            _createGuestBookingValidator = createGuestBooking;
             
             
         }
@@ -38,7 +41,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(guest.ErrorMessage);
             }
 
-            return Ok(guest);
+            return Ok(guest.Data);
         }
 
         [HttpGet("{guestId}/GuestFutureReservation")]
@@ -50,7 +53,7 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(guest.ErrorMessage);
             }
 
-            return Ok(guest);
+            return Ok(guest.Data);
         }
 
         [HttpGet]
@@ -141,9 +144,15 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateReservationAndGuest")]
-        public async Task<IActionResult> CreateGuestBooking(
-          CreateGuestBookingDTO dto)
+        public async Task<IActionResult> CreateGuestBooking(CreateGuestBookingDTO dto)
         {
+            var validation = await _createGuestBookingValidator.ValidateAsync(dto);
+
+            if (!validation.IsValid)
+            {
+                return BadRequest(validation.Errors);
+            }
+
             var result = await _guestService.CreateGuestBookingAsync(dto);
 
             if (!result.SuccessfulResult)
@@ -153,6 +162,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(result.Data);
         }
+
 
 
     }

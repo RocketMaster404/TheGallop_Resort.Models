@@ -6,6 +6,7 @@ namespace TheGallop_Resort.Api.DTOs.Validators
     {
         public CreateBookingDTOValidator()
         {
+
             RuleFor(x => x.CheckOut)
                 .GreaterThan(x => x.CheckIn)
                 .WithMessage("Check-out date must be after the check-in date.");
