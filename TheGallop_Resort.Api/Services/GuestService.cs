@@ -87,7 +87,7 @@ namespace TheGallop_Resort.Api.Services
 
                     g.Bookings
                         .Where(b => b.RoomReservations
-                            .Any(rr => rr.CheckIn > DateTime.Now))
+                            .Any(rr => rr.CheckIn >= DateTime.Today))
 
                         .Select(b => new GuestBookingInfoDTO(
                             b.Id,
@@ -95,7 +95,7 @@ namespace TheGallop_Resort.Api.Services
                             b.TotalPrice,
 
                             b.RoomReservations
-                                .Where(rr => rr.CheckIn > DateTime.Now)
+                                .Where(rr => rr.CheckIn >= DateTime.Today)
 
                                 .Select(rr => new GuestRoomReservationInfoDTO(
                                     rr.Id,
@@ -300,7 +300,7 @@ namespace TheGallop_Resort.Api.Services
                 CheckIn = dto.Reservation.CheckIn,
                 CheckOut = dto.Reservation.CheckOut,
                 RoomId = room.Id,
-                
+                RoomStatus = RoomStatus.Confirmed              
             };
 
             booking.RoomReservations.Add(reservation);
