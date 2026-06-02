@@ -98,7 +98,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!guest.SuccessfulResult)
             {
-                return NotFound("Guest not found");
+                return NotFound(guest.ErrorMessage);
             }
 
             return Ok(guest.Data);
@@ -141,7 +141,7 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateReservationAndGuest")]
-        public async Task<IActionResult> CreateGuestBooking(CreateGuestBookingDTO dto)
+        public async Task<ActionResult<GetBookingResponseDTO>> CreateGuestBooking(CreateGuestBookingDTO dto)
         {
             var validation = await _createGuestBookingValidator.ValidateAsync(dto);
 
