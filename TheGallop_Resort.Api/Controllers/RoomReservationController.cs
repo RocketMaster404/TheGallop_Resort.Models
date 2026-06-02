@@ -25,7 +25,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var roomReservation = await _roomReservationService.CreateRoomReservationAsync(dto);
