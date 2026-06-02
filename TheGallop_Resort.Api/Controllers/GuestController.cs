@@ -69,7 +69,7 @@ namespace TheGallop_Resort.Api.Controllers
        
 
 
-        [HttpPost("/Guest")]
+        [HttpPost]
         public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
         {
 
