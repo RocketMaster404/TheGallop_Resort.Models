@@ -54,14 +54,13 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateBooking", Name = "CreateBooking")]
-        //DTO
         public async Task<ActionResult<GetFullBookingResponsDTO>>CreateBooking(GetInputFromUserCreateDTO dto)
         {
             var validation = await _getInputFromUserCreateDTO.ValidateAsync(dto);
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var result = await _bookingService.CreateBookingAsync(dto);
@@ -82,7 +81,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var booking = await _bookingService.UpdateGuestOnBookingAsync(update);
@@ -102,7 +101,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest();
+                return BadRequest(validation.Errors);
             }
 
             var booking = await _bookingService.UpdateBookingStatusAsync(update);
