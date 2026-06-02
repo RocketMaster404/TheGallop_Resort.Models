@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TheGallop_Resort.Tests.RoomReservationTests
 {
     [TestClass]
-    internal class RoomReservationServiceTest
+    public class RoomReservationServiceTest
     {
     }
 }

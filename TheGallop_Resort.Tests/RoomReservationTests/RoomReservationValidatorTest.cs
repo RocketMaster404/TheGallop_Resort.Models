@@ -11,7 +11,7 @@ using TheGallop_Resort.Models.Models;
 namespace TheGallop_Resort.Tests.RoomReservationTests
 {
     [TestClass]
-    internal class RoomReservationValidatorTest
+    public class RoomReservationValidatorTest
     {
         [TestMethod]
         public void CreateRoomReservation_CheckOutCanNotBeBeforeCheckIn_ReturnError()
