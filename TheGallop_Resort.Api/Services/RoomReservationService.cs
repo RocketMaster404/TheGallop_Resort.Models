@@ -14,46 +14,56 @@ namespace TheGallop_Resort.Api.Services
             _ctx = ctx;
         }
 
-        //public async Task<ServiceResult<GetFullBookingResponsDTO>> CreateRoomReservationAsync(CreateNewRoomReservationWithBookingIdDTO dto)
-        //{
-        //    var booking = await _ctx.Bookings
-        //       .FirstOrDefaultAsync(r => r.Id == dto.bookingId);
+        public async Task<ServiceResult<CreateRoomReservationDTO>> CreateRoomReservationAsync(CreateRoomReservationDTO dto)
+        {
+            var booking = await _ctx.Bookings
+               .FirstOrDefaultAsync(b => b.Id == dto.bookingId);
 
-        //    if (booking == null)
-        //    {
-        //        return ServiceResult<GetFullBookingResponsDTO>.NotFound($"Booking with id {dto.bookingId} was not found.");
-        //    }
+            if (booking == null)
+            {
+                return ServiceResult<CreateRoomReservationDTO>.NotFound($"Booking with id {dto.bookingId} was not found.");
+            }
+            var room = await _ctx.Rooms
+                .Where(r => r.RoomCategory.Type == dto.Type)
+                .Where(r => !r.RoomReservations.Any(rr =>
+                    dto.CheckIn < rr.CheckOut &&
+                    dto.CheckOut > rr.CheckIn))
+                .FirstOrDefaultAsync();
 
-        //    var checkIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue);
-        //    var checkOut = dto.CheckOut.ToDateTime(TimeOnly.MinValue);
+            if (room == null)
+            {
+                return ServiceResult<CreateRoomReservationDTO>.NotFound($"There are no available rooms of type {dto.Type} on chosen date.");
+            }
 
-        //    var roomCategoryDTO = new AddCategoryToBookingDTO(dto.Type);
+            var roomCatoegory = await _ctx.RoomCategories.FirstOrDefaultAsync(c => c.Id == room.RoomCategoryId);
+            var roomReservationDb = await _ctx.RoomReservations.FirstOrDefaultAsync(rr => rr.RoomId == room.Id);
 
-        //    var booking = new CreateNewRoomReservationWithBookingIdDTO
-        //(
-        //    dto.bookingId,
-        //    dto.CheckIn,
-        //    dto.CheckOut,
-        //    dto.Adults,
-        //    dto.Children,
-        //    roomCategoryDTO.Type
-        //);
+            int nights = (int)(dto.CheckOut - dto.CheckIn).TotalDays;
 
-        //    var roomReservation = new RoomReservation
-        //    {
-        //        BookingId = dto.bookingId,
-        //        CheckIn = dto.CheckIn.ToDateTime(TimeOnly.MinValue),
-        //        CheckOut = dto.CheckOut.ToDateTime(TimeOnly.MinValue),
-        //        RoomStatus = RoomStatus.Confirmed,
-        //        Adults = dto.Adults,
-        //        Children = dto.Children,
-        //        RoomId = room.Id,
-        //    };
+            var categoryPrice = roomCatoegory.CategoryPrice;
+            var pricePerNight = roomReservationDb.PricePerNight;
 
-        //    await _ctx.RoomReservations.AddAsync(roomReservation);
-        //    await _ctx.SaveChangesAsync();
+            var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
 
+            booking.TotalPrice = calculatedTotalPrice;
+            await _ctx.SaveChangesAsync();
 
-        //}
+            var roomReservation = new CreateRoomReservationDTO
+           (
+               dto.bookingId,
+               dto.CheckIn,
+               dto.CheckOut,
+               dto.Adults,
+               dto.Children,
+               dto.Type
+           );
+
+            booking.TotalPrice += calculatedTotalPrice;
+            _ctx.Bookings.Update(booking);
+
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult<CreateRoomReservationDTO>.Ok(roomReservation);
+        }
     }
 }
