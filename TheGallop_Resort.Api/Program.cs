@@ -30,6 +30,7 @@ namespace TheGallop_Resort.Api
             builder.Services.AddScoped<IGuestService, GuestService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<IRoomCategoryService, RoomCategoryService>();
+            builder.Services.AddScoped<IRoomReservationService, RoomReservationService>();
 
             var app = builder.Build();
 
