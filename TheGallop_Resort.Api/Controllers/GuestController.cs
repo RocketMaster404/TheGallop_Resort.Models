@@ -17,15 +17,16 @@ namespace TheGallop_Resort.Api.Controllers
         private readonly IGuestService _guestService;
         private IValidator<CreateGuestDTO> _createGuestValidator;
         private IValidator<UpdateGuestInfoDTO> _updateGuestInfoValidator;
-        private IValidator<CreateGuestBookingDTOValidator> _createGuestBookingValidator;
+        private IValidator<CreateGuestBookingDTO> _createGuestBookingValidator;
 
         
 
-        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator, IValidator<UpdateGuestInfoDTO> updateGuestInfoDTO)
+        public GuestController(IGuestService guestService, IValidator<CreateGuestDTO> createGuestValidator, IValidator<UpdateGuestInfoDTO> updateGuestInfoDTO, IValidator<CreateGuestBookingDTO> createGuestBooking)
         {
             _guestService = guestService;
             _createGuestValidator = createGuestValidator;
             _updateGuestInfoValidator = updateGuestInfoDTO;
+            _createGuestBookingValidator = createGuestBooking;
             
             
         }
@@ -143,11 +144,16 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateReservationAndGuest")]
-        public async Task<IActionResult> CreateGuestBooking(
-          CreateGuestBookingDTO dto)
+        public async Task<IActionResult> CreateGuestBooking(CreateGuestBookingDTO dto)
         {
-            var result = await _guestService.CreateGuestBookingAsync(dto);
+            var validation = await _createGuestBookingValidator.ValidateAsync(dto);
 
+            if (!validation.IsValid)
+            {
+                return BadRequest(validation.Errors);
+            }
+
+            var result = await _guestService.CreateGuestBookingAsync(dto);
 
             if (!result.SuccessfulResult)
             {
@@ -156,6 +162,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             return Ok(result.Data);
         }
+
 
 
     }
