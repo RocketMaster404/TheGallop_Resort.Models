@@ -129,7 +129,7 @@ namespace TheGallop_Resort.Tests.BookingTests
             await _ctx.RoomCategories.AddAsync(fakeRoomCategory);
             await _ctx.SaveChangesAsync();
 
-            var inputDTO = new GetInputFromUserCreateDTO {GuestId = 1, CheckIn = new DateOnly(2026, 06, 28), CheckOut = new DateOnly(2026, 06, 29), Children = 1, Adults = 2, Type = RoomType.Suite};
+            var inputDTO = new GetInputFromUserCreateDTO { GuestId = 1, CheckIn = new DateOnly(2026, 06, 28), CheckOut = new DateOnly(2026, 06, 29), Children = 1, Adults = 2, Type = RoomType.Suite };
 
             var result = await _bookingService.CreateBookingAsync(inputDTO);
 
@@ -206,6 +206,38 @@ namespace TheGallop_Resort.Tests.BookingTests
 
             var checkGuest = await _ctx.Bookings.FirstOrDefaultAsync();
             checkGuest.Guest.FirstName.Should().Be("NyTest");
+        }
+
+        [TestMethod]
+        public async Task UpdateGuestOnBookingAsync_GuestDoesNotExist_ReturnNotFound()
+        {
+            var guest = new Guest
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testsson",
+                Email = "test@test.com",
+                PhoneNumber = "1111111111"
+            };
+
+            var booking = new Booking
+            {
+                Id = 1,
+                Guest = guest,
+                TotalPrice = 1000,
+                Status = Status.Confirmed,
+                CreatedAt = DateTime.Now
+            };
+
+            await _ctx.Bookings.AddAsync(booking);
+            await _ctx.SaveChangesAsync();
+
+            var nonExistingGuestId = 999;
+            var updatedDto = new UpdateBookingGuestDTO(booking.Id, nonExistingGuestId);
+
+            var result = await _bookingService.UpdateGuestOnBookingAsync(updatedDto);
+
+            result.SuccessfulResult.Should().BeFalse();
         }
 
         [TestMethod]
