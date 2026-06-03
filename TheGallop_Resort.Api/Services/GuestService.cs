@@ -319,6 +319,7 @@ namespace TheGallop_Resort.Api.Services
             var confirmation = new BookingConfirmationDTO
             (
                  booking.Id,
+                 guest.Id,
                  guest.Email
             );
 
