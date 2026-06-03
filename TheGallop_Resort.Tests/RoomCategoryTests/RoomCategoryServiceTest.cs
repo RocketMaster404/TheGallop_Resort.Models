@@ -76,4 +76,14 @@ public class RoomCategoryServiceTest
         var roomCategoryCount = await _ctx.RoomCategories.CountAsync();
         roomCategoryCount.Should().Be(0);
     }
+
+    [TestMethod]
+    public async Task GetRoomCategoryByIdAsync_IdDoesNotExist_ReturnsNotFound()
+    {
+        var result = await _service.GetRoomCategoryByIdAsync(9999);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
+        result.ErrorMessage.Should().Be("Room category not found");
+    }
 }
