@@ -131,4 +131,30 @@ public class RoomCategoryControllerTest
             .MustHaveHappenedOnceExactly();
         // Praying to do not mess up the main again
     }
+
+    [TestMethod]
+    public async Task GetRoomCategoryById_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        A.CallTo(() => fake.GetRoomCategoryByIdAsync(9999))
+            .Returns(ServiceResult<RoomCategory>.NotFound("Room category not found"));
+
+        // Act
+        IActionResult result = await controller.GetRoomCategoryById(9999);
+
+        // Assert
+        var notFoundResult = result.Should()
+            .BeAssignableTo<NotFoundObjectResult>()
+            .Subject;
+
+        notFoundResult.Value.Should().Be("Room category not found");
+
+        A.CallTo(() => fake.GetRoomCategoryByIdAsync(9999))
+            .MustHaveHappenedOnceExactly();
+    }
+
+   
 }
