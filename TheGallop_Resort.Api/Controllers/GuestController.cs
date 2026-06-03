@@ -37,8 +37,8 @@ namespace TheGallop_Resort.Api.Controllers
             var guest = await _guestService.GetGuestBookingHistoryAsync(guestId);
 
             if(!guest.SuccessfulResult)
-            {
-                return BadRequest(guest.ErrorMessage);
+            {              
+                return NotFound(guest.ErrorMessage);
             }
 
             return Ok(guest.Data);
@@ -50,36 +50,32 @@ namespace TheGallop_Resort.Api.Controllers
             var guest = await _guestService.GetGuestFutureBookingsAsync(guestId);
             if (!guest.SuccessfulResult)
             {
-                return BadRequest(guest.ErrorMessage);
+                return NotFound(guest.ErrorMessage);
             }
 
             return Ok(guest.Data);
         }
 
         [HttpGet]
-        public async Task<ActionResult<Guest>> GetAllGuestsInfo()
+        public async Task<ActionResult<List<GuestInfoDTO>>> GetAllGuestsInfo()
         {
             var guests = await _guestService.GetAllGuestsInfoAsync();
-
-
 
             return Ok(guests);
         }
 
-       
 
 
-        [HttpPost("/Guest")]
-        public async Task<IActionResult>AddGuest(CreateGuestDTO dto)
+
+        [HttpPost]
+        public async Task<ActionResult<Guest>> AddGuest(CreateGuestDTO dto)
         {
-
             var validation = await _createGuestValidator.ValidateAsync(dto);
 
             if (!validation.IsValid)
             {
                 return BadRequest(validation.Errors);
             }
-
 
             var guest = await _guestService.AddGuestAsync(dto);
 
@@ -88,12 +84,13 @@ namespace TheGallop_Resort.Api.Controllers
                 return BadRequest(guest.ErrorMessage);
             }
 
-            return Ok(guest.Data);
-            
-
+            return CreatedAtAction(
+                nameof(GetGuestInfoById),
+                new { guestId = guest.Data.Id },
+                guest.Data);
         }
 
-     
+
         [HttpGet("{guestId}")]
         public async Task<ActionResult<GuestInfoWithBookingDTO>> GetGuestInfoById(int guestId)
         {
@@ -101,7 +98,7 @@ namespace TheGallop_Resort.Api.Controllers
 
             if (!guest.SuccessfulResult)
             {
-                return NotFound("Guest not found");
+                return NotFound(guest.ErrorMessage);
             }
 
             return Ok(guest.Data);
@@ -144,7 +141,7 @@ namespace TheGallop_Resort.Api.Controllers
         }
 
         [HttpPost("CreateReservationAndGuest")]
-        public async Task<IActionResult> CreateGuestBooking(CreateGuestBookingDTO dto)
+        public async Task<ActionResult<GetBookingResponseDTO>> CreateGuestBooking(CreateGuestBookingDTO dto)
         {
             var validation = await _createGuestBookingValidator.ValidateAsync(dto);
 
