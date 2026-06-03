@@ -210,4 +210,8 @@ public class RoomCategoryControllerTest
         A.CallTo(() => fake.UpdateRoomCategoryAsync(9999, dto))
             .MustHaveHappenedOnceExactly();
     }
+
+    // TODO: Add test for RoomDetailId not existing when adding or updating a room category if time allows
+
+
 }

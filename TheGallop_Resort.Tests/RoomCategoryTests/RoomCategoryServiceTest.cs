@@ -56,4 +56,24 @@ public class RoomCategoryServiceTest
         roomCategoryCheck.CategoryPrice.Should().Be(dto.CategoryPrice);
         roomCategoryCheck.RoomDetailId.Should().Be(dto.RoomDetailId);
     }
+
+    [TestMethod]
+    public async Task AddRoomCategoryAsync_InvalidRoomDetailId_ReturnsValidationError()
+    {
+        var dto = new RoomCategoryDTO
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1800,
+            RoomDetailId = 9999
+        };
+
+        var result = await _service.AddRoomCategoryAsync(dto);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.ValidationError);
+        result.ErrorMessage.Should().Be("Room Detail not found");
+
+        var roomCategoryCount = await _ctx.RoomCategories.CountAsync();
+        roomCategoryCount.Should().Be(0);
+    }
 }
