@@ -180,5 +180,34 @@ public class RoomCategoryControllerTest
             .MustHaveHappenedOnceExactly();
     }
 
-    
+    [TestMethod]
+    public async Task UpdateRoomCategory_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        var dto = new RoomCategoryDTO
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1900,
+            RoomDetailId = 1
+        };
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(9999, dto))
+            .Returns(ServiceResult.NotFound("Room Category not found"));
+
+        // Act
+        IActionResult result = await controller.UpdateRoomCategory(9999, dto);
+
+        // Assert
+        var notFoundResult = result.Should()
+            .BeAssignableTo<NotFoundObjectResult>()
+            .Subject;
+
+        notFoundResult.Value.Should().Be("Room Category not found");
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(9999, dto))
+            .MustHaveHappenedOnceExactly();
+    }
 }
