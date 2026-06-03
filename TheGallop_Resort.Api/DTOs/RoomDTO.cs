@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TheGallop_Resort.Models.Models;
 
 namespace TheGallop_Resort.Api.DTOs
 {
@@ -14,4 +15,6 @@ namespace TheGallop_Resort.Api.DTOs
     public record RoomInfoDTO(int Id, int RoomNr, int RoomCategoryId);
 
     public record CreateRoomForBookingDTO (int RoomNr);
+
+    public record GetRoomResponseDTO (int Id, int RoomNr, RoomType Type);
 }
