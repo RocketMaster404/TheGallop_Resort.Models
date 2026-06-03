@@ -86,4 +86,14 @@ public class RoomCategoryServiceTest
         result.Status.Should().Be(ServiceResultStatus.NotFound);
         result.ErrorMessage.Should().Be("Room category not found");
     }
+
+    [TestMethod]
+    public async Task DeleteRoomCategoryAsync_IdDoesNotExist_ReturnsNotFound()
+    {
+        var result = await _service.DeleteRoomCategoryAsync(9999);
+
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
+        result.ErrorMessage.Should().Be("Room category not found");
+    }
 }
