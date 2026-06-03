@@ -131,4 +131,87 @@ public class RoomCategoryControllerTest
             .MustHaveHappenedOnceExactly();
         // Praying to do not mess up the main again
     }
+
+    [TestMethod]
+    public async Task GetRoomCategoryById_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        A.CallTo(() => fake.GetRoomCategoryByIdAsync(9999))
+            .Returns(ServiceResult<RoomCategory>.NotFound("Room category not found"));
+
+        // Act
+        IActionResult result = await controller.GetRoomCategoryById(9999);
+
+        // Assert
+        var notFoundResult = result.Should()
+            .BeAssignableTo<NotFoundObjectResult>()
+            .Subject;
+
+        notFoundResult.Value.Should().Be("Room category not found");
+
+        A.CallTo(() => fake.GetRoomCategoryByIdAsync(9999))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    [TestMethod]
+    public async Task DeleteRoomCategory_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        A.CallTo(() => fake.DeleteRoomCategoryAsync(9999))
+            .Returns(ServiceResult.NotFound("Room category not found"));
+
+        // Act
+        IActionResult result = await controller.DeleteRoomCategory(9999);
+
+        // Assert
+        var notFoundResult = result.Should()
+            .BeAssignableTo<NotFoundObjectResult>()
+            .Subject;
+
+        notFoundResult.Value.Should().Be("Room category not found");
+
+        A.CallTo(() => fake.DeleteRoomCategoryAsync(9999))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    [TestMethod]
+    public async Task UpdateRoomCategory_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        var dto = new RoomCategoryDTO
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1900,
+            RoomDetailId = 1
+        };
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(9999, dto))
+            .Returns(ServiceResult.NotFound("Room Category not found"));
+
+        // Act
+        IActionResult result = await controller.UpdateRoomCategory(9999, dto);
+
+        // Assert
+        var notFoundResult = result.Should()
+            .BeAssignableTo<NotFoundObjectResult>()
+            .Subject;
+
+        notFoundResult.Value.Should().Be("Room Category not found");
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(9999, dto))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    // TODO: Add test for RoomDetailId not existing when adding or updating a room category if time allows
+
+
 }
