@@ -34,7 +34,7 @@ namespace TheGallop_Resort.Api.DTOs
 
     public record CreateGuestBookingDTO(CreateGuestDTO GuestInfo, CreateGuestRoomReservationDTO Reservation);
 
-    public record CreateGuestRoomReservationDTO( DateTime CheckIn, DateTime CheckOut, int Adults, int Children, RoomType Type);
+    public record CreateGuestRoomReservationDTO( DateOnly CheckIn, DateOnly CheckOut, int Adults, int Children, RoomType Type);
 
     public record BookingConfirmationDTO(int BookingId,int guestId, string GuestMail);
 
