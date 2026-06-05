@@ -148,14 +148,20 @@ namespace TheGallop_Resort.Api.Services
 
             var roomCatoegory = await _ctx.RoomCategories.FirstOrDefaultAsync(c => c.Id == room.RoomCategoryId);
 
-            int nights = (int)(checkOut - checkIn).TotalDays;
+            var fullBooking = await _ctx.Bookings.FirstOrDefaultAsync(b => b.Id == booking.Id);
+            decimal totalBookingPrice = 0;
 
-            var categoryPrice = roomCatoegory.CategoryPrice;
-            var pricePerNight = roomReservation.PricePerNight;
+            foreach (var reservation in fullBooking.RoomReservations)
+            {
+                int nights = (int)(checkOut - checkIn).TotalDays;
 
-            var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
+                var categoryPrice = roomCatoegory.CategoryPrice;
+                var pricePerNight = roomReservation.PricePerNight;
 
-            booking.TotalPrice = calculatedTotalPrice;
+                totalBookingPrice += (nights * pricePerNight) + categoryPrice;
+            }
+
+            booking.TotalPrice = totalBookingPrice;
             await _ctx.SaveChangesAsync();
 
             var response = new GetFullBookingResponsDTO
@@ -163,7 +169,7 @@ namespace TheGallop_Resort.Api.Services
                 Id = booking.Id,
                 CreatedAt = booking.CreatedAt,
                 Status = booking.Status,
-                TotalPrice = calculatedTotalPrice,
+                TotalPrice = booking.TotalPrice,
                 GuestId = booking.GuestId,
 
                 RoomReservations = booking.RoomReservations.Select(r => new GetFullRoomReservationResponse
@@ -350,8 +356,9 @@ namespace TheGallop_Resort.Api.Services
             if (booking is null)
             {
                 return ServiceResult.NotFound("No bookings were found.");
-            };
-            
+            }
+            ;
+
             _ctx.Bookings.Remove(booking);
 
             await _ctx.SaveChangesAsync();

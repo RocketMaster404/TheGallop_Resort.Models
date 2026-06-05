@@ -65,14 +65,28 @@ namespace TheGallop_Resort.Api.Services
                 Children = roomReservationDTO.Children
             };
 
-            var categoryPrice = roomCatoegory.CategoryPrice;
-            var pricePerNight = roomReservation.PricePerNight;
-
-            var calculatedTotalPrice = (nights * pricePerNight) + categoryPrice;
-
-            booking.TotalPrice += calculatedTotalPrice;
-
             _ctx.RoomReservations.Add(roomReservation);
+            await _ctx.SaveChangesAsync();
+
+
+            var AllReservations = await _ctx.RoomReservations
+                .Where(rr => rr.BookingId == booking.Id)
+                .Select(rr => new
+                {
+                Nights = (int)(rr.CheckOut - rr.CheckIn).TotalDays,
+                PricePerNight = rr.PricePerNight,
+                CategoryPrice = rr.Room.RoomCategory.CategoryPrice
+                })
+                .ToListAsync();
+
+
+            decimal totalBookingPrice = 0;
+            foreach (var reservation in AllReservations)
+            {
+                totalBookingPrice += (int)(reservation.Nights * reservation.PricePerNight) + reservation.CategoryPrice;
+            }
+
+            booking.TotalPrice = totalBookingPrice;
 
             _ctx.Bookings.Update(booking);
 
@@ -83,7 +97,7 @@ namespace TheGallop_Resort.Api.Services
                 Id = booking.Id,
                 CreatedAt = booking.CreatedAt,
                 Status = booking.Status,
-                TotalPrice = calculatedTotalPrice,
+                TotalPrice = booking.TotalPrice,
                 GuestId = booking.GuestId,
 
                 RoomReservations = booking.RoomReservations.Select(r => new GetFullRoomReservationResponse
