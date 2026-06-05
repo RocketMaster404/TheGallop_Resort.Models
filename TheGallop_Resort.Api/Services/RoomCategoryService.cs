@@ -19,7 +19,7 @@ namespace TheGallop_Resort.Api.Services
                 .AnyAsync(rd => rd.Id == dto.RoomDetailId);
             if (!roomDetailExists)
             {
-                return ServiceResult<RoomCategory>.ValidationError("Room Detail not found");
+                return ServiceResult<RoomCategory>.ValidationError("Room detail not found");
             }
 
             var roomCategory = new RoomCategory
@@ -76,7 +76,7 @@ namespace TheGallop_Resort.Api.Services
 
             if (roomCategory == null)
             {
-                return ServiceResult.NotFound("Room Category not found");
+                return ServiceResult.NotFound("Room category not found");
             }
 
             var roomDetailExists = await _ctx.RoomDetails
@@ -84,7 +84,7 @@ namespace TheGallop_Resort.Api.Services
 
             if (!roomDetailExists)
             {
-                return ServiceResult.ValidationError("Room Detail not found");
+                return ServiceResult.ValidationError("Room detail not found");
             }
 
             roomCategory.Type = dto.Type;
