@@ -1,5 +1,8 @@
-﻿using FluentAssertions;
+﻿using FakeItEasy;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TheGallop_Resort.Api.Controllers;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
@@ -81,14 +84,14 @@ public class RoomCategoryServiceTest
     public async Task UpdateRoomCategoryAsync_IdDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var dto = new RoomCategoryDTO 
+        var dto = new RoomCategoryDTO
         {
             Type = RoomType.DoubleBed,
             CategoryPrice = 1900,
             RoomDetailId = 1
         };
 
-        var nonExistingId = 9999;
+        var nonExistingId = 999;
 
         // Act
         var result = await _service.UpdateRoomCategoryAsync(nonExistingId, dto);
@@ -100,6 +103,39 @@ public class RoomCategoryServiceTest
 
         var count = await _ctx.RoomCategories.CountAsync();
         count.Should().Be(0);
+    }
+
+    [TestMethod]
+    public async Task UpdateRoomCategory_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var fake = A.Fake<IRoomCategoryService>();
+        var controller = new RoomCategoryController(fake);
+
+        var dto = new RoomCategoryDTO
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1900,
+            RoomDetailId = 1
+        };
+
+        var id = 999;
+
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(id, dto))
+            .Returns(Task.FromResult(ServiceResult.NotFound("Room Category not found")));
+
+        // Act
+        var result = await controller.UpdateRoomCategory(id, dto);
+
+        // Assert
+        var notFoundResult = result
+            .Should()
+            .BeAssignableTo<NotFoundObjectResult>()
+            .Subject;
+
+        notFoundResult.Value
+            .Should()
+            .Be("Room Category not found"); 
     }
 
     [TestMethod]
