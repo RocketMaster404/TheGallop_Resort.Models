@@ -49,7 +49,7 @@ namespace TheGallop_Resort.Api.Services
                                     rr.RoomStatus,
                                     rr.Adults,
                                     rr.Children,
-                                    rr.PricePerNight
+                                    rr.PricePerNight + rr.Room.RoomCategory.CategoryPrice
                                 ))
                                 .ToList()
                         ))
@@ -104,7 +104,7 @@ namespace TheGallop_Resort.Api.Services
                                     rr.RoomStatus,
                                     rr.Adults,
                                     rr.Children,
-                                    rr.PricePerNight
+                                    rr.PricePerNight + rr.Room.RoomCategory.CategoryPrice
                                 ))
                                 .ToList()
                         ))
@@ -311,13 +311,27 @@ namespace TheGallop_Resort.Api.Services
                 CheckIn = startDate,
                 CheckOut = endDate,
                 RoomId = room.Id,
-                RoomStatus = RoomStatus.Confirmed              
+                RoomStatus = RoomStatus.Confirmed,
+                PricePerNight = room.RoomCategory.CategoryPrice,
+
             };
+
+           
+
+            int nights = (int)(endDate - startDate).TotalDays;
+
+            decimal totalPrice =
+                (nights * reservation.PricePerNight)
+                + room.RoomCategory.CategoryPrice;
+
+            booking.TotalPrice = nights * reservation.PricePerNight;
 
             booking.RoomReservations.Add(reservation);
             _ctx.Bookings.Add(booking);
 
             await _ctx.SaveChangesAsync();
+
+            
 
             var confirmation = new BookingConfirmationDTO
             (
