@@ -16,7 +16,7 @@ namespace TheGallop_Resort.Api.DTOs.Validators
                 .WithMessage("Check-out date must be after the check-in date.");
 
             RuleFor(x => x.Reservation.CheckIn)
-                    .GreaterThanOrEqualTo(DateTime.Today)
+                    .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.Now))
                     .WithMessage("Check-in date can not be in the past.");
 
             RuleFor(x => x.Reservation.Adults)

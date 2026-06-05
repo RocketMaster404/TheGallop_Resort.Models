@@ -262,6 +262,9 @@ namespace TheGallop_Resort.Api.Services
         {
 
             var emailCheck = await _ctx.Guests.AnyAsync(g => g.Email == dto.GuestInfo.Email);
+            var startDate = dto.Reservation.CheckIn.ToDateTime(TimeOnly.MinValue);
+            var endDate = dto.Reservation.CheckOut.ToDateTime(TimeOnly.MinValue);
+
 
             if (emailCheck)
             {
@@ -290,8 +293,8 @@ namespace TheGallop_Resort.Api.Services
                 r.RoomCategory.Type == dto.Reservation.Type
                 &&
                 !r.RoomReservations.Any(rr =>
-                dto.Reservation.CheckIn < rr.CheckOut &&
-                dto.Reservation.CheckOut > rr.CheckIn
+                startDate < rr.CheckOut &&
+                endDate > rr.CheckIn
                 )
                 );
 
@@ -305,8 +308,8 @@ namespace TheGallop_Resort.Api.Services
                 Booking = booking,
                 Adults = dto.Reservation.Adults,
                 Children = dto.Reservation.Children,
-                CheckIn = dto.Reservation.CheckIn,
-                CheckOut = dto.Reservation.CheckOut,
+                CheckIn = startDate,
+                CheckOut = endDate,
                 RoomId = room.Id,
                 RoomStatus = RoomStatus.Confirmed              
             };
@@ -319,6 +322,7 @@ namespace TheGallop_Resort.Api.Services
             var confirmation = new BookingConfirmationDTO
             (
                  booking.Id,
+                 guest.Id,
                  guest.Email
             );
 
