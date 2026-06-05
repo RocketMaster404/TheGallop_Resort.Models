@@ -200,7 +200,7 @@ public class RoomCategoryControllerTest
             .Returns(Task.FromResult(ServiceResult.NotFound("Room Category not found")));
 
         // Act
-        var result = await controller.UpdateRoomCategory(id, dto);
+        IActionResult result = await controller.UpdateRoomCategory(id, dto);
 
         // Assert
         var notFoundResult = result
@@ -212,8 +212,8 @@ public class RoomCategoryControllerTest
             .Should()
             .Be("Room Category not found");
 
-        //A.CallTo(() => fake.UpdateRoomCategoryAsync(9999, dto))
-        //    .MustHaveHappenedOnceExactly();
+        A.CallTo(() => fake.UpdateRoomCategoryAsync(id, dto))
+            .MustHaveHappenedOnceExactly();
     }
 
 }
