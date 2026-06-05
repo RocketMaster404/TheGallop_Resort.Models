@@ -435,7 +435,7 @@ namespace TheGallop_Resort.Tests.BookingTests
             await _ctx.Bookings.AddAsync(booking);
             await _ctx.SaveChangesAsync();
 
-            var searchDate = new DateOnly(2026, 08, 12);
+            var searchDate = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).AddMonths(2).AddDays(9);
 
             var result = await _bookingService.GetBookingsForSpecifikDateAsync(searchDate);
 
