@@ -1,8 +1,6 @@
-﻿using FakeItEasy;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using TheGallop_Resort.Api.Controllers;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TheGallop_Resort.Api.Data;
 using TheGallop_Resort.Api.DTOs;
 using TheGallop_Resort.Api.Services;
@@ -13,8 +11,8 @@ namespace TheGallop_Resort.Tests;
 [TestClass]
 public class RoomCategoryServiceTest
 {
-    private GaloppDbContext _ctx;
-    private RoomCategoryService _service;
+    private GaloppDbContext _ctx = null!;
+    private RoomCategoryService _service = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -28,7 +26,7 @@ public class RoomCategoryServiceTest
     }
 
     [TestMethod]
-    public async Task AddRoomCategoryAsync_AddValidRoomCategory_ReturnOne()
+    public async Task AddRoomCategoryAsync_ValidData_AddsRoomCategory()
     {
         var roomDetail = new RoomDetail
         {
@@ -49,6 +47,7 @@ public class RoomCategoryServiceTest
         };
 
         var result = await _service.AddRoomCategoryAsync(dto);
+
         result.SuccessfulResult.Should().BeTrue();
 
         var roomCategoryCount = await _ctx.RoomCategories.CountAsync();
@@ -74,16 +73,56 @@ public class RoomCategoryServiceTest
 
         result.SuccessfulResult.Should().BeFalse();
         result.Status.Should().Be(ServiceResultStatus.ValidationError);
-        result.ErrorMessage.Should().Be("Room Detail not found");
+        result.ErrorMessage.Should().Be("Room detail not found");
 
         var roomCategoryCount = await _ctx.RoomCategories.CountAsync();
         roomCategoryCount.Should().Be(0);
     }
 
     [TestMethod]
+    public async Task UpdateRoomCategoryAsync_ValidData_UpdatesRoomCategory()
+    {
+        var roomDetail = new RoomDetail
+        {
+            Id = 1,
+            Beds = 2,
+            MaxAdults = 2,
+            MaxChildren = 1
+        };
+
+        var existingRoomCategory = new RoomCategory
+        {
+            Id = 1,
+            Type = RoomType.SingleBed,
+            CategoryPrice = 1500,
+            RoomDetailId = 1
+        };
+
+        await _ctx.RoomDetails.AddAsync(roomDetail);
+        await _ctx.RoomCategories.AddAsync(existingRoomCategory);
+        await _ctx.SaveChangesAsync();
+
+        var dto = new RoomCategoryDTO
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1900,
+            RoomDetailId = 1
+        };
+
+        var result = await _service.UpdateRoomCategoryAsync(existingRoomCategory.Id, dto);
+
+        result.SuccessfulResult.Should().BeTrue();
+
+        var updatedRoomCategory = await _ctx.RoomCategories.FindAsync(existingRoomCategory.Id);
+        updatedRoomCategory.Should().NotBeNull();
+        updatedRoomCategory!.Type.Should().Be(dto.Type);
+        updatedRoomCategory.CategoryPrice.Should().Be(dto.CategoryPrice);
+        updatedRoomCategory.RoomDetailId.Should().Be(dto.RoomDetailId);
+    }
+
+    [TestMethod]
     public async Task UpdateRoomCategoryAsync_IdDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var dto = new RoomCategoryDTO
         {
             Type = RoomType.DoubleBed,
@@ -93,49 +132,48 @@ public class RoomCategoryServiceTest
 
         var nonExistingId = 999;
 
-        // Act
         var result = await _service.UpdateRoomCategoryAsync(nonExistingId, dto);
 
-        // Assert 
         result.SuccessfulResult.Should().BeFalse();
         result.Status.Should().Be(ServiceResultStatus.NotFound);
-        result.ErrorMessage.Should().Be("Room Category not found");
+        result.ErrorMessage.Should().Be("Room category not found");
 
         var count = await _ctx.RoomCategories.CountAsync();
         count.Should().Be(0);
     }
 
     [TestMethod]
-    public async Task UpdateRoomCategory_IdDoesNotExist_ReturnsNotFound()
+    public async Task UpdateRoomCategoryAsync_InvalidRoomDetailId_ReturnsValidationError()
     {
-        // Arrange
-        var fake = A.Fake<IRoomCategoryService>();
-        var controller = new RoomCategoryController(fake);
+        var existingRoomCategory = new RoomCategory
+        {
+            Id = 1,
+            Type = RoomType.SingleBed,
+            CategoryPrice = 1500,
+            RoomDetailId = 1
+        };
+
+        await _ctx.RoomCategories.AddAsync(existingRoomCategory);
+        await _ctx.SaveChangesAsync();
 
         var dto = new RoomCategoryDTO
         {
             Type = RoomType.DoubleBed,
             CategoryPrice = 1900,
-            RoomDetailId = 1
+            RoomDetailId = 9999
         };
 
-        var id = 999;
+        var result = await _service.UpdateRoomCategoryAsync(existingRoomCategory.Id, dto);
 
-        A.CallTo(() => fake.UpdateRoomCategoryAsync(id, dto))
-            .Returns(Task.FromResult(ServiceResult.NotFound("Room Category not found")));
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.ValidationError);
+        result.ErrorMessage.Should().Be("Room detail not found");
 
-        // Act
-        var result = await controller.UpdateRoomCategory(id, dto);
-
-        // Assert
-        var notFoundResult = result
-            .Should()
-            .BeAssignableTo<NotFoundObjectResult>()
-            .Subject;
-
-        notFoundResult.Value
-            .Should()
-            .Be("Room Category not found"); 
+        var unchangedRoomCategory = await _ctx.RoomCategories.FindAsync(existingRoomCategory.Id);
+        unchangedRoomCategory.Should().NotBeNull();
+        unchangedRoomCategory!.Type.Should().Be(RoomType.SingleBed);
+        unchangedRoomCategory.CategoryPrice.Should().Be(1500);
+        unchangedRoomCategory.RoomDetailId.Should().Be(1);
     }
 
     [TestMethod]
