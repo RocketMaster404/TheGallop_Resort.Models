@@ -74,8 +74,8 @@ namespace TheGallop_Resort.Api.Services
                 .Select(rr => new
                 {
                 Nights = (int)(rr.CheckOut - rr.CheckIn).TotalDays,
-                PricePerNight = rr.PricePerNight,
-                CategoryPrice = rr.Room.RoomCategory.CategoryPrice
+                PricePerNight = rr.PricePerNight + rr.Room.RoomCategory.CategoryPrice,
+                //CategoryPrice = rr.Room.RoomCategory.CategoryPrice
                 })
                 .ToListAsync();
 
@@ -83,7 +83,7 @@ namespace TheGallop_Resort.Api.Services
             decimal totalBookingPrice = 0;
             foreach (var reservation in AllReservations)
             {
-                totalBookingPrice += (int)(reservation.Nights * reservation.PricePerNight) + reservation.CategoryPrice;
+                totalBookingPrice += (int)(reservation.Nights * reservation.PricePerNight);
             }
 
             booking.TotalPrice = totalBookingPrice;
