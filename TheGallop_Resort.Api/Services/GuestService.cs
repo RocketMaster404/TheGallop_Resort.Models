@@ -322,9 +322,11 @@ namespace TheGallop_Resort.Api.Services
 
 
 
-            booking.TotalPrice =
-                  (nights * reservation.PricePerNight)
-                 + room.RoomCategory.CategoryPrice;
+            booking.TotalPrice = booking.TotalPrice =
+     nights * (reservation.PricePerNight + room.RoomCategory.CategoryPrice);
+
+
+
 
             booking.RoomReservations.Add(reservation);
             _ctx.Bookings.Add(booking);
