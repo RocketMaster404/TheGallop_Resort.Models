@@ -78,6 +78,31 @@ public class RoomCategoryServiceTest
     }
 
     [TestMethod]
+    public async Task UpdateRoomCategoryAsync_IdDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var dto = new RoomCategoryDTO 
+        {
+            Type = RoomType.DoubleBed,
+            CategoryPrice = 1900,
+            RoomDetailId = 1
+        };
+
+        var nonExistingId = 9999;
+
+        // Act
+        var result = await _service.UpdateRoomCategoryAsync(nonExistingId, dto);
+
+        // Assert 
+        result.SuccessfulResult.Should().BeFalse();
+        result.Status.Should().Be(ServiceResultStatus.NotFound);
+        result.ErrorMessage.Should().Be("Room Category not found");
+
+        var count = await _ctx.RoomCategories.CountAsync();
+        count.Should().Be(0);
+    }
+
+    [TestMethod]
     public async Task GetRoomCategoryByIdAsync_IdDoesNotExist_ReturnsNotFound()
     {
         var result = await _service.GetRoomCategoryByIdAsync(9999);
