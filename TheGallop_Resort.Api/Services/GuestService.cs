@@ -257,7 +257,7 @@ namespace TheGallop_Resort.Api.Services
 
         }
 
-        
+
         public async Task<ServiceResult<BookingConfirmationDTO>> CreateGuestBookingAsync(CreateGuestBookingDTO dto)
         {
 
@@ -283,20 +283,20 @@ namespace TheGallop_Resort.Api.Services
             {
                 Guest = guest,
                 CreatedAt = DateTime.UtcNow,
-                Status = Status.Confirmed   
+                Status = Status.Confirmed
             };
 
-                var room = await _ctx.Rooms
-                .Include(r => r.RoomCategory)
-                .Include(r => r.RoomReservations)
-                .FirstOrDefaultAsync(r =>
-                r.RoomCategory.Type == dto.Reservation.Type
-                &&
-                !r.RoomReservations.Any(rr =>
-                startDate < rr.CheckOut &&
-                endDate > rr.CheckIn
-                )
-                );
+            var room = await _ctx.Rooms
+            .Include(r => r.RoomCategory)
+            .Include(r => r.RoomReservations)
+            .FirstOrDefaultAsync(r =>
+            r.RoomCategory.Type == dto.Reservation.Type
+            &&
+            !r.RoomReservations.Any(rr =>
+            startDate < rr.CheckOut &&
+            endDate > rr.CheckIn
+            )
+            );
 
             if (room == null)
             {
@@ -312,32 +312,34 @@ namespace TheGallop_Resort.Api.Services
                 CheckOut = endDate,
                 RoomId = room.Id,
                 RoomStatus = RoomStatus.Confirmed,
-                PricePerNight = room.RoomCategory.CategoryPrice,
+
 
             };
 
-           
+
 
             int nights = (int)(endDate - startDate).TotalDays;
 
-            decimal totalPrice =
-                (nights * reservation.PricePerNight)
-                + room.RoomCategory.CategoryPrice;
 
-            booking.TotalPrice = nights * reservation.PricePerNight;
+
+            booking.TotalPrice =
+                  (nights * reservation.PricePerNight)
+                 + room.RoomCategory.CategoryPrice;
 
             booking.RoomReservations.Add(reservation);
             _ctx.Bookings.Add(booking);
 
             await _ctx.SaveChangesAsync();
 
-            
+
 
             var confirmation = new BookingConfirmationDTO
             (
                  booking.Id,
                  guest.Id,
-                 guest.Email
+                 guest.Email,
+                 booking.TotalPrice
+
             );
 
             return ServiceResult<BookingConfirmationDTO>.Ok(confirmation);
