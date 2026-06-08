@@ -328,6 +328,7 @@ public class BookingControllerTest
     [TestMethod]
     public async Task GetBookingsBetweenDates_InvalidDate_ShouldReturnBadRequest()
     {
+        //Arrange
         var controller = new BookingController(_fakeBookingService, _updateStatusValidator, _updateGuestValidator, _getInputFromUserCreateDTO, _searchBookingBetweenDateDTO);
         var invalidDTO = new SearchBookingBetweenDateDTO(new DateOnly(2026, 09, 29), new DateOnly(2026, 09, 20));
 
@@ -337,8 +338,10 @@ public class BookingControllerTest
         A.CallTo(() => _searchBookingBetweenDateDTO.ValidateAsync(invalidDTO, default))
              .Returns(failedResult);
 
+        //Act
         var result = await controller.GetBookingsBetweenDates(invalidDTO);
 
+        //Assert
         result.Result.Should().BeAssignableTo<BadRequestObjectResult>();
 
         A.CallTo(() => _fakeBookingService.GetBookingsBetweenDatesAsync(invalidDTO))
